@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -20,8 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.R
+import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
 import com.today.nail.service.ui.theme.MainPurple
 import com.today.nail.service.ui.util.component.ApplicationLogo
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun SplashView(
@@ -30,6 +33,16 @@ fun SplashView(
     navHostController: NavHostController
 ) {
     SplashScreen()
+
+    LaunchedEffect(Unit) {
+        viewModel.canMoveToOnBoard.collectLatest { value ->
+            if(value) {
+                navHostController.navigate(OnBoardingRoutes.Start.routes) {
+                    popUpTo(TopLevelNavigationRoutes.SplashGraph.routes)
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -47,6 +60,6 @@ private fun SplashScreen() {
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewSplash() {
+private fun PreviewScreen() {
     SplashScreen()
 }
