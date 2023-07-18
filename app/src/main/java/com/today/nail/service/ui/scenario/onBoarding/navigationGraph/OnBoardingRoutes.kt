@@ -4,31 +4,34 @@ import android.net.Uri
 import com.google.gson.Gson
 
 sealed class OnBoardingRoutes(val routes: String) {
-    object MainGraph : OnBoardingRoutes("main")
+    //시작
+    object Start : OnBoardingRoutes("start")
 
-    object MenuGraph : OnBoardingRoutes("menu_graph?authorizeStatus={authorizeStatus}") {
-        private const val AUTHORIZE_STATUS = "authorizeStatus"
+    //로그인
+    object SignIn : OnBoardingRoutes("sign_in") {
+        /**
+         * 아래 방식은 나중에 우리가 navigation graph 를 통해서 값을 넘겨줄때 사용할 겁니다. 주로 TopLevelViewModel 에 상태를 저장해서 진행하겠지만
+         * 간단한 param 들은 넘겨서 사용해도 무방합니다.
+         * 그럴때를 위해 간단한 몇가지 값들을 넘겨주기 위한 설계입니다.
+         */
 
-        fun createRoute(
-            authorizeStatus: String
-        ): String {
-            return routes.replace("{$AUTHORIZE_STATUS}", authorizeStatus)
-        }
+//        private const val AUTHORIZE_STATUS = "authorizeStatus"
+//        fun createRoute(
+//            authorizeStatus: String
+//        ): String {
+//            return routes.replace("{$AUTHORIZE_STATUS}", authorizeStatus)
+//        }
     }
 
-    // 전화로 호출 Graph
-    object CenterCallGraph : OnBoardingRoutes("center_call_graph?callCenterList={callCenterList}") {
-        private const val CALL_CENTER_LIST = "callCenterList"
+    // 회원가입
+    object Register : OnBoardingRoutes("register")
 
-        fun createRoute(
-            callCenterList: List<String>?
-        ): String {
-            return routes.replace("{$CALL_CENTER_LIST}", Gson().toJson(callCenterList))
-        }
-    }
+    // 휴대폰 인증
+    object PhoneVerify : OnBoardingRoutes("phone_verify")
 
-    // 로그인 Graph
-    object LoginGraph : OnBoardingRoutes("login_graph")
-    // 예약 내역 graph
-    object SettingGraph : OnBoardingRoutes("setting_graph")
+    // 선호 스타일 선택
+    object FavoriteStyle : OnBoardingRoutes("favorite_style")
+
+    // 선호 스타일 결과
+    object FavoriteStyleResult : OnBoardingRoutes("favorite_style_result")
 }
