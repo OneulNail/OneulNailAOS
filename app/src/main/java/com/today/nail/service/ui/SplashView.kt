@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.R
 import com.today.nail.service.ui.theme.MainPurple
+import com.today.nail.service.ui.util.component.ApplicationLogo
 
 @Composable
 fun SplashView(
@@ -28,7 +29,7 @@ fun SplashView(
     viewModel : SplashViewModel = hiltViewModel(),
     navHostController: NavHostController
 ) {
-
+    SplashScreen()
 }
 
 @Composable
@@ -38,28 +39,9 @@ private fun SplashScreen() {
             .background(MainPurple)
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentHeight()
-                .wrapContentWidth()
-                .align(Alignment.Center)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "application logo",
-                modifier = Modifier
-                    .padding(bottom = 11.dp)
-                    .width(137.dp)
-                    .height(138.dp)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.app_logo_text),
-                contentDescription = "application logo text",
-                modifier = Modifier
-                    .width(137.dp)
-                    .height(49.dp)
-            )
-        }
+       ApplicationLogo(
+           modifier = Modifier.align(Alignment.Center)
+       )
     }
 }
 
