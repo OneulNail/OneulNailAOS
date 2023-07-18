@@ -33,6 +33,11 @@ fun TopLevelNavHost(
             route = TopLevelNavigationRoutes.MainGraph.routes
         ) {
         }
+
+        composable(
+            route = TopLevelNavigationRoutes.HomeGraph.routes
+        ) {
+        }
     }
 
 }
