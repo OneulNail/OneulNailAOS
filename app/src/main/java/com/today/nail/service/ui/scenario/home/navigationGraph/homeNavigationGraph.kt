@@ -26,15 +26,21 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             route = "FirstScreen",
         ) {
-            composable(route = "FirstScreen",) {
-                FirstScreen(navController = navHostController)
-            }
-            composable("BannerScreen") {
-                BannerScreen(navController = navHostController)
-            }
-            composable("CategoryItemScreen") {
-                CategoryItemScreen(navController = navHostController)
-            }
+            FirstScreen(navController = navHostController)
+        }
+
+        fadeComposable(
+            duration = fadeDuration,
+            route = "BannerScreen",
+        ) {
+            BannerScreen(navController = navHostController)
+        }
+
+        fadeComposable(
+            duration = fadeDuration,
+            route = "CategoryItemScreen",
+        ) {
+            CategoryItemScreen(navController = navHostController)
         }
     }
 }
