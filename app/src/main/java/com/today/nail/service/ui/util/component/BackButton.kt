@@ -21,9 +21,10 @@ import com.today.nail.service.ui.util.noRippleClickable
 
 @Composable
 fun BackButtonWithSlogan(
+    modifier : Modifier = Modifier,
     onClick :() -> Unit
 ) {
-    Column(modifier = Modifier.wrapContentSize()) {
+    Column(modifier = modifier.wrapContentSize()) {
         Box(modifier = Modifier
             .wrapContentSize()
             .padding(bottom = 6.dp)
@@ -52,7 +53,6 @@ fun BackButtonWithSlogan(
             painter = painterResource(id = R.drawable.app_logo_text),
             contentDescription = "app logo text",
             modifier = defaultModifier
-                .padding(bottom = 43.dp)
                 .width(87.dp)
                 .height(31.dp)
         )

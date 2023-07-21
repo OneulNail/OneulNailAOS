@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,18 +21,20 @@ import com.today.nail.service.ui.util.noRippleClickable
 
 @Composable
 fun StateButton(
+    modifier: Modifier = Modifier,
     title : String,
     enable : Boolean,
     onClickButton : () -> Unit
 ) {
     Box(
-       modifier = Modifier
+       modifier = modifier
            .background(
                if (enable) {
                    Color7A00C5
                } else {
                    ColorA4A4A4
-               }
+               },
+               shape = RoundedCornerShape(10.dp)
            )
            .fillMaxWidth()
            .height(45.dp)
@@ -58,12 +61,14 @@ private fun PreviewComponent() {
     Column {
         StateButton(
             title  = "테스트 버튼",
-            enable = true) {
+            enable = true
+        ) {
 
         }
         StateButton(
             title = "테스트 버튼",
-            enable = false) {
+            enable = false
+        ) {
 
         }
     }
