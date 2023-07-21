@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -108,7 +109,7 @@ class homeViewModel: ViewModel() {
             modifier = modifier
                 .height(150.dp)
                 .fillMaxWidth()
-                .padding(vertical = 30.dp)
+
         ) {
             items(16) { item ->
                 Text(text = item.toString(),
@@ -118,11 +119,70 @@ class homeViewModel: ViewModel() {
                                 clicked()
                             }
                         }
-                        .size(100.dp)
+                        .size(50.dp)
                         .background(Color.LightGray))
             }
         }
     }
+    //네일 필터
+    @Composable
+    fun ItemFilterGrid(
+        modifier: Modifier = Modifier,
+        clicked: () -> Unit
+    ) {
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(vertical = 8.dp)
+        ) {
+            items(4) { item ->
+                Text(text = item.toString(),
+                    modifier= Modifier
+                        .clickable {}
+                        .size(50.dp)
+                        .background(Color.LightGray))
+            }
+        }
+    }
+    //네일 아이템
+    @Composable
+    fun NailItemGrid(
+        modifier: Modifier = Modifier,
+        clicked: () -> Unit
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(vertical = 30.dp)
+        ) {
+            items(count = 16) { item ->
+                if (item % 4 < 2) {
+                    Text(text = "Image",
+                        modifier= Modifier
+                            .clickable {}
+                            .size(150.dp)
+                            .background(Color.LightGray))
+                }
+                else{
+                    Text(text = "Text",
+                        modifier= Modifier
+                            .clickable {}
+                            .size(150.dp)
+                            .background(Color.LightGray))
+                }
+
+            }
+        }
+    }
+
 
 }
 

@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -104,56 +106,60 @@ fun BannerScreen(navController: NavController) {
 }
 
 @Composable
-fun CategoryItemScreen(navController: NavController) {
+fun CategoryItemScreen(navController: NavController, homeViewModel: homeViewModel=viewModel()) {
     Column {
-        Button(onClick = {navController.navigate("FirstScreen")}) {
-            Text(text = "뒤로가기")
-        }
-        Row {
-            Text(text = "네일")
-            //검색
-            Button(onClick = { /*TODO*/ }) {
-
-            }
-            //달력
-            Button(onClick = { /*TODO*/ }) {
-
-            }
-            //장바구니?
-            Button(onClick = { /*TODO*/ }) {
-
-            }
-        }
-        Divider(
+        CategoryItemScreenTop(clicked = {
+            //your onclick code here
+            navController.navigate("FirstScreen")
+        })
+        androidx.compose.material.Divider(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp),
             color = Color.LightGray,
         )
         //스타일 카테고리
-        Row {
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "전체")
-            }
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "스타일")
-            }
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "스타일")
-            }
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "스타일")
+        Box(modifier = Modifier
+            .fillMaxWidth(1f)
+            .padding(horizontal = 11.dp)
+            .height(40.dp)){
+            Row {
+                IconButton(onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(8.dp)
+                ) {
+                }
+                IconButton(onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(8.dp)
+                ) {
+
+                }
+                androidx.compose.material.Divider(
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .fillMaxHeight()  //fill the max height
+                        .width(1.dp)
+                        .padding(vertical = 8.dp)
+                )
+                Button(onClick = { /*TODO*/ }) {
+                    androidx.compose.material.Text(text = "인기순")
+                }
+                homeViewModel.ItemFilterGrid(clicked = {})
             }
         }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "인기순")
-        }
-        //네일 사진
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "네일 사진")
-        }
+        androidx.compose.material.Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp),
+            color = Color.LightGray,
+        )
+        homeViewModel.NailItemGrid(clicked = {})
     }
 }
+
 @Composable
 fun HomeScreenTop(modifier: Modifier = Modifier) {
     //상단 구성
@@ -208,6 +214,80 @@ fun HomeScreenTop(modifier: Modifier = Modifier) {
                 modifier = modifier
                     .size(24.dp)
                     .padding(3.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ShoppingBag,
+                    contentDescription = null,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryItemScreenTop(modifier: Modifier = Modifier, clicked: () -> Unit) {
+    //상단 구성
+    Box(modifier = Modifier
+        .height(80.dp)
+        .fillMaxWidth(1f)) {
+        Row(modifier= Modifier
+            .align(alignment = Alignment.CenterStart)
+            .offset(x = 5.dp)
+            .fillMaxWidth(0.3f))
+        {
+            IconButton(
+                onClick = {clicked()},
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(end = 15.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBackIos,
+                    contentDescription = null,
+                )
+            }
+            //상단 텍스트
+            androidx.compose.material.Text(
+                text = "네일",
+                modifier = Modifier.size(60.dp)
+            )
+        }
+        Row(modifier= Modifier
+            .align(Alignment.BottomEnd)
+            .padding(end = 15.dp)
+
+        ){
+            //상단 우측 버튼1
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = modifier
+                    .size(34.dp)
+                    .padding(5.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = null,
+                )
+            }
+            //상단 우측 버튼2
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = modifier
+                    .size(34.dp)
+                    .padding(5.dp)
+
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CalendarMonth,
+                    contentDescription = null,
+                )
+            }
+            //상단 우측 버튼3
+            IconButton(
+                onClick = { /*TODO*/ },
+                modifier = modifier
+                    .size(34.dp)
+                    .padding(5.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.ShoppingBag,
