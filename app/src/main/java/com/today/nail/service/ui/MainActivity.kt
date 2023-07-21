@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.today.nail.service.ui.theme.MyApplicationTheme
+import com.today.nail.service.ui.util.ToastHelper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -25,6 +26,8 @@ class MainActivity : ComponentActivity() {
     private val viewModel : TopLevelViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ToastHelper.initContext(this)
+
         setContent {
             MyApplicationTheme {
                 // A surface container using the 'background' color from the theme
@@ -40,6 +43,11 @@ class MainActivity : ComponentActivity() {
                }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ToastHelper.disposeContext()
     }
 }
 

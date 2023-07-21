@@ -11,6 +11,9 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 // OnuelNail Theme
-val MainPurple = Color(0xFFF1E4F9)
-val Gray696969 = Color(0xFF696969)
-val Purple7A00C5 = Color(0xFF7A00C5)
+val ColorMainF1E4F9 = Color(0xFFF1E4F9)
+val Color696969 = Color(0xFF696969)
+val ColorA4A4A4 = Color(0xFFA4A4A4)
+val Color7A00C5 = Color(0xFF7A00C5)
+val ColorBEA3EA = Color(0xFFBEA3EA)
+val ColorF1E4F9 = Color(0xFFF1E4F9)

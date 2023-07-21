@@ -21,8 +21,8 @@ import androidx.navigation.NavHostController
 import com.today.nail.service.R
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
-import com.today.nail.service.ui.theme.Gray696969
-import com.today.nail.service.ui.theme.MainPurple
+import com.today.nail.service.ui.theme.Color696969
+import com.today.nail.service.ui.theme.ColorMainF1E4F9
 import com.today.nail.service.ui.util.component.ApplicationLogo
 import com.today.nail.service.ui.util.component.CommonButton
 import com.today.nail.service.ui.util.dpToSp
@@ -46,7 +46,7 @@ private fun OnBoardingStartScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MainPurple),
+            .background(ColorMainF1E4F9),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -57,7 +57,7 @@ private fun OnBoardingStartScreen(
 
         Text(
             "네일 디자인, 샵 찾기부터 예약까지",
-            color = Gray696969,
+            color = Color696969,
             fontSize = 14.dpToSp(),
             fontWeight = FontWeight.Normal
         )
@@ -74,7 +74,7 @@ private fun OnBoardingStartScreen(
             )
             Text(
                 "에서 한 번에 해결",
-                color = Gray696969,
+                color = Color696969,
                 fontSize = 14.dpToSp(),
                 fontWeight = FontWeight.Normal
             )
