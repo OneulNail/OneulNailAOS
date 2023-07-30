@@ -1,12 +1,14 @@
-package com.example.oneulnail
+package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
+
 import android.icu.util.Calendar
-import com.example.oneulnail.ui.theme.OneulNailTheme
+import com.today.nail.service.ui.theme.MyApplicationTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,7 +22,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.oneulnail.DetailViewModel
+import com.today.nail.service.ui.theme.ColorBEA3EA
 
 
 class MainActivity : ComponentActivity() {
@@ -48,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val detailViewModel = viewModel<DetailViewModel>()
-            OneulNailTheme {
+            MyApplicationTheme {
                 Surface(color = Color.White) {
 
                     val navController = rememberNavController()
@@ -88,13 +91,10 @@ fun ItemdetailScreen(navController: NavController, detailViewModel: DetailViewMo
 
         }
         //사진은 일단 임시로 저장
-        Image(
-            painter = painterResource(R.drawable.hypeboy),
-            contentDescription = "null",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
+        Box(
+            modifier = Modifier.fillMaxWidth().height(300.dp).background(ColorBEA3EA)
         )
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -356,23 +356,14 @@ fun PreviewItemdetail() {
     val counterState = remember { mutableStateOf(0) }
     val navController = rememberNavController()
 
-    OneulNailTheme {
-        NavHost(navController = navController, startDestination = "ItemdetailScreen") {
-            composable("ItemdetailScreen") {
-                ItemdetailScreen(navController = navController, detailViewModel = DetailViewModel())
-            }
-            composable("ReservationScreen") {
-                ReservationScreen(navController = navController, detailViewModel = DetailViewModel())
-            }
-        }
-    }
+    ItemdetailScreen(navController = navController, detailViewModel = DetailViewModel())
 }
 
 @Preview
 @Composable
 fun PreviewReservationScreen() {
     val navController = rememberNavController()
-    OneulNailTheme {
+    MyApplicationTheme {
         ReservationScreen(navController = navController, detailViewModel = DetailViewModel())
     }
 }
