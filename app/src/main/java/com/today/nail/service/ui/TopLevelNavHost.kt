@@ -10,6 +10,7 @@ import com.autocrypt.move.kcallpax.extension.fadeComposable
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.onBoardingNavigationGraph
+import com.today.nail.service.ui.scenario.home.navigationGraph.homeNavigationGraphWithFade
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReUseComponentNailItemDetailViewModel
 
 
@@ -42,6 +43,8 @@ fun TopLevelNavHost(
             navHostController = navHostController,
             activityViewModel = topLevelViewModel
         )
+
+        homeNavigationGraphWithFade(navHostController, topLevelViewModel)
     }
 
 }

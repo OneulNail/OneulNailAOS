@@ -20,7 +20,7 @@ fun NavGraphBuilder.onBoardingNavigationGraph(
     val fadeDuration = 300
 
     navigation(
-        route = TopLevelNavigationRoutes.MainGraph.routes,
+        route = TopLevelNavigationRoutes.OnBoardingGraph.routes,
         startDestination = OnBoardingRoutes.Start.routes
     ) {
         fadeComposable(

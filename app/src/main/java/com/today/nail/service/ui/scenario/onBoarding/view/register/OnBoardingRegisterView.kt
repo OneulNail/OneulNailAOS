@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.today.nail.service.ui.TopLevelNavigationRoutes
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.theme.Color0A7BE4
 import com.today.nail.service.ui.theme.Color7A00C5
@@ -44,11 +45,17 @@ fun OnBoardingRegisterView(
     viewModel : OnBoardingRegisterViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    Screen()
+    Screen(
+        onNavigateToHome = {
+            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
+        }
+    )
 }
 
 @Composable
-private fun Screen() {
+private fun Screen(
+    onNavigateToHome : () -> Unit,
+) {
 
     val defaultModifier = Modifier.padding(horizontal = 16.dp)
 
@@ -209,9 +216,9 @@ private fun Screen() {
                 .padding(bottom = 67.dp)
                 .align(Alignment.BottomCenter),
             title = "시작하기",
-            enable = false
+            enable = true
         ) {
-
+            onNavigateToHome()
         }
     }
 }
@@ -297,5 +304,5 @@ private fun TermItem(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewScreen() {
-    Screen()
+    Screen(onNavigateToHome = {})
 }
