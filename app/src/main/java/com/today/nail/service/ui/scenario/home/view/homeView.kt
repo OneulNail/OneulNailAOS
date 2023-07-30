@@ -28,10 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.today.nail.service.R
+import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 
 
 @Composable
-fun FirstScreen(navController: NavController,homeViewModel: homeViewModel = viewModel()) {
+fun HomeScreen(navController: NavController, homeViewModel: homeViewModel = viewModel()) {
     Column {
         //상단 구성
         HomeScreenTop()
@@ -39,21 +40,21 @@ fun FirstScreen(navController: NavController,homeViewModel: homeViewModel = view
         homeViewModel.InfiniteLoopPager(
             clicked = {
                 //your onclick code here
-                navController.navigate("BannerScreen")
+                navController.navigate(HomeRoute.Banner.routes)
             })
         //배너 페이지로 이동
         Button(onClick = {
             //your onclick code here
-            navController.navigate("BannerScreen")
+            navController.navigate(HomeRoute.Banner.routes)
         }) {
             Text(text = "banner")
         }
         //카테고리
-        homeViewModel.CategoryItemGrid(clicked = {navController.navigate("CategoryItemScreen")})
+        homeViewModel.CategoryItemGrid(clicked = {navController.navigate(HomeRoute.CategoryItem.routes)})
         //제품 카테고리 페이지로 이동
         Button(onClick = {
             //your onclick code here
-            navController.navigate("CategoryItemScreen")
+            navController.navigate(HomeRoute.CategoryItem.routes)
         }) {
             Text(text = "product")
         }
@@ -63,7 +64,7 @@ fun FirstScreen(navController: NavController,homeViewModel: homeViewModel = view
 @Composable
 fun BannerScreen(navController: NavController) {
     Column {
-        Button(onClick = {navController.navigate("FirstScreen")}) {
+        Button(onClick = {navController.popBackStack()}) {
             Text(text = "뒤로가기")
         }
         Box(modifier = Modifier
@@ -110,7 +111,7 @@ fun CategoryItemScreen(navController: NavController, homeViewModel: homeViewMode
     Column {
         CategoryItemScreenTop(clicked = {
             //your onclick code here
-            navController.navigate("FirstScreen")
+            navController.popBackStack()
         })
         androidx.compose.material.Divider(
             modifier = Modifier
@@ -156,7 +157,9 @@ fun CategoryItemScreen(navController: NavController, homeViewModel: homeViewMode
                 .height(1.dp),
             color = Color.LightGray,
         )
-        homeViewModel.NailItemGrid(clicked = {})
+        homeViewModel.NailItemGrid(clicked = {
+            navController.navigate(HomeRoute.ItemDetail.routes)
+        })
     }
 }
 

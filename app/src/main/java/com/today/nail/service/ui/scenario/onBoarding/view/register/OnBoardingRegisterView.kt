@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.today.nail.service.ui.TopLevelNavigationRoutes
 import com.today.nail.service.ui.TopLevelViewModel
+import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
 import com.today.nail.service.ui.theme.Color0A7BE4
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.Color898989
@@ -47,7 +48,9 @@ fun OnBoardingRegisterView(
 ) {
     Screen(
         onNavigateToHome = {
-            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
+            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
         }
     )
 }

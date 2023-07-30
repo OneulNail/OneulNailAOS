@@ -184,14 +184,18 @@ class homeViewModel: ViewModel() {
                 if (item % 4 < 2) {
                     Text(text = "Image",
                         modifier= Modifier
-                            .clickable {}
+                            .clickable {
+                                clicked()
+                            }
                             .size(150.dp)
                             .background(Color.LightGray))
                 }
                 else{
                     Text(text = "Text",
                         modifier= Modifier
-                            .clickable {}
+                            .clickable {
+                                clicked()
+                            }
                             .size(150.dp)
                             .background(Color.LightGray))
                 }

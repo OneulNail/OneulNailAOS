@@ -1,17 +1,14 @@
 package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
 
 import android.icu.util.Calendar
-import com.today.nail.service.ui.theme.MyApplicationTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
@@ -19,7 +16,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,52 +27,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.oneulnail.DetailViewModel
+import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.theme.ColorBEA3EA
-
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContent {
-            val detailViewModel = viewModel<DetailViewModel>()
-            MyApplicationTheme {
-                Surface(color = Color.White) {
-
-                    val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "ItemdetailScreen",) {
-                        composable("ItemdetailScreen") {
-                            ItemdetailScreen(navController = navController)
-                        }
-                        composable("ReservationScreen") {
-                                ReservationScreen(navController = navController)
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-    }
 
 
 //아이템 세부정보 스크린
 @Composable
-fun ItemdetailScreen(navController: NavController, detailViewModel: DetailViewModel = viewModel()) {
-    val navController = rememberNavController()
+fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewModel = hiltViewModel()) {
     var numFavorites by remember { mutableStateOf(0) }
-    Column(modifier = Modifier.fillMaxSize()){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())){
         val context = LocalContext.current
 
         Row(
@@ -92,7 +62,10 @@ fun ItemdetailScreen(navController: NavController, detailViewModel: DetailViewMo
         }
         //사진은 일단 임시로 저장
         Box(
-            modifier = Modifier.fillMaxWidth().height(300.dp).background(ColorBEA3EA)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .background(ColorBEA3EA)
         )
 
         Row(
@@ -171,7 +144,7 @@ fun ItemdetailScreen(navController: NavController, detailViewModel: DetailViewMo
 
         Button(
             onClick ={
-                navController.navigate("ReservationScreen")
+                navController.navigate(HomeRoute.Reservation.routes)
             },
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier
@@ -213,7 +186,9 @@ fun ReservationScreen(navController: NavController, detailViewModel: DetailViewM
 
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -340,8 +315,11 @@ fun ReservationScreen(navController: NavController, detailViewModel: DetailViewM
                 .padding(top = 20.dp, start = 8.dp, end = 8.dp)
                 .fillMaxWidth(),
 
-            onClick = { android.widget.Toast.makeText(context, "예약 완료",
-                android.widget.Toast.LENGTH_SHORT).show()}
+            onClick = {
+                android.widget.Toast.makeText(context, "예약 완료",
+                android.widget.Toast.LENGTH_SHORT).show()
+                navController.popBackStack(HomeRoute.Home.routes, inclusive = false)
+            }
         ) {
             Text("예약 문의하기")
         }
@@ -356,16 +334,15 @@ fun PreviewItemdetail() {
     val counterState = remember { mutableStateOf(0) }
     val navController = rememberNavController()
 
-    ItemdetailScreen(navController = navController, detailViewModel = DetailViewModel())
+    ItemDetailScreen(navController = navController, detailViewModel = DetailViewModel())
 }
 
 @Preview
 @Composable
 fun PreviewReservationScreen() {
     val navController = rememberNavController()
-    MyApplicationTheme {
-        ReservationScreen(navController = navController, detailViewModel = DetailViewModel())
-    }
+    ReservationScreen(navController = navController, detailViewModel = DetailViewModel())
+
 }
 
 

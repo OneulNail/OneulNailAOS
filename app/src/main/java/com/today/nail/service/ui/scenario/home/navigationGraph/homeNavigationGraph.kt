@@ -2,7 +2,6 @@ package com.today.nail.service.ui.scenario.home.navigationGraph
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.autocrypt.move.kcallpax.extension.fadeComposable
 
@@ -10,7 +9,9 @@ import com.today.nail.service.ui.TopLevelNavigationRoutes
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.view.BannerScreen
 import com.today.nail.service.ui.scenario.home.view.CategoryItemScreen
-import com.today.nail.service.ui.scenario.home.view.FirstScreen
+import com.today.nail.service.ui.scenario.home.view.HomeScreen
+import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ItemDetailScreen
+import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationScreen
 
 fun NavGraphBuilder.homeNavigationGraphWithFade(
     navHostController: NavHostController,
@@ -20,27 +21,41 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
     val slideDuration = 400
     navigation(
         route = TopLevelNavigationRoutes.HomeGraph.routes,
-        startDestination = "FirstScreen"
+        startDestination = HomeRoute.Home.routes
     ) {
         fadeComposable(
             duration = fadeDuration,
-            route = "FirstScreen",
+            route = HomeRoute.Home.routes,
         ) {
-            FirstScreen(navController = navHostController)
+            HomeScreen(navController = navHostController)
         }
 
         fadeComposable(
             duration = fadeDuration,
-            route = "BannerScreen",
+            route = HomeRoute.Banner.routes,
         ) {
             BannerScreen(navController = navHostController)
         }
 
         fadeComposable(
             duration = fadeDuration,
-            route = "CategoryItemScreen",
+            route = HomeRoute.CategoryItem.routes,
         ) {
             CategoryItemScreen(navController = navHostController)
         }
+
+        fadeComposable(
+            duration = fadeDuration,
+            HomeRoute.ItemDetail.routes
+        ) {
+            ItemDetailScreen(navController = navHostController)
+        }
+        fadeComposable(
+            duration = fadeDuration,
+            HomeRoute.Reservation.routes
+        ) {
+            ReservationScreen(navController = navHostController)
+        }
     }
+
 }

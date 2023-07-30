@@ -1,17 +1,13 @@
 package com.today.nail.service.ui
 
-import android.window.SplashScreen
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.activity
 import com.autocrypt.move.kcallpax.extension.fadeComposable
 import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.onBoardingNavigationGraph
 import com.today.nail.service.ui.scenario.home.navigationGraph.homeNavigationGraphWithFade
-import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReUseComponentNailItemDetailViewModel
 
 
 @OptIn(ExperimentalAnimationApi::class)
