@@ -19,7 +19,7 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
     val fadeDuration = 300
     val slideDuration = 400
     navigation(
-        route = TopLevelNavigationRoutes.MainGraph.routes,
+        route = TopLevelNavigationRoutes.HomeGraph.routes,
         startDestination = "FirstScreen"
     ) {
         fadeComposable(
