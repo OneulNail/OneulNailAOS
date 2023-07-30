@@ -3,6 +3,7 @@ package com.today.nail.service.ui.util.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +20,53 @@ import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.util.dpToSp
 import com.today.nail.service.ui.util.noRippleClickable
 
+
+@Composable
+fun BackButton(
+    modifier : Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(modifier = Modifier
+        .wrapContentSize()
+        .padding(bottom = 6.dp)
+        .noRippleClickable {
+            onClick()
+        }
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.button_back),
+            contentDescription ="back button",
+            modifier = Modifier
+                .padding(14.dp)
+                .size(30.dp)
+                .align(alignment = Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun BackButtonWithText(
+    modifier : Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(modifier = Modifier
+        .wrapContentSize()
+        .padding(bottom = 6.dp)
+        .noRippleClickable {
+            onClick()
+        }
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.button_back),
+            contentDescription ="back button",
+            modifier = Modifier
+                .padding(vertical = 14.dp)
+                .padding(start = 14.dp)
+                .size(30.dp)
+                .align(alignment = Alignment.Center)
+        )
+    }
+}
 @Composable
 fun BackButtonWithSlogan(
     modifier : Modifier = Modifier,
