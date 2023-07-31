@@ -1,53 +1,143 @@
-package com.today.nail.service.ui.scenario.home.view
+package com.today.nail.service.ui.scenario.home.view.homeView
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.Text
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.today.nail.service.R
+import com.today.nail.service.ui.TopLevelViewModel
+import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 const val AUTO_PAGE_CHANGE_DELAY = 3000L
-class homeViewModel: ViewModel() {
-
-    @OptIn(ExperimentalPagerApi::class)
-    @Composable
-    fun InfiniteLoopPager(
-        modifier: Modifier = Modifier,
-        list: List<Color> = listOf(
-            Color.Red,
-            Color.Yellow,
-            Color.Green,
-            Color.LightGray,
-        ),
-        clicked: () -> Unit
+@Composable
+fun HomeView(
+    activityViewModel : TopLevelViewModel,
+    navController: NavController,
+    homeViewModel: homeViewModel = hiltViewModel(),
     ) {
+    
+    HomeScreen(
+        onClickCategoryAll = {navController.navigate(HomeRoute.CategoryItem.routes)},
+        onClickBanner = {navController.navigate(HomeRoute.Banner.routes)},
+    )
+}
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun HomeScreen(
+               onClickCategoryAll: () -> Unit,
+               onClickBanner: () -> Unit,
+) {
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        //상단 구성
+        Box(modifier = Modifier
+            .height(80.dp)
+            .fillMaxWidth(1f)) {
+            Row(modifier= Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 5.dp)) {
+                //오늘네일 로고 이미지
+                val logo = painterResource(R.drawable.home_logo_img)
+                Image(
+                    painter = logo,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(31.dp)
+                        .width(87.dp)
+                )
+            }
+            Row(modifier= Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 5.dp)
+            ){
+                //상단 우측 버튼1
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(3.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = null,
+                    )
+                }
+                //상단 우측 버튼2
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(3.dp)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = null,
+                    )
+                }
+                //상단 우측 버튼3
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(3.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ShoppingBag,
+                        contentDescription = null,
+                    )
+                }
+            }
+        }
+        //배너
+        val list = listOf(
+        Color.Red,
+        Color.Yellow,
+        Color.Green,
+        Color.LightGray,
+        )
         val pagerState = rememberPagerState()
 
         // 초기페이지 설정. 한번만 실행되기 원하니 key 는 Unit|true.
@@ -79,7 +169,7 @@ class homeViewModel: ViewModel() {
         }
 
         //배너 페이저
-        Box(modifier = modifier) {
+        Box(modifier = Modifier) {
             HorizontalPager(
                 count = Int.MAX_VALUE,
                 modifier = Modifier
@@ -93,7 +183,7 @@ class homeViewModel: ViewModel() {
                         modifier = Modifier
                             .fillMaxSize()
                             .background(color = color)
-                            .clickable { clicked() }
+                            .clickable { onClickBanner() }
                     )
                 }
             }
@@ -111,95 +201,32 @@ class homeViewModel: ViewModel() {
                 )
             }
         }
-    }
-    //카테고리 아이템 그리드
-    @Composable
-    fun CategoryItemGrid(
-        modifier: Modifier = Modifier,
-        clicked: () -> Unit
-    ) {
+
+        Spacer(modifier = Modifier.height(30.dp))
+        //카테고리
+//        CategoryItemGrid(clicked = {navController.navigate(HomeRoute.CategoryItem.routes)})
+        //제품 카테고리 페이지로 이동
         LazyHorizontalGrid(
             rows = GridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = modifier
+            modifier = Modifier
                 .height(150.dp)
                 .fillMaxWidth()
 
         ) {
             items(16) { item ->
-                Text(text = item.toString(),
+                androidx.compose.material.Text(text = item.toString(),
                     modifier= Modifier
                         .clickable {
                             if (item == 0) {
-                                clicked()
+                                //카테고리 전체보기
+                                onClickCategoryAll()
                             }
                         }
                         .size(50.dp)
                         .background(Color.LightGray))
-            }
-        }
-    }
-    //네일 필터
-    @Composable
-    fun ItemFilterGrid(
-        modifier: Modifier = Modifier,
-        clicked: () -> Unit
-    ) {
-        LazyHorizontalGrid(
-            rows = GridCells.Fixed(1),
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = modifier
-                .fillMaxSize()
-                .padding(vertical = 8.dp)
-        ) {
-            items(4) { item ->
-                Text(text = item.toString(),
-                    modifier= Modifier
-                        .clickable {}
-                        .size(50.dp)
-                        .background(Color.LightGray))
-            }
-        }
-    }
-    //네일 아이템
-    @Composable
-    fun NailItemGrid(
-        modifier: Modifier = Modifier,
-        clicked: () -> Unit
-    ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = modifier
-                .fillMaxSize()
-                .padding(vertical = 30.dp)
-        ) {
-            items(count = 16) { item ->
-                if (item % 4 < 2) {
-                    Text(text = "Image",
-                        modifier= Modifier
-                            .clickable {
-                                clicked()
-                            }
-                            .size(150.dp)
-                            .background(Color.LightGray))
-                }
-                else{
-                    Text(text = "Text",
-                        modifier= Modifier
-                            .clickable {
-                                clicked()
-                            }
-                            .size(150.dp)
-                            .background(Color.LightGray))
-                }
-
             }
         }
     }
@@ -225,3 +252,11 @@ fun PagerIndicator(
         Text(text = "       ")
     }
 }
+@Preview
+@Composable
+fun Preview() {
+    HomeScreen(onClickCategoryAll = { /*TODO*/ }) {
+
+    }
+}
+
