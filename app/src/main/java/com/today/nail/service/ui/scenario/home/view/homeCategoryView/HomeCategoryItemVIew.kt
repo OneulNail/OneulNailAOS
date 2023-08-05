@@ -26,14 +26,18 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 
@@ -56,8 +60,10 @@ fun CategoryItemScreen(
             Row(modifier= Modifier
                 .align(alignment = Alignment.CenterStart)
                 .offset(x = 5.dp)
-                .fillMaxWidth(0.3f))
-            {
+                .fillMaxWidth(0.3f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 IconButton(
                     onClick = {onClickBackButton()},
                     modifier = Modifier
@@ -72,7 +78,9 @@ fun CategoryItemScreen(
                 //상단 텍스트
                 Text(
                     text = "네일",
-                    modifier = Modifier.size(60.dp)
+                    color = Color(0xFF7A00C5),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight(700),
                 )
             }
             Row(modifier= Modifier
@@ -196,12 +204,19 @@ fun CategoryItemScreen(
             items(count = 16) { item ->
                 if (item % 4 < 2) {
                     Text(text = "Image",
-                        modifier= Modifier
+                        modifier = Modifier
                             .clickable {
                                 onClickItem()
                             }
                             .size(150.dp)
                             .background(Color.LightGray))
+                    Box {
+                        Icon(
+                            imageVector = Icons.Filled.FavoriteBorder,
+                            contentDescription = null,
+                            modifier = Modifier.align(Alignment.TopEnd).padding(5.dp)
+                        )
+                    }
                 }
                 else{
                     Text(text = "Text",
@@ -209,7 +224,7 @@ fun CategoryItemScreen(
                             .clickable {
                                 onClickItem()
                             }
-                            .size(150.dp)
+                            .size(100.dp)
                             .background(Color.LightGray))
                 }
 
