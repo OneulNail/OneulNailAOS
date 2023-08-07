@@ -7,9 +7,11 @@ import com.autocrypt.move.kcallpax.extension.fadeComposable
 
 import com.today.nail.service.ui.TopLevelNavigationRoutes
 import com.today.nail.service.ui.TopLevelViewModel
-import com.today.nail.service.ui.scenario.home.view.BannerScreen
-import com.today.nail.service.ui.scenario.home.view.CategoryItemScreen
-import com.today.nail.service.ui.scenario.home.view.HomeScreen
+import com.today.nail.service.ui.scenario.home.view.homeBannerView.BannerScreen
+import com.today.nail.service.ui.scenario.home.view.homeCategoryView.CategoryItemScreen
+import com.today.nail.service.ui.scenario.home.view.homeCategoryView.HomeCategoryItemView
+import com.today.nail.service.ui.scenario.home.view.homeItemView.HomeItemView
+import com.today.nail.service.ui.scenario.home.view.homeView.HomeView
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ItemDetailScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationView
@@ -28,7 +30,7 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             route = HomeRoute.Home.routes,
         ) {
-            HomeScreen(navController = navHostController)
+            HomeView(activityViewModel, navController = navHostController)
         }
 
         fadeComposable(
@@ -42,7 +44,13 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             route = HomeRoute.CategoryItem.routes,
         ) {
-            CategoryItemScreen(navController = navHostController)
+            HomeCategoryItemView(navController = navHostController)
+        }
+        fadeComposable(
+            duration = fadeDuration,
+            route = HomeRoute.Item.routes,
+        ) {
+            HomeItemView(navController = navHostController)
         }
 
         fadeComposable(

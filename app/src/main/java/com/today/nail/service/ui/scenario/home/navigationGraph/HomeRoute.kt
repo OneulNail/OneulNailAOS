@@ -8,6 +8,8 @@ sealed class HomeRoute(val routes : String) {
 
     object CategoryItem : HomeRoute("category_item")
 
+    object Item : HomeRoute("item")
+
     object ItemDetail : HomeRoute("item_detail")
 
     object Reservation : HomeRoute("reservation")
