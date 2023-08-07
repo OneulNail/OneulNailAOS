@@ -48,13 +48,15 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             HomeRoute.ItemDetail.routes
         ) {
-            ItemDetailScreen(navController = navHostController)
+            ItemDetailScreen(onCall  = {}, onInquire  = {}
+            ) {}
         }
         fadeComposable(
             duration = fadeDuration,
             HomeRoute.Reservation.routes
         ) {
-            ReservationScreen(navController = navHostController)
+            ReservationScreen(navController = navHostController,  onReservation ={},
+                onBack ={},)
         }
     }
 
