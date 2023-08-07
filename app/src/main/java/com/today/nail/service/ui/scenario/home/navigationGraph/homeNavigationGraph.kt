@@ -12,6 +12,7 @@ import com.today.nail.service.ui.scenario.home.view.CategoryItemScreen
 import com.today.nail.service.ui.scenario.home.view.HomeScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ItemDetailScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationScreen
+import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationView
 
 fun NavGraphBuilder.homeNavigationGraphWithFade(
     navHostController: NavHostController,
@@ -55,8 +56,10 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             HomeRoute.Reservation.routes
         ) {
-            ReservationScreen(navController = navHostController,  onReservation ={},
-                onBack ={},)
+            ReservationView(
+                navHostController = navHostController,
+                activityViewModel = activityViewModel
+            )
         }
     }
 

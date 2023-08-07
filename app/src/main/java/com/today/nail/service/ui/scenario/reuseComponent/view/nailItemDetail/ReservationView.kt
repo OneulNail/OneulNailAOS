@@ -43,7 +43,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.oneulnail.DetailViewModel
 import com.today.nail.service.ui.TopLevelViewModel
@@ -53,7 +52,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ReservationView(
-    navController: NavController,
+    navHostController: NavHostController,
     detailViewModel: DetailViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel
 ){
@@ -61,8 +60,7 @@ fun ReservationView(
         onReservation = {
             ToastHelper.showToast("준비중인 기능입니다.")
         },
-        onBack = {navController.navigateUp()},
-
+        onBack = {navHostController.navigateUp()},
 
     )
 }
