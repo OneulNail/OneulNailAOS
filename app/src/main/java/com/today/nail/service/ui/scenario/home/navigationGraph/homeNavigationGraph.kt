@@ -16,6 +16,8 @@ import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.Ite
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationView
 
+
+//주석
 fun NavGraphBuilder.homeNavigationGraphWithFade(
     navHostController: NavHostController,
     activityViewModel: TopLevelViewModel
