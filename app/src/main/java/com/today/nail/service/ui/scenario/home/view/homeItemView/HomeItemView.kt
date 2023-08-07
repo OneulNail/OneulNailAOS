@@ -1,4 +1,4 @@
-package com.today.nail.service.ui.scenario.home.view.homeCategoryView
+package com.today.nail.service.ui.scenario.home.view.homeItemView
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,13 +45,13 @@ import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 
 @Composable
-fun HomeCategoryItemView(navController: NavController) {
+fun HomeItemView(navController: NavController) {
     Scaffold(
         bottomBar = {
             BottomNavigation(navController = navController)
         }
     ) {
-        CategoryItemScreen(
+        ItemScreen(
             onClickBackButton = {navController.popBackStack()},
             onClickItem = {navController.navigate(HomeRoute.ItemDetail.routes)},
         )
@@ -59,7 +59,7 @@ fun HomeCategoryItemView(navController: NavController) {
 
 }
 @Composable
-fun CategoryItemScreen(
+fun ItemScreen(
     onClickBackButton :()-> Unit,
     onClickItem : () -> Unit,
 ) {
@@ -87,7 +87,7 @@ fun CategoryItemScreen(
                 }
                 //상단 텍스트
                 Text(
-                    text = "네일",
+                    text = "아이템",
                     color = Color(0xFF7A00C5),
                     fontSize = 20.sp,
                     fontWeight = FontWeight(700),
@@ -247,7 +247,7 @@ fun CategoryItemScreen(
 @Preview
 @Composable
 fun Preview() {
-    CategoryItemScreen(onClickBackButton = { /*TODO*/ }) {
-        
+    ItemScreen(onClickBackButton = { /*TODO*/ }) {
+
     }
 }
