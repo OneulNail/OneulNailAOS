@@ -1,7 +1,5 @@
 package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
 
-import android.icu.util.Calendar
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -25,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,15 +30,39 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.oneulnail.DetailViewModel
+import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.theme.ColorBEA3EA
+import com.today.nail.service.ui.util.ToastHelper
 
-
-//아이템 세부정보 스크린
 @Composable
-fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewModel = hiltViewModel()) {
+fun DetailView(
+    navController: NavController,
+    detailViewModel: DetailViewModel = hiltViewModel(),
+    activityViewModel: TopLevelViewModel
+    ){
+    ItemDetailScreen(
+        onCall = {
+            ToastHelper.showToast("준비중인 기능입니다.")
+        },
+        onInquire = {
+            ToastHelper.showToast("준비중인 기능입니다.")
+        }
+    ) {
+        navController.navigate(HomeRoute.Reservation.routes)
+    }
+}
+
+
+//아이템 세부정보 스크린(디자인)
+@Composable
+fun ItemDetailScreen(
+    onCall: () -> Unit,
+    onInquire: () -> Unit,
+    onClickReservation: () -> Unit
+
+) {
     var numFavorites by remember { mutableStateOf(0) }
     Column(modifier = Modifier
         .fillMaxSize()
@@ -105,7 +125,7 @@ fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewMo
             )
 
         }
-        // 일단은 버튼 누르면 예약완료 토스트메시지 뜨도록 설정
+        // 일단은 버튼 누르면 토스트메시지 뜨도록 설정
         Row(
             modifier = Modifier.padding(start = 20.dp, end =20.dp, bottom = 16.dp, top = 60.dp),
             horizontalArrangement = Arrangement.spacedBy(18.dp),
@@ -113,8 +133,7 @@ fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewMo
             ){
             Button(
                 shape = RoundedCornerShape(0.dp),
-                onClick ={android.widget.Toast.makeText(context, "준비중",
-                    android.widget.Toast.LENGTH_SHORT).show()},
+                onClick = onCall,
                 modifier = Modifier
                     .weight(1f)
                     .border(
@@ -127,8 +146,7 @@ fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewMo
             ){ Text(text = "전화하기",
                 style = TextStyle(Color.White, 16.sp, FontWeight.Bold)) }
             Button(
-                onClick ={android.widget.Toast.makeText(context, "준비중",
-                    android.widget.Toast.LENGTH_SHORT).show()},
+                onClick = onInquire,
                 shape = RoundedCornerShape(0.dp),
                 modifier = Modifier
                     .weight(1f)
@@ -143,15 +161,12 @@ fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewMo
         }
 
         Button(
-            onClick ={
-                navController.navigate(HomeRoute.Reservation.routes)
-            },
+            onClick = onClickReservation,
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .padding(top = 20.dp, start = 10.dp, end = 10.dp)
                 .fillMaxWidth()
         )
-
         {
             Text(text = "예약 일시",
                 style = TextStyle(Color.White, 16.sp, FontWeight.Bold))
@@ -164,186 +179,18 @@ fun ItemDetailScreen(navController: NavController, detailViewModel: DetailViewMo
 
 
 
+
+@Preview(showBackground = true)
 @Composable
-fun ReservationScreen(navController: NavController, detailViewModel: DetailViewModel =viewModel()) {
-    val context = LocalContext.current
-    val firstRowButtons = listOf("14:00", "15:00", "16:00", "17:00")
-    val secondRowButtons = listOf("18:00", "19:00", "20:00", "21:00")
-    //버튼 누르면 색깔 변하는 설정
-    val isButtonClicked = remember { mutableStateOf(false) }
-    val buttonColor = if (isButtonClicked.value) {
-        Color.Green
-    } else {
-        Color.Gray
-    }
-    fun getToday() = Calendar.getInstance().let {
-        val year = it.get(Calendar.YEAR)
-        val month = it.get(Calendar.MONTH) + 1
-        val day = it.get(Calendar.DAY_OF_MONTH)
-        "${year}년 ${month}월 ${day}일 "
-    }
-
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .padding(top = 40.dp)
-        ) {
-            Button(
-                modifier = Modifier.size(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                onClick = { navController.navigateUp() }
-            ) {
-                Text("뒤로")
-            }
-
-            Text(
-                modifier = Modifier.padding(start = 10.dp, top = 8.dp),
-                fontSize = 18.sp,
-                text = "예약"
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .padding(top = 10.dp)
-        ) {
-            Text(
-                text = "오늘(일)",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 8.dp),
-                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .padding(10.dp)
-                .padding(top = 10.dp)
-                .height(280.dp)
-                .fillMaxWidth()
-        ) {
-            // 여기에 CalendarView를 코틀린 컴포즈에서 구현하는 방법 추가
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, bottom = 8.dp)
-                .padding(top = 50.dp)
-        ) {
-            Text(
-                text = "시간선택",
-                modifier = Modifier.padding(start = 18.dp),
-                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            )
-        }
-
-        Row(
-
-            modifier = Modifier
-                .padding(10.dp)
-                .height(45.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            firstRowButtons.forEach { buttonLabel ->
-                Button(
-                    onClick = {
-
-                    },
-                    shape = RectangleShape,
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(45.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = buttonColor
-                    )
-                ) {
-                    Text(
-                        text = buttonLabel,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = TextStyle(fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
-                    )
-                }
-            }
-        }
-        Row(
-            modifier = Modifier
-                .padding(10.dp)
-                .height(45.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            secondRowButtons.forEach { buttonLabel ->
-                Button(
-                    onClick = { /* TODO: Handle button click */ },
-                    shape = RectangleShape,
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(45.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = buttonColor
-                    )
-                ) {
-                    Text(
-                        text = buttonLabel,
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    )
-                }
-            }
-        }
-
-        Button(
-            modifier = Modifier
-                .padding(10.dp)
-                .padding(top = 20.dp, start = 8.dp, end = 8.dp)
-                .fillMaxWidth(),
-
-            onClick = {
-                android.widget.Toast.makeText(context, "예약 완료",
-                android.widget.Toast.LENGTH_SHORT).show()
-                navController.popBackStack(HomeRoute.Home.routes, inclusive = false)
-            }
-        ) {
-            Text("예약 문의하기")
-        }
+fun PreviewItemDetailView() {
+    Column {
+        ItemDetailScreen(
+            onCall  = {},
+            onInquire  = {}
+        ) {}
     }
 }
 
-
-
-@Preview
-@Composable
-fun PreviewItemdetail() {
-    val counterState = remember { mutableStateOf(0) }
-    val navController = rememberNavController()
-
-    ItemDetailScreen(navController = navController, detailViewModel = DetailViewModel())
-}
-
-@Preview
-@Composable
-fun PreviewReservationScreen() {
-    val navController = rememberNavController()
-    ReservationScreen(navController = navController, detailViewModel = DetailViewModel())
-
-}
 
 
 
