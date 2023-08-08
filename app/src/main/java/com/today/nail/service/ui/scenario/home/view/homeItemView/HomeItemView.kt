@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
+import com.today.nail.service.ui.util.ToastHelper
 
 @Composable
 fun HomeItemView(navController: NavController) {
@@ -54,6 +55,9 @@ fun HomeItemView(navController: NavController) {
         ItemScreen(
             onClickBackButton = {navController.popBackStack()},
             onClickItem = {navController.navigate(HomeRoute.ItemDetail.routes)},
+            onClickCommingSoon = {
+                ToastHelper.showToast("준비 중인 기능입니다.")
+            },
         )
     }
 
@@ -62,6 +66,8 @@ fun HomeItemView(navController: NavController) {
 fun ItemScreen(
     onClickBackButton :()-> Unit,
     onClickItem : () -> Unit,
+    onClickCommingSoon: () -> Unit,
+
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -102,7 +108,7 @@ fun ItemScreen(
             ){
                 //상단 우측 버튼1
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(34.dp)
                         .padding(5.dp)
@@ -115,7 +121,7 @@ fun ItemScreen(
                 }
                 //상단 우측 버튼2
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(34.dp)
                         .padding(5.dp)
@@ -129,7 +135,7 @@ fun ItemScreen(
                 }
                 //상단 우측 버튼3
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(34.dp)
                         .padding(5.dp)
@@ -176,7 +182,7 @@ fun ItemScreen(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(10.dp)
-                                .clickable {}
+                                .clickable {onClickCommingSoon()}
                         )
                     }
                 }
@@ -247,7 +253,9 @@ fun ItemScreen(
 @Preview
 @Composable
 fun Preview() {
-    ItemScreen(onClickBackButton = { /*TODO*/ }) {
-
-    }
+    ItemScreen(
+        onClickBackButton = { /*TODO*/ },
+        onClickItem = {},
+        onClickCommingSoon = {},
+    )
 }

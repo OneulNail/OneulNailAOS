@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
+import com.today.nail.service.ui.util.ToastHelper
 
 @Composable
 fun HomeCategoryItemView(navController: NavController) {
@@ -59,14 +60,17 @@ fun HomeCategoryItemView(navController: NavController) {
         CategoryItemScreen(
             onClickBackButton = {navController.popBackStack()},
             onClickItem = {navController.navigate(HomeRoute.ItemDetail.routes)},
+            onClickCommingSoon = {
+                ToastHelper.showToast("준비 중인 기능입니다.")
+            }
         )
     }
-
 }
 @Composable
 fun CategoryItemScreen(
     onClickBackButton :()-> Unit,
     onClickItem : () -> Unit,
+    onClickCommingSoon : () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -99,16 +103,14 @@ fun CategoryItemScreen(
                     fontWeight = FontWeight(700),
                     modifier = Modifier.offset(x = (-15).dp)
                 )
-
             }
             Row(modifier= Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 15.dp)
-
             ){
                 //상단 우측 버튼1
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(34.dp)
                         .padding(5.dp)
@@ -121,7 +123,7 @@ fun CategoryItemScreen(
                 }
                 //상단 우측 버튼2
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(34.dp)
                         .padding(5.dp)
@@ -135,7 +137,7 @@ fun CategoryItemScreen(
                 }
                 //상단 우측 버튼3
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(34.dp)
                         .padding(5.dp)
@@ -166,7 +168,7 @@ fun CategoryItemScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Spacer(modifier = Modifier.width(10.dp))
-                IconButton(onClick = { /*TODO*/ },
+                IconButton(onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .border(width = 1.dp, color = Color(0xFFA4A4A4))
                         .padding(1.dp)
@@ -180,7 +182,7 @@ fun CategoryItemScreen(
                     )
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButton(onClick = { /*TODO*/ },
+                IconButton(onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .border(width = 1.dp, color = Color(0xFFA4A4A4))
                         .padding(1.dp)
@@ -202,7 +204,7 @@ fun CategoryItemScreen(
                         .padding(vertical = 8.dp)
                 )
                 Spacer(modifier = Modifier.width(5.dp))
-                Box(modifier = Modifier.clickable {  }) {
+                Box(modifier = Modifier.clickable { onClickCommingSoon() }) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -227,7 +229,7 @@ fun CategoryItemScreen(
                 ) {
                     item {
                         Box(modifier = Modifier
-                            .clickable { }
+                            .clickable {onClickCommingSoon()}
                             .border(
                                 0.1.dp,
                                 color = Color.LightGray,
@@ -239,7 +241,7 @@ fun CategoryItemScreen(
                     }
                     item {
                         Box(modifier = Modifier
-                            .clickable { }
+                            .clickable {onClickCommingSoon()}
                             .border(
                                 0.1.dp,
                                 color = Color.LightGray,
@@ -251,7 +253,7 @@ fun CategoryItemScreen(
                     }
                     item {
                         Box(modifier = Modifier
-                            .clickable { }
+                            .clickable {onClickCommingSoon()}
                             .border(
                                 0.1.dp,
                                 color = Color.LightGray,
@@ -263,7 +265,7 @@ fun CategoryItemScreen(
                     }
                     item {
                         Box(modifier = Modifier
-                            .clickable { }
+                            .clickable {onClickCommingSoon()}
                             .border(
                                 0.1.dp,
                                 color = Color.LightGray,
@@ -273,9 +275,7 @@ fun CategoryItemScreen(
                             Text(text = "    가격    ")
                         }
                     }
-
                 }
-
             }
         }
         Divider(
@@ -310,13 +310,13 @@ fun CategoryItemScreen(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(10.dp)
-                                .clickable {}
+                                .clickable {onClickCommingSoon()}
                         )
                     }
                 }
                 else{
                     Box(modifier = Modifier
-                        .size(100.dp)
+                        .fillMaxWidth()
                         .clickable {
                             onClickItem()
                         }
@@ -343,7 +343,6 @@ fun CategoryItemScreen(
                                     )
                                 )
                             }
-
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
                                 text = "설명",
@@ -365,9 +364,6 @@ fun CategoryItemScreen(
                                     )
                                 )
                             }
-
-
-
                         }
                     }
                 }
@@ -380,7 +376,9 @@ fun CategoryItemScreen(
 @Preview
 @Composable
 fun Preview() {
-    CategoryItemScreen(onClickBackButton = { /*TODO*/ }) {
-        
-    }
+    CategoryItemScreen(
+        onClickBackButton = { /*TODO*/ },
+        onClickCommingSoon = {},
+        onClickItem = {},
+    )
 }

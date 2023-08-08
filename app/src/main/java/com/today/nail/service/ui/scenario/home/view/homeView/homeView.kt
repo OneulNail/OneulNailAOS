@@ -54,6 +54,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.today.nail.service.R
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
+import com.today.nail.service.ui.util.ToastHelper
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,6 +80,9 @@ fun HomeView(
 //                navController.navigate(HomeRoute.Banner.routes)
                             },
             onClickCategory = {},
+            onClickCommingSoon = {
+                ToastHelper.showToast("준비 중인 기능입니다.")
+            }
         )
     }
 }
@@ -88,6 +92,7 @@ fun HomeScreen(
                onClickCategoryAll: () -> Unit,
                onClickBanner: () -> Unit,
                onClickCategory: (Int) -> Unit,
+               onClickCommingSoon: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Column(modifier = Modifier.fillMaxSize()) {
@@ -114,7 +119,7 @@ fun HomeScreen(
             ){
                 //상단 우측 버튼1
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(24.dp)
                         .padding(3.dp),
@@ -128,7 +133,7 @@ fun HomeScreen(
                 }
                 //상단 우측 버튼2
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(24.dp)
                         .padding(3.dp)
@@ -142,7 +147,7 @@ fun HomeScreen(
                 }
                 //상단 우측 버튼3
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(24.dp)
                         .padding(3.dp)
@@ -321,7 +326,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .clickable { }
+                    .clickable {onClickCommingSoon()}
                 ) {
                     Text(text = "자세히 보기",
                         fontSize = 10.sp,)
@@ -345,7 +350,7 @@ fun HomeScreen(
                     ) {
 
                     Box(modifier = Modifier
-                        .clickable { }
+                        .clickable {}
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -478,7 +483,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .clickable { }
+                        .clickable {onClickCommingSoon()}
                 ) {
                     Text(text = "자세히 보기",
                         fontSize = 10.sp,)
@@ -504,11 +509,15 @@ fun HomeScreen(
 
             ) {
                 items(8) { item ->
-                    androidx.compose.material.Text(text = "네일 사진",
+                    Box(
                         modifier = Modifier
-                            .clickable { }
+                            .clickable {onClickCommingSoon()}
                             .size(80.dp)
-                            .background(LightGray))
+                            .background(
+                                color = LightGray,
+                                shape = RoundedCornerShape(size = 15.dp)
+                            )
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(50.dp))
@@ -682,8 +691,8 @@ fun Preview() {
     HomeScreen(
         onClickCategoryAll = { /*TODO*/ },
         onClickBanner = {},
-    ) {
-
-    }
+        onClickCommingSoon = {},
+        onClickCategory = {},
+    )
 }
 
