@@ -12,6 +12,7 @@ import com.today.nail.service.ui.scenario.home.view.homeCategoryView.CategoryIte
 import com.today.nail.service.ui.scenario.home.view.homeCategoryView.HomeCategoryItemView
 import com.today.nail.service.ui.scenario.home.view.homeItemView.HomeItemView
 import com.today.nail.service.ui.scenario.home.view.homeView.HomeView
+import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.DetailView
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ItemDetailScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationScreen
 import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationView
@@ -57,8 +58,8 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             HomeRoute.ItemDetail.routes
         ) {
-            ItemDetailScreen(onCall  = {}, onInquire  = {}
-            ) {}
+            DetailView( navController = navHostController,
+                activityViewModel = activityViewModel)
         }
         fadeComposable(
             duration = fadeDuration,
