@@ -42,8 +42,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,14 +75,19 @@ fun ReservationView(
     detailViewModel: DetailViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel
 ){
+    var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
-        onReservation = {
-            ToastHelper.showToast("준비중인 기능입니다.")
+    onReservation = {
+            ToastHelper.showToast("예약 완료되었습니다")
         },
         onBack = {navHostController.navigateUp()},
         onClickBackButton = {navHostController.popBackStack()},
-        onTimeButton={ColorCAC9FF}
+        onTimeButton={
+            isButtonClicked = !isButtonClicked
+        },
+        isButtonClicked = isButtonClicked
     )
+
 
 }
 
@@ -90,8 +97,9 @@ fun ReservationView(
 fun ReservationScreen(
     onReservation: () -> Unit,
     onBack: () -> Unit,
-    onClickBackButton :()-> Unit,
-    onTimeButton:() -> Unit
+    onClickBackButton: () -> Unit,
+    onTimeButton: () -> Unit,
+    isButtonClicked: Boolean
 
 
 ) {
@@ -103,12 +111,10 @@ fun ReservationScreen(
     val firstRowButtons = listOf("14:00", "15:00", "16:00", "17:00")
     val secondRowButtons = listOf("18:00", "19:00", "20:00", "21:00")
     //버튼 누르면 색깔 변하는 설정
-    val isButtonClicked = remember { mutableStateOf(false) }
-    val buttonColor = if (isButtonClicked.value) {
-        ColorCAC9FF
-    } else {
-        Color.LightGray
-    }
+
+
+
+
     fun getToday() = Calendar.getInstance().let {
         val year = it.get(Calendar.YEAR)
         val month = it.get(Calendar.MONTH) + 1
@@ -209,7 +215,7 @@ fun ReservationScreen(
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end =16.dp)
+                .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
             color = Color.DarkGray,
         )
@@ -217,7 +223,7 @@ fun ReservationScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=15.dp, top = 10.dp)
+                .padding(start = 15.dp, top = 10.dp)
                 .height(50.dp),
             verticalAlignment = Alignment.CenterVertically
 
@@ -266,7 +272,7 @@ fun ReservationScreen(
         //날짜 선택하는 박스
         Row(
             modifier = Modifier
-                .padding(top = 5.dp, start=15.dp, end=15.dp)
+                .padding(top = 5.dp, start = 15.dp, end = 15.dp)
                 .border(
                     border = BorderStroke(
                         width = 2.dp,
@@ -344,14 +350,14 @@ fun ReservationScreen(
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end =16.dp)
+                .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
             color = Color.Black,
         )
 
         Row(
             modifier = Modifier
-                .padding(start=15.dp, end=15.dp, top=18.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 18.dp)
                 .height(40.dp)
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -365,7 +371,7 @@ fun ReservationScreen(
                         .height(45.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
-                        containerColor = buttonColor
+                        containerColor = if (isButtonClicked) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
                     )
                 ) {
                     Text(
@@ -380,21 +386,21 @@ fun ReservationScreen(
         }
         Row(
             modifier = Modifier
-                .padding(start=15.dp, end=15.dp, top=18.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 18.dp)
                 .height(40.dp)
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             secondRowButtons.forEach { buttonLabel ->
                 Button(
-                    onClick = { ColorCAC9FF},
+                    onClick = onTimeButton,
                     shape = RectangleShape,
                     modifier = Modifier
                         .width(80.dp)
                         .height(45.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
-                        containerColor = buttonColor
+                        containerColor = if (isButtonClicked) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
                     )
                 ) {
                     Text(
@@ -418,7 +424,7 @@ fun ReservationScreen(
                 onClick = {},
                 modifier = Modifier
                     .size(30.dp)
-                    .padding(end = 2.dp, top=10.dp),
+                    .padding(end = 2.dp, top = 10.dp),
 
                 ) {
                 androidx.compose.material.Icon(
@@ -437,7 +443,7 @@ fun ReservationScreen(
                 onClick = {},
                 modifier = Modifier
                     .size(30.dp)
-                    .padding(end = 2.dp,start=5.dp, top=10.dp)
+                    .padding(end = 2.dp, start = 5.dp, top = 10.dp)
             ) {
                 androidx.compose.material.Icon(
                     imageVector = Icons.Filled.CheckBoxOutlineBlank,
@@ -458,7 +464,7 @@ fun ReservationScreen(
         Divider(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, end =16.dp, top=40.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 40.dp)
                 .height(1.dp),
             color = Color.Black,
         )
@@ -555,7 +561,8 @@ fun PreviewReservationScreen() {
         onReservation ={},
         onBack ={},
         onClickBackButton = {},
-        onTimeButton={}
+        onTimeButton={},
+        isButtonClicked = false
     )
 
 

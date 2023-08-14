@@ -3,7 +3,10 @@ package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
@@ -41,6 +45,7 @@ import androidx.navigation.NavHostController
 import com.example.oneulnail.DetailViewModel
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
+import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.theme.ColorBEA3EA
@@ -50,7 +55,8 @@ import com.today.nail.service.ui.util.ToastHelper
 fun DetailView(
     navController: NavHostController,
     detailViewModel: DetailViewModel = hiltViewModel(),
-    activityViewModel: TopLevelViewModel
+    activityViewModel: TopLevelViewModel,
+
 ){
     ItemDetailScreen(
         onCall = {
@@ -74,7 +80,7 @@ fun ItemDetailScreen(
     onCall: () -> Unit,
     onInquire: () -> Unit,
     onClickBackButton :()-> Unit,
-    onClickReservation: () -> Unit,
+    onClickReservation: () -> Unit
 ) {
 
     var numFavorites by remember { mutableStateOf(0) }
@@ -374,6 +380,11 @@ fun ItemDetailScreen(
                 style = TextStyle(Color.White, 16.sp, FontWeight.Bold))
 
         }
+
+
+
+
+
     }
 
 }
