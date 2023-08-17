@@ -64,10 +64,13 @@ fun HomeNailShopView(activityViewModel : TopLevelViewModel,
         }
     ) {
         it.calculateBottomPadding()
-        CategoryItemScreen(
+        NailShopScreen(
             onClickBackButton = {navController.popBackStack()},
-            onClickItem = {navController.navigate(HomeRoute.ItemDetail.routes)},
+            onClickNailShop = {navController.navigate(HomeRoute.ItemDetail.routes)},
             onClickCommingSoon = {
+                ToastHelper.showToast("준비 중인 기능입니다.")
+            },
+            onClickCalendar = {
                 ToastHelper.showToast("준비 중인 기능입니다.")
             }
         )
@@ -79,6 +82,7 @@ fun NailShopScreen(
     onClickBackButton :()-> Unit,
     onClickNailShop : () -> Unit,
     onClickCommingSoon : () -> Unit,
+    onClickCalendar: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -182,7 +186,7 @@ fun NailShopScreen(
                         .padding(1.dp)
                         .width(15.dp)
                         .height(15.dp),
-                    onClick = {  }
+                    onClick = { onClickCalendar()  }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.CalendarMonth,
@@ -192,7 +196,7 @@ fun NailShopScreen(
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    modifier = Modifier.clickable {  },
+                    modifier = Modifier.clickable { onClickCalendar() },
                     text = "오늘(토)",
                     style = TextStyle(
                         fontSize = 12.sp,
@@ -211,7 +215,7 @@ fun NailShopScreen(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    modifier = Modifier.clickable {  },
+                    modifier = Modifier.clickable { onClickCalendar() },
                     text = "오후 3:00",
                     style = TextStyle(
                         fontSize = 12.sp,
