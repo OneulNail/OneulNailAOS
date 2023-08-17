@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.today.nail.service.R
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
+import com.today.nail.service.ui.util.ToastHelper
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,18 +73,26 @@ fun HomeView(
             BottomNavigation(navController = navController)
         }
     ) {
+        it.calculateBottomPadding()
         HomeScreen(
             onClickCategoryAll = { navController.navigate(HomeRoute.CategoryItem.routes) },
-            onClickBanner = { navController.navigate(HomeRoute.Banner.routes) },
+            onClickBanner = {
+//                navController.navigate(HomeRoute.Banner.routes)
+                            },
+            onClickCategory = {},
+            onClickCommingSoon = {
+                ToastHelper.showToast("준비 중인 기능입니다.")
+            }
         )
     }
-
 }
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun HomeScreen(
                onClickCategoryAll: () -> Unit,
                onClickBanner: () -> Unit,
+               onClickCategory: (Int) -> Unit,
+               onClickCommingSoon: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Column(modifier = Modifier.fillMaxSize()) {
@@ -108,7 +119,7 @@ fun HomeScreen(
             ){
                 //상단 우측 버튼1
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(24.dp)
                         .padding(3.dp),
@@ -117,11 +128,12 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Filled.Search,
                         contentDescription = null,
+                        tint = Color(0xFF7A00C5),
                     )
                 }
                 //상단 우측 버튼2
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(24.dp)
                         .padding(3.dp)
@@ -130,11 +142,12 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Filled.CalendarMonth,
                         contentDescription = null,
+                        tint = Color(0xFF7A00C5),
                     )
                 }
                 //상단 우측 버튼3
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onClickCommingSoon() },
                     modifier = Modifier
                         .size(24.dp)
                         .padding(3.dp)
@@ -142,6 +155,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Filled.ShoppingBag,
                         contentDescription = null,
+                        tint = Color(0xFF7A00C5),
                     )
                 }
             }
@@ -221,6 +235,7 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
+
             //카테고리
 //        CategoryItemGrid(clicked = {navController.navigate(HomeRoute.CategoryItem.routes)})
             //제품 카테고리 페이지로 이동
@@ -236,18 +251,65 @@ fun HomeScreen(
 
             ) {
                 items(16) { item ->
-                    androidx.compose.material.Text(text = item.toString(),
-                        modifier = Modifier
-                            .clickable {
-                                if (item == 0) {
-                                    //카테고리 전체보기
-                                    onClickCategoryAll()
-                                }
+                    if (item == 0) {
+                        Box(modifier = Modifier.clickable { onClickCategoryAll() }
+
+                        ) {
+                            Box(modifier = Modifier
+                                .width(50.dp)
+                                .height(50.dp)
+                                .background(
+                                    color = Color(0xFFE1DCF0),
+                                    shape = RoundedCornerShape(size = 10.dp)
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(1.dp)
+                                        .width(25.dp)
+                                        .height(25.dp)
+                                )
                             }
-                            .size(50.dp)
-                            .background(LightGray)
-                            .padding(8.dp)
-                    )
+
+                            Text(
+                                text = "전체보기",
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                style = TextStyle(
+                                    fontSize = 10.sp,
+//                                    fontFamily = FontFamily(Font(R.font.inter)),
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFF000000),
+                                )
+                            )
+                        }
+                    }
+                    else {
+                        Box(
+                            modifier = Modifier
+                                .clickable {
+                                    onClickCategory(item)
+                                }
+
+                        ) {
+                            Box(modifier = Modifier
+                                .size(50.dp)
+                                .background(LightGray)
+                                .padding(8.dp))
+                            Text(
+                                text = item.toString(),
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                style = TextStyle(
+                                    fontSize = 10.sp,
+//                                    fontFamily = FontFamily(Font(R.font.inter)),
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFF000000),
+                                )
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(30.dp))
@@ -262,8 +324,9 @@ fun HomeScreen(
 
 
                 Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterEnd)
-                    .clickable {  }
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .clickable {onClickCommingSoon()}
                 ) {
                     Text(text = "자세히 보기",
                         fontSize = 10.sp,)
@@ -287,7 +350,7 @@ fun HomeScreen(
                     ) {
 
                     Box(modifier = Modifier
-                        .clickable {  }
+                        .clickable {}
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -297,7 +360,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                     Box(modifier = Modifier
-                        .clickable {  }
+                        .clickable { }
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -307,7 +370,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                     Box(modifier = Modifier
-                        .clickable {  }
+                        .clickable { }
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -322,7 +385,7 @@ fun HomeScreen(
 
                 ) {
                     Box(modifier = Modifier
-                        .clickable {  }
+                        .clickable { }
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -332,7 +395,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                     Box(modifier = Modifier
-                        .clickable {  }
+                        .clickable { }
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -342,7 +405,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                     Box(modifier = Modifier
-                        .clickable {  }
+                        .clickable { }
                         .width(80.dp)
                         .height(80.dp)
                         .background(
@@ -361,7 +424,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.Center,) {
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -372,7 +435,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(28.dp))
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -386,7 +449,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.Center,) {
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -397,7 +460,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(28.dp))
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -418,8 +481,9 @@ fun HomeScreen(
 
 
                 Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                        .clickable {  }
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clickable {onClickCommingSoon()}
                 ) {
                     Text(text = "자세히 보기",
                         fontSize = 10.sp,)
@@ -445,11 +509,15 @@ fun HomeScreen(
 
             ) {
                 items(8) { item ->
-                    androidx.compose.material.Text(text = "네일 사진",
+                    Box(
                         modifier = Modifier
-                            .clickable { }
+                            .clickable {onClickCommingSoon()}
                             .size(80.dp)
-                            .background(LightGray))
+                            .background(
+                                color = LightGray,
+                                shape = RoundedCornerShape(size = 15.dp)
+                            )
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(50.dp))
@@ -462,7 +530,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.Center,) {
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -473,7 +541,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(28.dp))
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -487,7 +555,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.Center,) {
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -498,7 +566,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(28.dp))
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -512,7 +580,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.Center,) {
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -523,7 +591,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(28.dp))
                     Box(
                         modifier = Modifier
-                            .clickable {  }
+                            .clickable { }
                             .width(150.dp)
                             .height(150.dp)
                             .background(
@@ -620,8 +688,11 @@ fun BottomNavigation(navController: NavController) {
 @Preview
 @Composable
 fun Preview() {
-    HomeScreen(onClickCategoryAll = { /*TODO*/ }) {
-
-    }
+    HomeScreen(
+        onClickCategoryAll = { /*TODO*/ },
+        onClickBanner = {},
+        onClickCommingSoon = {},
+        onClickCategory = {},
+    )
 }
 
