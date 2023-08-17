@@ -10,6 +10,12 @@ sealed class HomeRoute(val routes : String) {
 
     object Item : HomeRoute("item")
 
+    object NailShop : HomeRoute("nail_shop")
+
+    object Favorite : HomeRoute("favorite")
+
+    object MyPage : HomeRoute("my_page")
+
     object ItemDetail : HomeRoute("item_detail")
 
     object Reservation : HomeRoute("reservation")
