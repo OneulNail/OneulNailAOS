@@ -634,11 +634,11 @@ sealed class BottomNavItem(
     val imageVector: ImageVector, val screenRoute: String
 ) {
     object Home : BottomNavItem(Icons.Filled.Home, HomeRoute.Home.routes)
-    object NailShop : BottomNavItem(Icons.Filled.Storefront, HomeRoute.Home.routes)
+    object NailShop : BottomNavItem(Icons.Filled.Storefront, HomeRoute.NailShop.routes)
     object Nail : BottomNavItem(Icons.Filled.ViewCozy, HomeRoute.CategoryItem.routes)
     object Item : BottomNavItem(Icons.Filled.Category, HomeRoute.Item.routes)
-    object Favorite : BottomNavItem(Icons.Filled.Favorite, HomeRoute.Home.routes)
-    object Mypage : BottomNavItem(Icons.Filled.Person, HomeRoute.Home.routes)
+    object Favorite : BottomNavItem(Icons.Filled.Favorite, HomeRoute.Favorite.routes)
+    object Mypage : BottomNavItem(Icons.Filled.Person, HomeRoute.MyPage.routes)
 }
 @Composable
 fun BottomNavigation(navController: NavController) {

@@ -38,13 +38,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 import com.today.nail.service.ui.util.ToastHelper
 
 @Composable
-fun HomeItemView(navController: NavController) {
+fun HomeItemView(
+    activityViewModel : TopLevelViewModel,
+    navController: NavController,
+    itemViewModel: HomeItemViewModel = hiltViewModel(),
+) {
     Scaffold(
         bottomBar = {
             BottomNavigation(navController = navController)
@@ -182,7 +188,7 @@ fun ItemScreen(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(10.dp)
-                                .clickable {onClickCommingSoon()}
+                                .clickable { onClickCommingSoon() }
                         )
                     }
                 }
