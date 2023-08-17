@@ -455,5 +455,6 @@ fun Preview() {
         onClickBackButton = { /*TODO*/ },
         onClickCommingSoon = {},
         onClickNailShop = {},
+        onClickCalendar = {},
     )
 }
