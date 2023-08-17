@@ -5,14 +5,18 @@ import android.os.Build
 import android.util.Log
 import android.widget.CalendarView
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +24,17 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +42,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,6 +63,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.oneulnail.DetailViewModel
 import com.today.nail.service.ui.TopLevelViewModel
+import com.today.nail.service.ui.theme.Color7A00C5
+import com.today.nail.service.ui.theme.ColorCAC9FF
 import com.today.nail.service.ui.util.ToastHelper
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -56,13 +75,20 @@ fun ReservationView(
     detailViewModel: DetailViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel
 ){
+    var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
-        onReservation = {
-            ToastHelper.showToast("준비중인 기능입니다.")
+    onReservation = {
+            ToastHelper.showToast("예약 완료되었습니다")
         },
         onBack = {navHostController.navigateUp()},
-
+        onClickBackButton = {navHostController.popBackStack()},
+        onTimeButton={
+            isButtonClicked = !isButtonClicked
+        },
+        isButtonClicked = isButtonClicked
     )
+
+
 }
 
 
@@ -71,8 +97,12 @@ fun ReservationView(
 fun ReservationScreen(
     onReservation: () -> Unit,
     onBack: () -> Unit,
+    onClickBackButton: () -> Unit,
+    onTimeButton: () -> Unit,
+    isButtonClicked: Boolean
 
-    ) {
+
+) {
     //날짜 선택하기
     val isDialogOpen = remember{ mutableStateOf(false) }
     val selectedDate: MutableState<LocalDate?> = remember{ mutableStateOf(null) }
@@ -81,12 +111,10 @@ fun ReservationScreen(
     val firstRowButtons = listOf("14:00", "15:00", "16:00", "17:00")
     val secondRowButtons = listOf("18:00", "19:00", "20:00", "21:00")
     //버튼 누르면 색깔 변하는 설정
-    val isButtonClicked = remember { mutableStateOf(false) }
-    val buttonColor = if (isButtonClicked.value) {
-        Color.Green
-    } else {
-        Color.Gray
-    }
+
+
+
+
     fun getToday() = Calendar.getInstance().let {
         val year = it.get(Calendar.YEAR)
         val month = it.get(Calendar.MONTH) + 1
@@ -103,59 +131,133 @@ fun ReservationScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
 
+
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-
-                .padding(top = 40.dp)
-        ) {
-            Button(
-                modifier = Modifier.size(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                onClick = onBack,
+        Box(modifier = Modifier
+            .height(81.dp)
+            .fillMaxWidth(1f)) {
+            Row(modifier= Modifier
+                .align(alignment = Alignment.CenterStart)
+                .offset(x = 5.dp)
+                .fillMaxWidth(0.3f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("뒤로")
+                IconButton(
+                    onClick = { onClickBackButton() },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(end = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIos,
+                        contentDescription = null,
+                        tint = Color7A00C5
+                    )
+                }
+                androidx.compose.material.Text(
+                    text = "예약",
+                    color = Color(0xFF7A00C5),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight(700),
+                )
             }
+            Row(modifier= Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 8.dp)
 
-            Text(
-                modifier = Modifier.padding(start = 10.dp, top = 8.dp),
-                fontSize = 18.sp,
-                text = "예약"
-            )
+            ){
+                //1. 검색버튼
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(34.dp)
+                        .padding(5.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = null,
+                        tint = Color7A00C5
+
+                    )
+                }
+                //2. 달력버튼
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(34.dp)
+                        .padding(5.dp)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = null,
+                        tint = Color7A00C5
+
+                    )
+                }
+                //3. 장바구니 버튼
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(34.dp)
+                        .padding(5.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ShoppingBag,
+                        contentDescription = null,
+                        tint = Color7A00C5
+
+                    )
+                }
+            }
         }
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp)
+                .height(1.dp),
+            color = Color.DarkGray,
+        )
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-                .padding(top = 10.dp)
+                .padding(start = 15.dp, top = 10.dp)
+                .height(50.dp),
+            verticalAlignment = Alignment.CenterVertically
+
         ) {
+            IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .size(55.dp)
+                    .padding(end = 10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CalendarMonth,
+                    contentDescription = null,
+                )
+            }
             Text(
                 text = "오늘(일)",
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 8.dp),
-                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    .width(250.dp)
+                    .padding(start = 0.dp),
+                style = TextStyle(fontSize = 20.sp,
+                    fontWeight = FontWeight(700))
             )
-        }
-
-        Row(
-            modifier = Modifier
-                .padding(10.dp)
-                .padding(top = 10.dp)
-                .height(280.dp)
-                .fillMaxWidth()
-        ) {
-            // 여기에 CalendarView를 코틀린 컴포즈에서 구현하는 방법 추가
-            Button(
-                modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(8.dp),
-                onClick = {
-                    isDialogOpen.value = !isDialogOpen.value
-                }
+            IconButton(
+                onClick = {isDialogOpen.value = !isDialogOpen.value
+                },
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(end = 2.dp)
             ) {
-                Text("날짜 선택하기")
+                Icon(
+                    imageVector = Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                )
             }
             if(isDialogOpen.value) {
                 MyDatePickerDialog(onDateSelected = {
@@ -166,46 +268,116 @@ fun ReservationScreen(
                     isDialogOpen.value = false
                 })
             }
-
         }
+        //날짜 선택하는 박스
+        Row(
+            modifier = Modifier
+                .padding(top = 5.dp, start = 15.dp, end = 15.dp)
+                .border(
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = Color.Gray
+                    ),
+                )
+                .height(250.dp)
+                .fillMaxWidth()
+        ) {
+            Button(
+                modifier = Modifier
+                    .fillMaxSize(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp),
+                onClick = {isDialogOpen.value = !isDialogOpen.value}
+            ) {
+                Text("날짜 선택하기", color = Color.Black,
+                    style = TextStyle(fontSize = 17.sp,
+                        fontWeight = FontWeight(700)))
+            }
+            if(isDialogOpen.value) {
+                MyDatePickerDialog(onDateSelected = {
+                    Log.d("TAG", "MyDatePicker: 선택한 날짜: ${it.toString()}")
+                    selectedDate.value = it
+                }, onDismissRequest = {
+                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
+                    isDialogOpen.value = false
+                })
+            }
+        }
+
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp, bottom = 8.dp)
-                .padding(top = 50.dp)
+                .padding(10.dp)
+                .height(50.dp)
+                .padding(top = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+
         ) {
+            IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .size(55.dp)
+                    .padding(end = 10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Schedule,
+                    contentDescription = null,
+                )
+            }
             Text(
                 text = "시간선택",
-                modifier = Modifier.padding(start = 18.dp),
-                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                modifier = Modifier
+                    .width(250.dp),
+                style = TextStyle(fontSize = 20.sp,
+                    fontWeight = FontWeight(700))
             )
+            IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(end = 10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                )
+            }
+
         }
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp)
+                .height(1.dp),
+            color = Color.Black,
+        )
 
         Row(
             modifier = Modifier
-                .padding(10.dp)
-                .height(45.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 18.dp)
+                .height(40.dp)
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             firstRowButtons.forEach { buttonLabel ->
                 Button(
-                    onClick = {
-
-                    },
+                    onClick = onTimeButton,
                     shape = RectangleShape,
                     modifier = Modifier
                         .width(80.dp)
                         .height(45.dp),
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = buttonColor
+                        contentColor = Color.Black,
+                        containerColor = if (isButtonClicked) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
                     )
                 ) {
                     Text(
                         text = buttonLabel,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         style = TextStyle(fontSize = 12.sp,
                             fontWeight = FontWeight.Bold)
                     )
@@ -214,30 +386,88 @@ fun ReservationScreen(
         }
         Row(
             modifier = Modifier
-                .padding(10.dp)
-                .height(45.dp)
+                .padding(start = 15.dp, end = 15.dp, top = 18.dp)
+                .height(40.dp)
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             secondRowButtons.forEach { buttonLabel ->
                 Button(
-                    onClick = { /* TODO: Handle button click */ },
+                    onClick = onTimeButton,
                     shape = RectangleShape,
                     modifier = Modifier
                         .width(80.dp)
                         .height(45.dp),
                     colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.White,
-                        containerColor = buttonColor
+                        contentColor = Color.Black,
+                        containerColor = if (isButtonClicked) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
                     )
                 ) {
                     Text(
                         text = buttonLabel,
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        modifier = Modifier.fillMaxSize(),
+                        style = TextStyle(fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold)
                     )
                 }
             }
         }
+
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 10.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            androidx.compose.material.IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(end = 2.dp, top = 10.dp),
+
+                ) {
+                androidx.compose.material.Icon(
+                    imageVector = Icons.Filled.CheckBoxOutlineBlank,
+                    contentDescription = null,
+                    tint=ColorCAC9FF,
+
+                    )
+            }
+            Text(text = "선택",
+                fontSize = 11.sp,
+                modifier = Modifier.padding(top=10.dp),
+                fontWeight = FontWeight.Medium)
+
+            androidx.compose.material.IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(end = 2.dp, start = 5.dp, top = 10.dp)
+            ) {
+                androidx.compose.material.Icon(
+                    imageVector = Icons.Filled.CheckBoxOutlineBlank,
+                    contentDescription = null,
+                    tint= Color.LightGray
+
+                )
+            }
+            Text(text = "불가",
+                modifier = Modifier.padding(top=10.dp),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium)
+
+
+
+        }
+
+        Divider(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 40.dp)
+                .height(1.dp),
+            color = Color.Black,
+        )
 
         Button(
             modifier = Modifier
@@ -247,7 +477,7 @@ fun ReservationScreen(
 
             onClick = onReservation
         ) {
-            Text("예약 문의하기")
+            Text("예약하기")
         }
     }
 }
@@ -279,14 +509,17 @@ fun MyDatePickerDialog(
             CustomCalendarView(onDateSelected = {
                 selectedDate.value = it
             })
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.size(3.dp))
 
             Row (
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(bottom = 16.dp, end = 16.dp)
             ){
-                TextButton(onClick = onDismissRequest) {
+                TextButton(onClick = {
+                    onDismissRequest()}
+                )
+                {
                     Text(text = "닫기")
                 }
 
@@ -324,15 +557,14 @@ fun CustomCalendarView(
 @Preview(showBackground = true)
 @Composable
 fun PreviewReservationScreen() {
-   ReservationScreen(
-       onReservation ={},
-       onBack ={},
-   )
-    MyDatePickerDialog(
-    onDateSelected ={},
-    onDismissRequest ={}
+    ReservationScreen(
+        onReservation ={},
+        onBack ={},
+        onClickBackButton = {},
+        onTimeButton={},
+        isButtonClicked = false
     )
-    CustomCalendarView(onDateSelected ={}
-    )
+
+
 
 }
