@@ -13,24 +13,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.today.nail.service.ui.TopLevelNavigationRoutes
 import com.today.nail.service.ui.TopLevelViewModel
-import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
 import com.today.nail.service.ui.theme.Color0A7BE4
-import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.Color898989
 import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.util.InputTextFieldWithPrimaryDesign
@@ -46,18 +41,49 @@ fun OnBoardingRegisterView(
     viewModel : OnBoardingRegisterViewModel = hiltViewModel(),
     navController: NavController
 ) {
+
+    val nameStringValue = viewModel.nameFieldValue.collectAsState().value
+    val nickNameStringValue = viewModel.nickNameFieldValue.collectAsState().value
+    val passwordStringValue = viewModel.passwordFieldValue.collectAsState().value
+    val passwordRecheckStringValue = viewModel.passwordRecheckFieldValue.collectAsState().value
+
     Screen(
         onNavigateToHome = {
             navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
-        }
+        },
+        nameString = nameStringValue,
+        nickNameString = nickNameStringValue,
+        passwordStirng = passwordStringValue,
+        passwordRecheckString = passwordRecheckStringValue,
+        onChangeNameField = {
+            viewModel.updateNameField(it)
+        },
+        onChangeNickNameField = {
+            viewModel.updateNickNameField(it)
+        },
+        onChangePasswordField = {
+            viewModel.updatePasswordField(it)
+        },
+        onChangePasswordRecheckField = {
+            viewModel.updatePasswordRecheckField(it)
+        },
+
     )
 }
 
 @Composable
 private fun Screen(
-    onNavigateToHome : () -> Unit,
+    onNavigateToHome: () -> Unit,
+    nameString: String,
+    nickNameString: String,
+    passwordStirng: String,
+    passwordRecheckString: String,
+    onChangeNameField : (String) -> Unit,
+    onChangeNickNameField : (String) -> Unit,
+    onChangePasswordField : (String) -> Unit,
+    onChangePasswordRecheckField : (String) -> Unit,
 ) {
 
     val defaultModifier = Modifier.padding(horizontal = 16.dp)
@@ -101,8 +127,8 @@ private fun Screen(
                 InputTextFieldWithPrimaryDesign(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    value = "",
-                    onValueChange = {},
+                    value = nameString,
+                    onValueChange = onChangeNameField,
                     hintText = "이름을 입력해주세요."
                 )
                 Spacer(modifier = Modifier.height(10.dp))
@@ -133,8 +159,8 @@ private fun Screen(
 
                 InputTextFieldWithPrimaryDesign(
                     modifier = Modifier.fillMaxWidth(),
-                    value = "",
-                    onValueChange = {},
+                    value = nickNameString,
+                    onValueChange = onChangeNickNameField,
                     hintText = "닉네임을 입력해주세요."
                 )
             }
@@ -156,8 +182,8 @@ private fun Screen(
 
                 InputTextFieldWithPrimaryDesign(
                     modifier = Modifier.fillMaxWidth(),
-                    value = "",
-                    onValueChange = {},
+                    value = passwordStirng,
+                    onValueChange = onChangePasswordField,
                     hintText = "비밀번호를 입력해주세요."
                 )
 
@@ -165,8 +191,8 @@ private fun Screen(
 
                 InputTextFieldWithPrimaryDesign(
                     modifier = Modifier.fillMaxWidth(),
-                    value = "",
-                    onValueChange = {},
+                    value = passwordRecheckString,
+                    onValueChange = onChangePasswordRecheckField,
                     hintText = "비밀번호를 다시 한 번 입력해주세요."
                 )
 
@@ -174,6 +200,7 @@ private fun Screen(
         }
 
         item {
+            val isChecked = false
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 23.dp)
@@ -185,7 +212,7 @@ private fun Screen(
                         top = 18.dp,
                         bottom = 41.dp
                     ),
-                    isChecked = false
+                    isChecked = isChecked,
                 ) {
 
                 }
@@ -208,9 +235,10 @@ private fun Screen(
                     onClickTermLink = {}
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
             }
         }
+        item { Spacer(modifier = Modifier.height(150.dp))  }
+
     }
 
     Box(modifier = defaultModifier.fillMaxSize()) {
@@ -289,8 +317,8 @@ private fun TermItem(
                    modifier = Modifier
                        .padding(start = 3.dp)
                        .noRippleClickable {
-                       onClickTermLink()
-                   }
+                           onClickTermLink()
+                       }
                )
            }
             Text(
@@ -307,5 +335,14 @@ private fun TermItem(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewScreen() {
-    Screen(onNavigateToHome = {})
+    Screen(onNavigateToHome = {},
+        "",
+        "",
+        "",
+        "",
+        {},
+        {},
+        {},
+        {},
+    )
 }
