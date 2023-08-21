@@ -1,8 +1,10 @@
 package com.today.nail.service.ui.scenario.onBoarding.view.phoneVerify
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.today.nail.service.ui.scenario.onBoarding.view.register.OnBoardingRegisterViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,7 @@ class OnBoardingPhoneVerifyViewModel @Inject constructor() : ViewModel() {
     val verifyFieldValue = MutableStateFlow("")
     val phoneNumFieldValue = MutableStateFlow("")
 
+
     init {
         viewModelScope.launch {
             verifyFieldValue.collectLatest {
@@ -32,6 +35,8 @@ class OnBoardingPhoneVerifyViewModel @Inject constructor() : ViewModel() {
     fun updatePhoneNumField(value : String) {
         if(value.length <= 11) {
             phoneNumFieldValue.value = value
+
+
         }
     }
 

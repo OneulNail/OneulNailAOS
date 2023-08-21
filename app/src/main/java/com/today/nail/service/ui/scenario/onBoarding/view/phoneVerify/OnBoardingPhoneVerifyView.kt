@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
+import com.today.nail.service.ui.scenario.onBoarding.view.register.OnBoardingRegisterViewModel
 import com.today.nail.service.ui.theme.Color696969
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorA4A4A4
@@ -44,6 +45,7 @@ import com.today.nail.service.ui.util.noRippleClickable
 fun OnBoardingPhoneVerifyView(
     activityViewModel : TopLevelViewModel,
     viewModel : OnBoardingPhoneVerifyViewModel = hiltViewModel(),
+    registerViewModel: OnBoardingRegisterViewModel = hiltViewModel(),
     navController: NavController
 ) {
 
@@ -63,6 +65,7 @@ fun OnBoardingPhoneVerifyView(
         },
         onChangeVerifyField = {
             viewModel.updateVerifyField(it)
+
         },
         onClickSendVerifyCode = {
             viewModel.requestVerifyCode(
@@ -76,6 +79,7 @@ fun OnBoardingPhoneVerifyView(
         },
         onClickConfirm = {
             navController.navigate(OnBoardingRoutes.Register.routes)
+            registerViewModel.updatePhoneNum(phoneStringValue)
         },
         onClickBackHeader = {
             navController.popBackStack()

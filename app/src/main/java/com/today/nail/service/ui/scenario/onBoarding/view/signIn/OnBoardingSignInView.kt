@@ -14,15 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,22 +30,29 @@ import com.today.nail.service.R
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
 import com.today.nail.service.ui.theme.ColorA4A4A4
-import com.today.nail.service.ui.theme.ColorD9D9D9
 import com.today.nail.service.ui.util.InputTextFieldNormal
 import com.today.nail.service.ui.util.ToastHelper
-import com.today.nail.service.ui.util.bottomBorder
 import com.today.nail.service.ui.util.component.BackButtonWithSlogan
 import com.today.nail.service.ui.util.component.CommonButton
 import com.today.nail.service.ui.util.dpToSp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun OnBoardingSignView(
     activityViewModel: TopLevelViewModel,
     navHostController: NavHostController,
-    onBoardingSignViewModel : OnBoardingSingInViewModel = hiltViewModel(),
+    onBoardingSignViewModel : OnBoardingSignInViewModel = hiltViewModel(),
 ) {
     val userId = onBoardingSignViewModel.userId.collectAsState().value
     val userPw = onBoardingSignViewModel.password.collectAsState().value
+    val loginResult = onBoardingSignViewModel.loginResult.observeAsState()
+
+    val loginScope = CoroutineScope(Dispatchers.Main)
+
 
     Screen(
         userId = userId,
@@ -59,15 +64,29 @@ fun OnBoardingSignView(
             onBoardingSignViewModel.updatePassword(value)
         },
         onClickLogin = {
-            ToastHelper.showToast("준비중인 기능입니다.")
+            // 코루틴 내에서 performLogin 호출
+            loginScope.launch {
+                onBoardingSignViewModel.performLogin()
+            }
+            loginResult.value?.let { isSuccess ->
+                if (isSuccess) {
+                    ToastHelper.showToast("로그인 성공")
+                } else {
+                    ToastHelper.showToast("로그인 실패")
+                }
+            }
         },
         onClickRegister = {
             navHostController.navigate(OnBoardingRoutes.PhoneVerify.routes)
         },
         onClickHeaderBack = {
             navHostController.popBackStack()
+        },
+        onDispose = {
+            loginScope.cancel()
         }
     )
+
 }
 
 @Composable
@@ -79,8 +98,15 @@ private fun Screen(
     onClickLogin : () -> Unit,
     onClickRegister : () -> Unit,
     onClickHeaderBack : () -> Unit,
+    onDispose : () -> Unit,
 
 ) {
+    DisposableEffect(Unit) {
+        onDispose {
+            onDispose.invoke() // onDispose 함수 호출
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.Start,
@@ -175,5 +201,6 @@ private fun PreviewScreen() {
         onClickLogin = {},
         onClickRegister = {},
         onClickHeaderBack = {},
+        onDispose =  {},
     )
 }

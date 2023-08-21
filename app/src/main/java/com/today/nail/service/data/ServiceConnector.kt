@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ServiceConnector {
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
+        .baseUrl("http://43.201.115.69:8080/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

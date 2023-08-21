@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,11 +30,15 @@ import com.today.nail.service.ui.theme.Color0A7BE4
 import com.today.nail.service.ui.theme.Color898989
 import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.util.InputTextFieldWithPrimaryDesign
+import com.today.nail.service.ui.util.ToastHelper
 import com.today.nail.service.ui.util.TodayNailCheckBox
 import com.today.nail.service.ui.util.component.BackButtonWithText
 import com.today.nail.service.ui.util.component.StateButton
 import com.today.nail.service.ui.util.dpToSp
 import com.today.nail.service.ui.util.noRippleClickable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun OnBoardingRegisterView(
@@ -47,11 +52,13 @@ fun OnBoardingRegisterView(
     val passwordStringValue = viewModel.passwordFieldValue.collectAsState().value
     val passwordRecheckStringValue = viewModel.passwordRecheckFieldValue.collectAsState().value
 
+    val registerScope = CoroutineScope(Dispatchers.Main)
+    val registerResult = viewModel.registerResult.observeAsState()
     Screen(
         onNavigateToHome = {
-            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
-                popUpTo(navController.graph.id) { inclusive = true }
-            }
+//            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
+//                popUpTo(navController.graph.id) { inclusive = true }
+//            }
         },
         nameString = nameStringValue,
         nickNameString = nickNameStringValue,
@@ -69,6 +76,23 @@ fun OnBoardingRegisterView(
         onChangePasswordRecheckField = {
             viewModel.updatePasswordRecheckField(it)
         },
+        onclickRegister = {
+            registerScope.launch {
+                val isSuccess = viewModel.performRegister()
+                if (isSuccess) {
+                    ToastHelper.showToast("회원가입 성공")
+                    // 성공 시 다음 동작을 수행하는 로직을 추가
+                    navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
+                        popUpTo(navController.graph.id) { inclusive = true } }
+                }
+                else {
+                    ToastHelper.showToast("회원가입 실패")
+                    // 실패 시 다음 동작을 수행하는 로직을 추가
+                    navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
+                        popUpTo(navController.graph.id) { inclusive = true } }
+                }
+            }
+        },
 
     )
 }
@@ -84,6 +108,7 @@ private fun Screen(
     onChangeNickNameField : (String) -> Unit,
     onChangePasswordField : (String) -> Unit,
     onChangePasswordRecheckField : (String) -> Unit,
+    onclickRegister : () -> Unit,
 ) {
 
     val defaultModifier = Modifier.padding(horizontal = 16.dp)
@@ -249,6 +274,7 @@ private fun Screen(
             title = "시작하기",
             enable = true
         ) {
+            onclickRegister()
             onNavigateToHome()
         }
     }
@@ -340,6 +366,7 @@ private fun PreviewScreen() {
         "",
         "",
         "",
+        {},
         {},
         {},
         {},
