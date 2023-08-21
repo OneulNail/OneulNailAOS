@@ -53,12 +53,11 @@ fun OnBoardingRegisterView(
     val passwordRecheckStringValue = viewModel.passwordRecheckFieldValue.collectAsState().value
 
     val registerScope = CoroutineScope(Dispatchers.Main)
-    val registerResult = viewModel.registerResult.observeAsState()
     Screen(
         onNavigateToHome = {
-//            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
-//                popUpTo(navController.graph.id) { inclusive = true }
-//            }
+            navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
         },
         nameString = nameStringValue,
         nickNameString = nickNameStringValue,
@@ -93,7 +92,13 @@ fun OnBoardingRegisterView(
                 }
             }
         },
-
+        isCheckedAllAgree = viewModel.isCheckedAllAgree.value,
+        isCheckedFirstAgree = viewModel.isCheckedFirstAgree.value,
+        isCheckedSecondAgree = viewModel.isCheckedSecondAgree.value,
+        allAgree = {viewModel.toggleAllAgree()},
+        firstAgree = {viewModel.toggleFirstAgree()},
+        secondAgree = {viewModel.toggleSecondAgree()},
+        agreeReq = {ToastHelper.showToast("약관 동의는 필수입니다.")},
     )
 }
 
@@ -109,6 +114,13 @@ private fun Screen(
     onChangePasswordField : (String) -> Unit,
     onChangePasswordRecheckField : (String) -> Unit,
     onclickRegister : () -> Unit,
+    isCheckedAllAgree: Boolean,
+    isCheckedFirstAgree: Boolean,
+    isCheckedSecondAgree: Boolean,
+    allAgree: () -> Unit,
+    firstAgree: () -> Unit,
+    secondAgree: () -> Unit,
+    agreeReq : () -> Unit,
 ) {
 
     val defaultModifier = Modifier.padding(horizontal = 16.dp)
@@ -165,7 +177,6 @@ private fun Screen(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
-
         }
 
         item {
@@ -220,12 +231,10 @@ private fun Screen(
                     onValueChange = onChangePasswordRecheckField,
                     hintText = "비밀번호를 다시 한 번 입력해주세요."
                 )
-
             }
         }
 
         item {
-            val isChecked = false
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 23.dp)
@@ -237,17 +246,15 @@ private fun Screen(
                         top = 18.dp,
                         bottom = 41.dp
                     ),
-                    isChecked = isChecked,
-                ) {
-
-                }
-
+                    onClick = { allAgree() },
+                    isChecked = isCheckedAllAgree,
+                )
                 TermItem(
                     modifier = termModifier.padding(bottom = 25.dp),
                     content = "이용약관에는 마케팅 정보 수신에 대한 동의와 관련된\n" +
                             "내용이 포함되어 있습니다.",
-                    isChecked = false,
-                    onClickCheckBox = {},
+                    isChecked = isCheckedAllAgree || isCheckedFirstAgree,
+                    onClickCheckBox = { firstAgree() },
                     onClickTermLink = {}
                 )
 
@@ -255,15 +262,13 @@ private fun Screen(
                     modifier = termModifier,
                     content = "이용약관에는 개인정보 수집에 대한 동의와 관련된\n" +
                             "내용이 포함되어 있습니다.",
-                    isChecked = false,
-                    onClickCheckBox = {},
+                    isChecked = isCheckedAllAgree || isCheckedSecondAgree,
+                    onClickCheckBox = { secondAgree() },
                     onClickTermLink = {}
                 )
-
             }
         }
         item { Spacer(modifier = Modifier.height(150.dp))  }
-
     }
 
     Box(modifier = defaultModifier.fillMaxSize()) {
@@ -274,8 +279,13 @@ private fun Screen(
             title = "시작하기",
             enable = true
         ) {
-            onclickRegister()
-            onNavigateToHome()
+            if(isCheckedAllAgree || (isCheckedFirstAgree && isCheckedSecondAgree)) {
+                onclickRegister()
+                onNavigateToHome()
+            }
+            else {
+                agreeReq()
+            }
         }
     }
 }
@@ -367,6 +377,13 @@ private fun PreviewScreen() {
         "",
         "",
         {},
+        {},
+        {},
+        {},
+        {},
+        false,
+        true,
+        false,
         {},
         {},
         {},
