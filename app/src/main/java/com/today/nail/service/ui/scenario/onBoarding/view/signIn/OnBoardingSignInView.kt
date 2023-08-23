@@ -2,6 +2,7 @@ package com.today.nail.service.ui.scenario.onBoarding.view.signIn
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.R
+import com.today.nail.service.ui.TopLevelNavigationRoutes
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
 import com.today.nail.service.ui.theme.ColorA4A4A4
@@ -50,6 +52,7 @@ fun OnBoardingSignView(
     val userId = onBoardingSignViewModel.userId.collectAsState().value
     val userPw = onBoardingSignViewModel.password.collectAsState().value
     val loginResult = onBoardingSignViewModel.loginResult.observeAsState()
+    val kakaoLoggedIn = onBoardingSignViewModel.isKakaoLoggedin.collectAsState().value
 
     val loginScope = CoroutineScope(Dispatchers.Main)
 
@@ -84,6 +87,17 @@ fun OnBoardingSignView(
         },
         onDispose = {
             loginScope.cancel()
+        },
+        onClickKakaoLogin = {
+            loginScope.launch { onBoardingSignViewModel.kakaoLogin() }
+            if(kakaoLoggedIn) {
+                ToastHelper.showToast("로그인 성공")
+                navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
+            }
+            else{
+                ToastHelper.showToast("로그인 실패")
+                navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
+            }
         }
     )
 
@@ -99,6 +113,7 @@ private fun Screen(
     onClickRegister : () -> Unit,
     onClickHeaderBack : () -> Unit,
     onDispose : () -> Unit,
+    onClickKakaoLogin: () -> Unit,
 
 ) {
     DisposableEffect(Unit) {
@@ -172,7 +187,9 @@ private fun Screen(
                 Image(
                     painter = painterResource(id = R.drawable.sns_kakao_login),
                     contentDescription = "카카오",
-                    modifier = Modifier.size(44.dp)
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable { onClickKakaoLogin() }
                 )
                 Spacer(modifier = Modifier.width(30.dp))
                 Image(
@@ -202,5 +219,6 @@ private fun PreviewScreen() {
         onClickRegister = {},
         onClickHeaderBack = {},
         onDispose =  {},
+        onClickKakaoLogin = {},
     )
 }
