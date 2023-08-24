@@ -38,18 +38,19 @@ class OnBoardingSignInViewModel @Inject constructor(
     private val _password = MutableStateFlow<String>("")
     val password = _password.asStateFlow()
 
-    fun updateId(value : String) {
+    fun updateId(value: String) {
         _userId.value = value
     }
 
-    fun updatePassword(value : String) {
+    fun updatePassword(value: String) {
         _password.value = value
     }
 
-    val onBoardingRepository: OnBoardingRepository = OnBoardingRepositoryImpl(ServiceConnector.onBoardService)
+    val onBoardingRepository: OnBoardingRepository =
+        OnBoardingRepositoryImpl(ServiceConnector.onBoardService)
 
-    private val _loginResult = MutableLiveData<Boolean>()
-    val loginResult: LiveData<Boolean> = _loginResult
+    private var _loginResult = MutableLiveData<Boolean>()
+    var loginResult: LiveData<Boolean> = _loginResult
 
     /**
      *  자체 로그인
@@ -58,9 +59,15 @@ class OnBoardingSignInViewModel @Inject constructor(
         val mobileNo = userId.value
         val password = password.value
         try {
-            val loginResult = onBoardingRepository.userLogin(mobileNo, password)
-            _loginResult.value = true
+            val loginReq = onBoardingRepository.userLogin(mobileNo, password)
+            if (loginReq.msg == "로그인에 성공하였습니다.") {
+                Log.d("자체 로그인", "성공")
+                _loginResult.value = true
+            }
+            //loginResult.token == ?
+
         } catch (e: Exception) {
+            Log.d("자체 로그인", "실패, 서버 응답: $e")
             _loginResult.value = false
         }
     }
