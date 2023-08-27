@@ -52,7 +52,7 @@ fun OnBoardingPhoneVerifyView(
     val codeSendState = viewModel.verifyCodeSendState.collectAsState().value
     val canMoveRegisterView = viewModel.canMoveToRegisterView.collectAsState().value
 
-    val phoneStringValue = viewModel.phoneNumFieldValue.collectAsState().value
+    val phoneStringValue = activityViewModel.phoneNumFieldValue.collectAsState().value
     val verifyStringValue = viewModel.verifyFieldValue.collectAsState().value
 
     Screen(
@@ -61,7 +61,7 @@ fun OnBoardingPhoneVerifyView(
         phoneString = phoneStringValue,
         verifyString = verifyStringValue,
         onChangePhoneField = {
-            viewModel.updatePhoneNumField(it)
+            activityViewModel.updatePhoneNumField(it)
         },
         onChangeVerifyField = {
             viewModel.updateVerifyField(it)
@@ -79,7 +79,6 @@ fun OnBoardingPhoneVerifyView(
         },
         onClickConfirm = {
             navController.navigate(OnBoardingRoutes.Register.routes)
-            registerViewModel.updatePhoneNum(phoneStringValue)
         },
         onClickBackHeader = {
             navController.popBackStack()

@@ -13,6 +13,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.today.nail.service.data.ServiceConnector
+import com.today.nail.service.data.onBoard.dto.login.UserLoginResDTO
 import com.today.nail.service.data.onBoard.repository.OnBoardingRepository
 import com.today.nail.service.data.onBoard.repository.OnBoardingRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,45 +48,52 @@ class OnBoardingSignInViewModel @Inject constructor(
     }
 
     val onBoardingRepository: OnBoardingRepository =
-        OnBoardingRepositoryImpl(ServiceConnector.onBoardService)
-
-    private var _loginResult = MutableLiveData<Boolean>()
-    var loginResult: LiveData<Boolean> = _loginResult
+        OnBoardingRepositoryImpl(ServiceConnector.makeOnBoardService())
 
     /**
      *  자체 로그인
      */
-    suspend fun performLogin() {
+    suspend fun performLogin(
+        onSuccess: () -> Unit,
+        onFail : () -> Unit
+    ) {
         val mobileNo = userId.value
         val password = password.value
-        try {
-            val loginReq = onBoardingRepository.userLogin(mobileNo, password)
-            if (loginReq.msg == "로그인에 성공하였습니다.") {
+        runCatching {
+            onBoardingRepository.userLogin(mobileNo, password)
+        }.onSuccess { res ->
+            Log.d("caz tst", "login response : $res")
+            //res.token // 이런 데이터를 viewMOdel 에서 저장을 하든 뭐든 한다.
+            if (res.msg == "로그인에 성공하였습니다.") {
                 Log.d("자체 로그인", "성공")
-                _loginResult.value = true
             }
             //loginResult.token == ?
-
-        } catch (e: Exception) {
-            Log.d("자체 로그인", "실패, 서버 응답: $e")
-            _loginResult.value = false
+            onSuccess()
+        }.onFailure {
+            onFail()
         }
     }
 
-    val isKakaoLoggedin = MutableStateFlow<Boolean>(false)
 
     /**
      *  카카오 로그인
      */
-    fun kakaoLogin() {
+    fun kakaoLogin(
+        onSuccess: (result : String) -> Unit,
+        onFail : () -> Unit,
+    ) {
         viewModelScope.launch {
-            isKakaoLoggedin.emit(handleKakaoLogin())
-            Log.d("isKakaoLoggedin", isKakaoLoggedin.toString())
-
+            handleKakaoLogin(
+                onSuccess,
+                onFail,
+            )
         }
     }
 
-    private suspend  fun handleKakaoLogin(): Boolean =
+    private suspend  fun handleKakaoLogin(
+        onSuccess: (String) -> Unit,
+        onFail: () -> Unit
+    ): Boolean =
 
         suspendCoroutine<Boolean> { continuation ->
             // 로그인 조합 예제
@@ -96,9 +104,11 @@ class OnBoardingSignInViewModel @Inject constructor(
                  if (error != null) {
                      Log.e(TAG, "카카오계정으로 로그인 실패", error)
                      continuation.resume(false)
+                     onFail()
                  } else if (token != null) {
                      Log.i(TAG, "카카오계정으로 로그인 성공 ${token.accessToken}")
                      continuation.resume(true)
+                     onSuccess("나는 천재야")
                  }
              }
 

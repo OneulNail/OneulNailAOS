@@ -51,9 +51,6 @@ fun OnBoardingSignView(
 ) {
     val userId = onBoardingSignViewModel.userId.collectAsState().value
     val userPw = onBoardingSignViewModel.password.collectAsState().value
-    val loginResult = onBoardingSignViewModel.loginResult.observeAsState()
-    val kakaoLoggedIn = onBoardingSignViewModel.isKakaoLoggedin.collectAsState().value
-
     val loginScope = CoroutineScope(Dispatchers.Main)
 
 
@@ -69,14 +66,14 @@ fun OnBoardingSignView(
         onClickLogin = {
             // 코루틴 내에서 performLogin 호출
             loginScope.launch {
-                onBoardingSignViewModel.performLogin()
-            }
-            loginResult.value?.let { isSuccess ->
-                if (isSuccess) {
-                    ToastHelper.showToast("로그인 성공")
-                } else {
-                    ToastHelper.showToast("로그인 실패")
-                }
+                onBoardingSignViewModel.performLogin(
+                    onSuccess = {
+                        ToastHelper.showToast("로그인")
+                    },
+                    onFail = {
+                        ToastHelper.showToast("로그인 실패")
+                    }
+                )
             }
         },
         onClickRegister = {
@@ -89,15 +86,16 @@ fun OnBoardingSignView(
             loginScope.cancel()
         },
         onClickKakaoLogin = {
-            loginScope.launch { onBoardingSignViewModel.kakaoLogin() }
-            if(kakaoLoggedIn) {
-                ToastHelper.showToast("로그인 성공")
-                navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
-            }
-            else{
-                ToastHelper.showToast("로그인 실패")
-                navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
-            }
+            loginScope.launch { onBoardingSignViewModel.kakaoLogin(
+                onSuccess = { result : String ->
+                    ToastHelper.showToast(result)
+                    navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
+                },
+                onFail = {
+                    ToastHelper.showToast("로그인 실패")
+                    navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
+                }
+            ) }
         }
     )
 

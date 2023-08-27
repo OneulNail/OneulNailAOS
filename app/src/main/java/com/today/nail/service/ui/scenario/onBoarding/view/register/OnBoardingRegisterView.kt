@@ -77,19 +77,14 @@ fun OnBoardingRegisterView(
         },
         onclickRegister = {
             registerScope.launch {
-                val isSuccess = viewModel.performRegister()
-                if (isSuccess) {
-                    ToastHelper.showToast("회원가입 성공")
-                    // 성공 시 다음 동작을 수행하는 로직을 추가
-                    navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
-                        popUpTo(navController.graph.id) { inclusive = true } }
-                }
-                else {
-                    ToastHelper.showToast("회원가입 실패")
-                    // 실패 시 다음 동작을 수행하는 로직을 추가
-                    navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
-                        popUpTo(navController.graph.id) { inclusive = true } }
-                }
+                viewModel.performRegister(
+                    onSuccess = {
+                        ToastHelper.showToast("회원가입 성공")
+                    },
+                    onFail = {
+                        ToastHelper.showToast("회원가입 실패")
+                    }
+                )
             }
         },
         isCheckedAllAgree = viewModel.isCheckedAllAgree.value,

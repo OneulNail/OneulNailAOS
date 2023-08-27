@@ -9,17 +9,21 @@ import androidx.lifecycle.ViewModel
 import com.today.nail.service.data.ServiceConnector
 import com.today.nail.service.data.onBoard.repository.OnBoardingRepository
 import com.today.nail.service.data.onBoard.repository.OnBoardingRepositoryImpl
+import com.today.nail.service.ui.TopLevelViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @HiltViewModel
-class OnBoardingRegisterViewModel @Inject constructor() : ViewModel() {
+class OnBoardingRegisterViewModel @Inject constructor(
+    private val topLevelViewModel: TopLevelViewModel
+) : ViewModel() {
     val nameFieldValue = MutableStateFlow("")
     val nickNameFieldValue = MutableStateFlow("")
     val passwordFieldValue = MutableStateFlow("")
     val passwordRecheckFieldValue = MutableStateFlow("")
-    val _phoneNum = MutableStateFlow("")
+
     private val _isCheckedAllAgree = mutableStateOf(false)
     val isCheckedAllAgree: State<Boolean> = _isCheckedAllAgree
 
@@ -29,13 +33,8 @@ class OnBoardingRegisterViewModel @Inject constructor() : ViewModel() {
     private val _isCheckedSecondAgree = mutableStateOf(false)
     val isCheckedSecondAgree: State<Boolean> = _isCheckedSecondAgree
 
-    val onBoardingRepository: OnBoardingRepository = OnBoardingRepositoryImpl(ServiceConnector.onBoardService)
+    val onBoardingRepository: OnBoardingRepository = OnBoardingRepositoryImpl(ServiceConnector.makeOnBoardService())
     private val _registerResult = MutableLiveData<Boolean>()
-
-    fun updatePhoneNum(value: String) {
-        _phoneNum.value = value
-        Log.i("OnBoardingRegisterViewModel", "Phone number updated: $value")
-    }
 
     fun updateNameField(value : String) {
         nameFieldValue.value = value
@@ -53,7 +52,6 @@ class OnBoardingRegisterViewModel @Inject constructor() : ViewModel() {
         _isCheckedAllAgree.value = !_isCheckedAllAgree.value
         _isCheckedFirstAgree.value = !_isCheckedFirstAgree.value
         _isCheckedSecondAgree.value = !_isCheckedSecondAgree.value
-
     }
 
     fun toggleFirstAgree() {
@@ -69,34 +67,27 @@ class OnBoardingRegisterViewModel @Inject constructor() : ViewModel() {
             _isCheckedAllAgree.value = !_isCheckedAllAgree.value
         }
     }
-suspend fun performRegister(): Boolean {
-//        val mobileNo = _phoneNum.value
-        val mobileNo = "01012341234"
+    suspend fun performRegister(
+        onSuccess: () -> Unit,
+        onFail : () -> Unit
+    ) {
+        val mobileNo = topLevelViewModel.phoneNumFieldValue.value
         val password = passwordFieldValue.value
         val name = nameFieldValue.value
         val role = "USER" // 사용자 역할을 지정하는 로직이 필요
 
-        try {
-            // 회원가입 요청
-            Log.d("회원가입", mobileNo)
-            Log.i("회원가입", password)
-            Log.i("회원가입", name)
-            Log.i("회원가입", role)
-            val registerResult = onBoardingRepository.userRegister(mobileNo, password, name, role)
-
+        kotlin.runCatching {
+            onBoardingRepository.userRegister(mobileNo, password, name, role)
+        }.onSuccess { res ->
+            Log.d("회원가입", "register response : $res")
             // 회원가입 성공 시의 처리
-            if (registerResult.msg == "회원가입이 완료되었습니다.") {
+            if (res.msg == "회원가입이 완료되었습니다.") {
                 Log.i("회원가입", "성공")
-                return true
             }
-        } catch (e: Exception) {
-            // 회원가입 실패 시의 처리
-            Log.i("회원가입", "서버 응답: $e")
-            return false
+            onSuccess()
+        }.onFailure { res ->
+            Log.i("회원가입", "서버 응답: $res")
+            onFail()
         }
-
-        return false
     }
-
-
 }

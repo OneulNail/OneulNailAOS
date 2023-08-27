@@ -1,9 +1,12 @@
 package com.today.nail.service.ui.scenario.onBoarding.view.phoneVerify
 
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.onBoarding.view.register.OnBoardingRegisterViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +16,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class OnBoardingPhoneVerifyViewModel @Inject constructor() : ViewModel() {
+class OnBoardingPhoneVerifyViewModel @Inject constructor(
+    topLevelViewModel: TopLevelViewModel
+) : ViewModel() {
     private val _verifyCodeSendState = MutableStateFlow(false)
     val verifyCodeSendState = _verifyCodeSendState.asStateFlow()
 
@@ -21,22 +26,13 @@ class OnBoardingPhoneVerifyViewModel @Inject constructor() : ViewModel() {
     val canMoveToRegisterView = _canMoveToRegisterView.asStateFlow()
 
     val verifyFieldValue = MutableStateFlow("")
-    val phoneNumFieldValue = MutableStateFlow("")
-
+    private val phoneNumFieldValue = topLevelViewModel.phoneNumFieldValue
 
     init {
         viewModelScope.launch {
             verifyFieldValue.collectLatest {
                 _canMoveToRegisterView.value = it.length == 6
             }
-        }
-    }
-
-    fun updatePhoneNumField(value : String) {
-        if(value.length <= 11) {
-            phoneNumFieldValue.value = value
-
-
         }
     }
 
