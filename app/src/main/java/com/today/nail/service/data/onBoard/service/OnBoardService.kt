@@ -17,7 +17,7 @@ interface OnBoardService {
     /**
      *  자체 로그인
      */
-    @POST("user/login")
+    @POST("user/sign-in")
     suspend fun postUserLogin(
         @Body requestBody : UserLoginReqDTO
     ) : UserLoginResDTO
@@ -25,7 +25,7 @@ interface OnBoardService {
     /**
      * 자체 회원가입
      */
-    @POST("user/register")
+    @POST("user/sign-up")
     suspend fun postUserRegister(
         @Body requsetBody : UserRegisterReqDTO
     ) : UserRegisterResDTO

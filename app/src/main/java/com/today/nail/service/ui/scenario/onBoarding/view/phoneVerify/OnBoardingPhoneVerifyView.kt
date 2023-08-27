@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.onBoarding.navigationGraph.OnBoardingRoutes
+import com.today.nail.service.ui.scenario.onBoarding.view.register.OnBoardingRegisterViewModel
 import com.today.nail.service.ui.theme.Color696969
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorA4A4A4
@@ -44,13 +45,14 @@ import com.today.nail.service.ui.util.noRippleClickable
 fun OnBoardingPhoneVerifyView(
     activityViewModel : TopLevelViewModel,
     viewModel : OnBoardingPhoneVerifyViewModel = hiltViewModel(),
+    registerViewModel: OnBoardingRegisterViewModel = hiltViewModel(),
     navController: NavController
 ) {
 
     val codeSendState = viewModel.verifyCodeSendState.collectAsState().value
     val canMoveRegisterView = viewModel.canMoveToRegisterView.collectAsState().value
 
-    val phoneStringValue = viewModel.phoneNumFieldValue.collectAsState().value
+    val phoneStringValue = activityViewModel.phoneNumFieldValue.collectAsState().value
     val verifyStringValue = viewModel.verifyFieldValue.collectAsState().value
 
     Screen(
@@ -59,10 +61,11 @@ fun OnBoardingPhoneVerifyView(
         phoneString = phoneStringValue,
         verifyString = verifyStringValue,
         onChangePhoneField = {
-            viewModel.updatePhoneNumField(it)
+            activityViewModel.updatePhoneNumField(it)
         },
         onChangeVerifyField = {
             viewModel.updateVerifyField(it)
+
         },
         onClickSendVerifyCode = {
             viewModel.requestVerifyCode(

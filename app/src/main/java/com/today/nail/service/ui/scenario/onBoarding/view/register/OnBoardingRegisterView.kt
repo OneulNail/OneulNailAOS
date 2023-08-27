@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,11 +30,15 @@ import com.today.nail.service.ui.theme.Color0A7BE4
 import com.today.nail.service.ui.theme.Color898989
 import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.util.InputTextFieldWithPrimaryDesign
+import com.today.nail.service.ui.util.ToastHelper
 import com.today.nail.service.ui.util.TodayNailCheckBox
 import com.today.nail.service.ui.util.component.BackButtonWithText
 import com.today.nail.service.ui.util.component.StateButton
 import com.today.nail.service.ui.util.dpToSp
 import com.today.nail.service.ui.util.noRippleClickable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun OnBoardingRegisterView(
@@ -47,6 +52,7 @@ fun OnBoardingRegisterView(
     val passwordStringValue = viewModel.passwordFieldValue.collectAsState().value
     val passwordRecheckStringValue = viewModel.passwordRecheckFieldValue.collectAsState().value
 
+    val registerScope = CoroutineScope(Dispatchers.Main)
     Screen(
         onNavigateToHome = {
             navController.navigate(TopLevelNavigationRoutes.HomeGraph.routes) {
@@ -69,7 +75,25 @@ fun OnBoardingRegisterView(
         onChangePasswordRecheckField = {
             viewModel.updatePasswordRecheckField(it)
         },
-
+        onclickRegister = {
+            registerScope.launch {
+                viewModel.performRegister(
+                    onSuccess = {
+                        ToastHelper.showToast("회원가입 성공")
+                    },
+                    onFail = {
+                        ToastHelper.showToast("회원가입 실패")
+                    }
+                )
+            }
+        },
+        isCheckedAllAgree = viewModel.isCheckedAllAgree.value,
+        isCheckedFirstAgree = viewModel.isCheckedFirstAgree.value,
+        isCheckedSecondAgree = viewModel.isCheckedSecondAgree.value,
+        allAgree = {viewModel.toggleAllAgree()},
+        firstAgree = {viewModel.toggleFirstAgree()},
+        secondAgree = {viewModel.toggleSecondAgree()},
+        agreeReq = {ToastHelper.showToast("약관 동의는 필수입니다.")},
     )
 }
 
@@ -84,6 +108,14 @@ private fun Screen(
     onChangeNickNameField : (String) -> Unit,
     onChangePasswordField : (String) -> Unit,
     onChangePasswordRecheckField : (String) -> Unit,
+    onclickRegister : () -> Unit,
+    isCheckedAllAgree: Boolean,
+    isCheckedFirstAgree: Boolean,
+    isCheckedSecondAgree: Boolean,
+    allAgree: () -> Unit,
+    firstAgree: () -> Unit,
+    secondAgree: () -> Unit,
+    agreeReq : () -> Unit,
 ) {
 
     val defaultModifier = Modifier.padding(horizontal = 16.dp)
@@ -140,7 +172,6 @@ private fun Screen(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
-
         }
 
         item {
@@ -195,12 +226,10 @@ private fun Screen(
                     onValueChange = onChangePasswordRecheckField,
                     hintText = "비밀번호를 다시 한 번 입력해주세요."
                 )
-
             }
         }
 
         item {
-            val isChecked = false
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 23.dp)
@@ -212,17 +241,15 @@ private fun Screen(
                         top = 18.dp,
                         bottom = 41.dp
                     ),
-                    isChecked = isChecked,
-                ) {
-
-                }
-
+                    onClick = { allAgree() },
+                    isChecked = isCheckedAllAgree,
+                )
                 TermItem(
                     modifier = termModifier.padding(bottom = 25.dp),
                     content = "이용약관에는 마케팅 정보 수신에 대한 동의와 관련된\n" +
                             "내용이 포함되어 있습니다.",
-                    isChecked = false,
-                    onClickCheckBox = {},
+                    isChecked = isCheckedAllAgree || isCheckedFirstAgree,
+                    onClickCheckBox = { firstAgree() },
                     onClickTermLink = {}
                 )
 
@@ -230,15 +257,13 @@ private fun Screen(
                     modifier = termModifier,
                     content = "이용약관에는 개인정보 수집에 대한 동의와 관련된\n" +
                             "내용이 포함되어 있습니다.",
-                    isChecked = false,
-                    onClickCheckBox = {},
+                    isChecked = isCheckedAllAgree || isCheckedSecondAgree,
+                    onClickCheckBox = { secondAgree() },
                     onClickTermLink = {}
                 )
-
             }
         }
         item { Spacer(modifier = Modifier.height(150.dp))  }
-
     }
 
     Box(modifier = defaultModifier.fillMaxSize()) {
@@ -249,7 +274,13 @@ private fun Screen(
             title = "시작하기",
             enable = true
         ) {
-            onNavigateToHome()
+            if(isCheckedAllAgree || (isCheckedFirstAgree && isCheckedSecondAgree)) {
+                onclickRegister()
+                onNavigateToHome()
+            }
+            else {
+                agreeReq()
+            }
         }
     }
 }
@@ -340,6 +371,14 @@ private fun PreviewScreen() {
         "",
         "",
         "",
+        {},
+        {},
+        {},
+        {},
+        {},
+        false,
+        true,
+        false,
         {},
         {},
         {},
