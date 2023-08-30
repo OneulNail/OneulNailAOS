@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -43,14 +44,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +63,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.oneulnail.DetailViewModel
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorCAC9FF
@@ -72,22 +73,21 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReservationView(
     navHostController: NavHostController,
-    detailViewModel: DetailViewModel = hiltViewModel(),
-    activityViewModel: TopLevelViewModel
+    detailViewModel: TopLevelViewModel = hiltViewModel(),
+    activityViewModel: TopLevelViewModel,
 ){
     var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
-    onReservation = {
-            ToastHelper.showToast("예약 완료되었습니다")
-        },
+        onReservation = {
+            },
         onBack = {navHostController.navigateUp()},
         onClickBackButton = {navHostController.popBackStack()},
         onTimeButton={
             isButtonClicked = !isButtonClicked
         },
-        isButtonClicked = isButtonClicked
+        isButtonClicked = isButtonClicked,
+        onClickDateClick={}
     )
-
 
 }
 
@@ -99,20 +99,46 @@ fun ReservationScreen(
     onBack: () -> Unit,
     onClickBackButton: () -> Unit,
     onTimeButton: () -> Unit,
-    isButtonClicked: Boolean
+    isButtonClicked: Boolean,
+    onClickDateClick:()-> Unit
 
 
 ) {
-    //날짜 선택하기
+    // 선택한 날짜와 시간을 저장하기 위한 변수들
     val isDialogOpen = remember{ mutableStateOf(false) }
     val selectedDate: MutableState<LocalDate?> = remember{ mutableStateOf(null) }
-    val context = LocalContext.current
+    val selectedTime = remember { mutableStateOf<String?>(null) }
+    var selectedTimeButton by remember { mutableStateOf(-1) }
+    val time = selectedTimeButton
 
     val firstRowButtons = listOf("14:00", "15:00", "16:00", "17:00")
     val secondRowButtons = listOf("18:00", "19:00", "20:00", "21:00")
-    //버튼 누르면 색깔 변하는 설정
+
+    val selectedButtons = remember { mutableStateListOf<Int>() }
+
+    // 첫 번째 행 버튼에 대한 배경 색상 리스트
+    val firstRowButtonColors = remember { mutableStateListOf<Color>() }
+    firstRowButtonColors.addAll(List(firstRowButtons.size) { index ->
+        if (index == selectedTimeButton) {
+            ColorCAC9FF
+        } else {
+            Color.LightGray
+        }
+    })
+
+    // 두 번째 행 버튼에 대한 배경 색상 리스트
+    val secondRowButtonColors = remember { mutableStateListOf<Color>() }
+    secondRowButtonColors.addAll(List(secondRowButtons.size) { index ->
+        if (index == selectedTimeButton - firstRowButtons.size) {
+            ColorCAC9FF
+        } else {
+            Color.LightGray
+        }
+    })
 
 
+
+    val formattedDate = selectedDate.value?.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
 
 
     fun getToday() = Calendar.getInstance().let {
@@ -291,9 +317,13 @@ fun ReservationScreen(
                 shape = RoundedCornerShape(8.dp),
                 onClick = {isDialogOpen.value = !isDialogOpen.value}
             ) {
-                Text("날짜 선택하기", color = Color.Black,
-                    style = TextStyle(fontSize = 17.sp,
-                        fontWeight = FontWeight(700)))
+                if (formattedDate != null) {
+                    Text(
+                        text= formattedDate,
+                        color = Color.Black,
+                        style = TextStyle(fontSize = 17.sp,
+                            fontWeight = FontWeight(700)))
+                }
             }
             if(isDialogOpen.value) {
                 MyDatePickerDialog(onDateSelected = {
@@ -362,16 +392,23 @@ fun ReservationScreen(
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            firstRowButtons.forEach { buttonLabel ->
+            firstRowButtons.forEachIndexed { index,buttonLabel ->
                 Button(
-                    onClick = onTimeButton,
+                    onClick = {
+                        if (selectedButtons.contains(index)) {
+                            selectedButtons.remove(index)
+                        } else {
+                            selectedButtons.add(index)
+                        }
+                        onTimeButton()
+                    },
                     shape = RectangleShape,
                     modifier = Modifier
                         .width(80.dp)
                         .height(45.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
-                        containerColor = if (isButtonClicked) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
+                        containerColor = if (selectedButtons.contains(index)) ColorCAC9FF else Color.LightGray// 버튼 클릭 상태에 따라 배경 색상 설정
                     )
                 ) {
                     Text(
@@ -391,16 +428,24 @@ fun ReservationScreen(
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            secondRowButtons.forEach { buttonLabel ->
+            secondRowButtons.forEachIndexed { index, buttonLabel ->
                 Button(
-                    onClick = onTimeButton,
+                    onClick = {
+                        val adjustedIndex = firstRowButtons.size + index
+                        if (selectedButtons.contains(adjustedIndex)) {
+                            selectedButtons.remove(adjustedIndex)
+                        } else {
+                            selectedButtons.add(adjustedIndex)
+                        }
+                        onTimeButton()
+                    },
                     shape = RectangleShape,
                     modifier = Modifier
                         .width(80.dp)
                         .height(45.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = Color.Black,
-                        containerColor = if (isButtonClicked) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
+                        containerColor = if (selectedButtons.contains(firstRowButtons.size + index)) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
                     )
                 ) {
                     Text(
@@ -470,12 +515,24 @@ fun ReservationScreen(
         )
 
         Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color7A00C5
+            ),
             modifier = Modifier
                 .padding(10.dp)
                 .padding(top = 20.dp, start = 8.dp, end = 8.dp)
                 .fillMaxWidth(),
 
-            onClick = onReservation
+            onClick = {
+                val date = selectedDate.value
+                val time = selectedTime.value
+
+                if (date != null && time != null) {
+                    val selectedDateAndTime = "날짜: ${date}, 시간: ${time}"
+                    ToastHelper.showToast(selectedDateAndTime)
+                } else {
+                    ToastHelper.showToast("날짜와 시간을 선택해주세요.")
+                } }
         ) {
             Text("예약하기")
         }
@@ -491,9 +548,11 @@ fun MyDatePickerDialog(
     onDismissRequest: () -> Unit
 )
 { val selectedDate = remember { mutableStateOf(LocalDate.now()) }
+    val formattedDate = selectedDate.value.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
 
-    Dialog(onDismissRequest = { onDismissRequest()
-    }, properties = DialogProperties()) {
+
+
+    Dialog(onDismissRequest = { onDismissRequest() }, properties = DialogProperties()) {
         Column(
             modifier = Modifier
                 .wrapContentSize()
@@ -503,8 +562,8 @@ fun MyDatePickerDialog(
                 )
         ) {
             //min sdk 26부터 가능
-            Text(text = selectedDate.value.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
-
+            Text( text = formattedDate,
+                modifier = Modifier.padding(16.dp)
             )
             CustomCalendarView(onDateSelected = {
                 selectedDate.value = it
@@ -554,6 +613,9 @@ fun CustomCalendarView(
     )
 }
 
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewReservationScreen() {
@@ -562,9 +624,9 @@ fun PreviewReservationScreen() {
         onBack ={},
         onClickBackButton = {},
         onTimeButton={},
-        isButtonClicked = false
+        isButtonClicked = false,
+        onClickDateClick = {}
     )
-
 
 
 }
