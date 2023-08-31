@@ -6,5 +6,5 @@ interface HomeRepository {
 
     suspend fun getPost() : CategoryItemResDTO
 
-    suspend fun getPostById() : CategoryItemResDTO
+    suspend fun getPostById(postId: Long) : CategoryItemResDTO
 }

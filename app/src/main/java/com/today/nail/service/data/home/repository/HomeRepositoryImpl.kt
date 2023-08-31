@@ -8,11 +8,11 @@ import retrofit2.http.Path
 
 class HomeRepositoryImpl(
     private val homeService: HomeService,
-    topLevelViewModel: TopLevelViewModel
 ): HomeRepository {
     override suspend fun getPost(): CategoryItemResDTO =
         homeService.getPost()
 
-    suspend fun getPostById(postId: Long): CategoryItemResDTO =
+    override suspend fun getPostById(postId: Long): CategoryItemResDTO =
         homeService.getPostById(postId)
+
 }
