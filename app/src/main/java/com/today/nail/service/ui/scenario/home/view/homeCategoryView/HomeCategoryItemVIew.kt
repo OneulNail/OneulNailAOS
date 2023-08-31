@@ -69,7 +69,9 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
         it.calculateBottomPadding()
         CategoryItemScreen(
             onClickBackButton = {navController.popBackStack()},
-            onClickItem = {navController.navigate(HomeRoute.ItemDetail.routes)},
+            onClickItem = {
+                navController.navigate(HomeRoute.ItemDetail.routes)
+                activityViewModel.updateSelectedPostId(it) },
             onClickCommingSoon = {
                 ToastHelper.showToast("준비 중인 기능입니다.")
             },
@@ -82,7 +84,7 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
 @Composable
 fun CategoryItemScreen(
     onClickBackButton :()-> Unit,
-    onClickItem : () -> Unit,
+    onClickItem : (Long) -> Unit,
     onClickCommingSoon : () -> Unit,
     getPostList: () -> List<PostDTO>,
 ) {
@@ -299,6 +301,8 @@ fun CategoryItemScreen(
                 .padding(horizontal = 16.dp),
             color = Color.LightGray,
         )
+
+        //게시물 전체 조회
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = 20.dp),
@@ -314,7 +318,8 @@ fun CategoryItemScreen(
                     Box(
                         modifier = Modifier
                             .clickable {
-                                onClickItem()
+                                //게시물 id 전달
+                                onClickItem(post.postId)
                             }
                             .size(150.dp)
                             .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
@@ -333,13 +338,13 @@ fun CategoryItemScreen(
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onClickItem()
+                            onClickItem(post.postId)
                         }
                     ) {
                         Column() {
                             Row(){
                                 Text(
-                                    text = post.postId.toString(),
+                                    text = "",
                                     style = TextStyle(
                                         fontSize = 15.sp,
 //                                        fontFamily = FontFamily(Font(R.font.roboto)),
@@ -381,19 +386,14 @@ fun CategoryItemScreen(
                             }
                         }
                     }
-
-
                 }
-
-
             }
-
             items(count = 16) { item ->
                 if (item % 4 < 2) {
                     Box(
                         modifier = Modifier
                             .clickable {
-                                onClickItem()
+                                onClickItem(item.toLong())
                             }
                             .size(150.dp)
                             .background(Color.LightGray, RoundedCornerShape(size = 15.dp)))
@@ -412,7 +412,7 @@ fun CategoryItemScreen(
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onClickItem()
+                            onClickItem(item.toLong())
                         }
                     ) {
                         Column() {
@@ -465,6 +465,11 @@ fun CategoryItemScreen(
             }
         }
     }
+}
+
+@Composable
+fun PostScreen() {
+
 }
 
 @Preview
