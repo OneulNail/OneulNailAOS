@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -163,10 +164,10 @@ fun HomeScreen(
         Column(Modifier.verticalScroll(scrollState)) {
             //배너
             val list = listOf(
-                Color.Red,
-                Color.Yellow,
-                Color.Green,
-                Color.LightGray,
+                R.drawable.home_banner_1,
+                R.drawable.home_banner_2,
+                R.drawable.home_banner_3,
+                R.drawable.home_banner_4,
             )
             val pagerState = rememberPagerState()
 
@@ -208,12 +209,12 @@ fun HomeScreen(
                     state = pagerState,
                 ) { index ->
                     // index % (list.size) 나머지 값으로 인덱스 가져오기. 안전하게 getOrNull 처리.
-                    list.getOrNull(index % (list.size))?.let { color ->
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(color = color)
-                                .clickable { onClickBanner() }
+                    list.getOrNull(index % (list.size))?.let { imageResId ->
+                        Image(
+                            painter = painterResource(id = imageResId),
+                            contentDescription = "banner",
+                            contentScale = ContentScale.Crop, // 이미지 비율 유지 및 크롭
+                            modifier = Modifier.fillMaxSize() // 이미지 전체 크기로 표시
                         )
                     }
                 }
@@ -236,6 +237,25 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            val categories = listOf(
+                CategoryItem(R.drawable.category_img_1, "이달의 특가"),
+                CategoryItem(R.drawable.category_img_2, "원컬러"),
+                CategoryItem(R.drawable.category_img_3, "시럽"),
+                CategoryItem(R.drawable.category_img_4, "그라데이션"),
+                CategoryItem(R.drawable.category_img_5, "프렌치"),
+                CategoryItem(R.drawable.category_img_6, "글리터"),
+                CategoryItem(R.drawable.category_img_7, "마블"),
+                CategoryItem(R.drawable.category_img_8, "파우더"),
+                CategoryItem(R.drawable.category_img_9, "파츠"),
+                CategoryItem(R.drawable.category_img_10, "캐릭터"),
+                CategoryItem(R.drawable.category_img_11, "테라조"),
+                CategoryItem(R.drawable.category_img_12, "치크"),
+                CategoryItem(R.drawable.category_img_13, "체크"),
+                //14번은 추후 이미지 수정
+                CategoryItem(R.drawable.category_img_15, "페디"),
+                CategoryItem(R.drawable.category_img_15, "네일스티커"),
+            )
+
             //카테고리
 //        CategoryItemGrid(clicked = {navController.navigate(HomeRoute.CategoryItem.routes)})
             //제품 카테고리 페이지로 이동
@@ -250,65 +270,71 @@ fun HomeScreen(
 
 
             ) {
-                items(16) { item ->
-                    if (item == 0) {
-                        Box(modifier = Modifier.clickable { onClickCategoryAll() }
+                item {
+                    Box(modifier = Modifier.clickable { onClickCategoryAll() }
 
+                    ) {
+                        Box(modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .background(
+                                color = Color(0xFFE1DCF0),
+                                shape = RoundedCornerShape(size = 10.dp)
+                            )
                         ) {
-                            Box(modifier = Modifier
-                                .width(50.dp)
-                                .height(50.dp)
-                                .background(
-                                    color = Color(0xFFE1DCF0),
-                                    shape = RoundedCornerShape(size = 10.dp)
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Menu,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(1.dp)
-                                        .width(25.dp)
-                                        .height(25.dp)
-                                )
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(1.dp)
+                                    .width(25.dp)
+                                    .height(25.dp)
+                            )
+                        }
+
+                        Text(
+                            text = "전체보기",
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            style = TextStyle(
+                                fontSize = 10.sp,
+//                                    fontFamily = FontFamily(Font(R.font.inter)),
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFF000000),
+                            )
+                        )
+                    }
+                }
+                items(categories.size) { index ->
+                    val categoryItem = categories[index]
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                onClickCategory(index)
                             }
 
-                            Text(
-                                text = "전체보기",
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-//                                    fontFamily = FontFamily(Font(R.font.inter)),
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFF000000),
-                                )
-                            )
-                        }
-                    }
-                    else {
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    onClickCategory(item)
-                                }
+                    ) {
 
+                        Box(modifier = Modifier
+                            .size(50.dp)
                         ) {
-                            Box(modifier = Modifier
-                                .size(50.dp)
-                                .background(LightGray)
-                                .padding(8.dp))
-                            Text(
-                                text = item.toString(),
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-//                                    fontFamily = FontFamily(Font(R.font.inter)),
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFF000000),
-                                )
+                            Image(
+                                painter = painterResource(id = categoryItem.imageResId),
+                                contentDescription = null,
+//                                contentScale = ContentScale.Crop, // 이미지 비율 유지 및 크롭
+                                modifier = Modifier.fillMaxSize() // 이미지 전체 크기로 표시
                             )
                         }
+                        Text(
+                            text = categoryItem.text,
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            style = TextStyle(
+                                fontSize = 10.sp,
+//                                    fontFamily = FontFamily(Font(R.font.inter)),
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFF000000),
+                            )
+                        )
                     }
                 }
             }
@@ -326,7 +352,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .clickable {onClickCommingSoon()}
+                    .clickable { onClickCommingSoon() }
                 ) {
                     Text(text = "자세히 보기",
                         fontSize = 10.sp,)
@@ -483,7 +509,7 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .clickable {onClickCommingSoon()}
+                        .clickable { onClickCommingSoon() }
                 ) {
                     Text(text = "자세히 보기",
                         fontSize = 10.sp,)
@@ -511,7 +537,7 @@ fun HomeScreen(
                 items(8) { item ->
                     Box(
                         modifier = Modifier
-                            .clickable {onClickCommingSoon()}
+                            .clickable { onClickCommingSoon() }
                             .size(80.dp)
                             .background(
                                 color = LightGray,

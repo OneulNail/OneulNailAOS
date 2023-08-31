@@ -47,7 +47,7 @@ fun NavGraphBuilder.homeNavigationGraphWithFade(
             duration = fadeDuration,
             route = HomeRoute.CategoryItem.routes,
         ) {
-            HomeCategoryItemView(navController = navHostController)
+            HomeCategoryItemView(activityViewModel, navController = navHostController)
         }
         fadeComposable(
             duration = fadeDuration,
