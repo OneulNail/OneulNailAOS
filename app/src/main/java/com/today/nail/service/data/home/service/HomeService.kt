@@ -1,7 +1,11 @@
 package com.today.nail.service.data.home.service
 
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemResDTO
+import com.today.nail.service.data.home.dto.reservation.UserReservaitonReqDTO
+import com.today.nail.service.data.home.dto.reservation.UserReservationResDTO
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -32,4 +36,13 @@ interface HomeService {
         @Query("page") page: Int,
         @Query("size") size: Int
     )
+
+    /**
+     *  가게 예약
+     */
+    @POST("reservation")
+    suspend fun UserReservation(
+        @Body requestBody : UserReservaitonReqDTO
+    ): UserReservationResDTO
+
 }

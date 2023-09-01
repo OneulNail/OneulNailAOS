@@ -1,10 +1,10 @@
 package com.today.nail.service.data.home.repository
 
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemResDTO
+import com.today.nail.service.data.home.dto.reservation.UserReservaitonReqDTO
+import com.today.nail.service.data.home.dto.reservation.UserReservationResDTO
 import com.today.nail.service.data.home.service.HomeService
-import com.today.nail.service.ui.TopLevelViewModel
-import retrofit2.http.POST
-import retrofit2.http.Path
+import java.time.LocalDateTime
 
 class HomeRepositoryImpl(
     private val homeService: HomeService,
@@ -15,4 +15,13 @@ class HomeRepositoryImpl(
     override suspend fun getPostById(postId: Long): CategoryItemResDTO =
         homeService.getPostById(postId)
 
+    override suspend fun userReservation(
+        shopId: Long,
+        date: LocalDateTime
+    ): UserReservationResDTO = homeService.UserReservation(
+        UserReservaitonReqDTO(
+            shopId = shopId,
+            date = date,
+        )
+    )
 }
