@@ -9,8 +9,8 @@ import retrofit2.http.Path
 class HomeRepositoryImpl(
     private val homeService: HomeService,
 ): HomeRepository {
-    override suspend fun getPost(): CategoryItemResDTO =
-        homeService.getPost()
+    override suspend fun getPost(page: Int, size: Int): CategoryItemResDTO =
+        homeService.getPost(page = page, size = size)
 
     override suspend fun getPostById(postId: Long): CategoryItemResDTO =
         homeService.getPostById(postId)

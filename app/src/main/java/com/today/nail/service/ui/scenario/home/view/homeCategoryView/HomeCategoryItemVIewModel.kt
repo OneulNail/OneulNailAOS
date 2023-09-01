@@ -34,7 +34,8 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
     ) {
         viewModelScope.launch {
             runCatching {
-                repository.getPost()
+                //page...
+                repository.getPost(0,10)
             }.onSuccess { response ->
                 Log.d("post", "post response : $response")
                 _postList.value = response.posts
