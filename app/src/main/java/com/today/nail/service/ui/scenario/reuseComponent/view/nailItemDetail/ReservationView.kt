@@ -73,7 +73,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReservationView(
     navHostController: NavHostController,
-    detailViewModel: TopLevelViewModel = hiltViewModel(),
+    detailViewModel: ReservationViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel,
 ){
     var isButtonClicked by remember { mutableStateOf(true) }

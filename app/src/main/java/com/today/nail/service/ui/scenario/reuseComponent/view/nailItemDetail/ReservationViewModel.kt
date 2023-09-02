@@ -6,12 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ReservationViewModel @Inject constructor(
-    topLevelViewModel: TopLevelViewModel
-) : ViewModel()
- {
-
-
-
+class ReservationViewModel @Inject constructor() : ViewModel() {
 
 }

@@ -10,6 +10,8 @@ import com.today.nail.service.data.home.dto.categoryItem.PostDTO
 import com.today.nail.service.data.home.repository.HomeRepository
 import com.today.nail.service.data.home.repository.HomeRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,8 +20,8 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
 
     val repository : HomeRepository = HomeRepositoryImpl(ServiceConnector.makeHomeService())
 
-    private val _postList = mutableStateOf<List<PostDTO>>(emptyList())
-    val postList: State<List<PostDTO>> = _postList
+    private val _postList = MutableStateFlow<List<PostDTO>>(emptyList())
+    val postList: StateFlow<List<PostDTO>> = _postList
 
     init {
         fetchPosts(

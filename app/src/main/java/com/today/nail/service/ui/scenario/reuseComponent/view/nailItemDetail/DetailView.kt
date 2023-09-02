@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.StarBorderPurple500
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.oneulnail.DetailViewModel
 import com.today.nail.service.ui.TopLevelViewModel
@@ -50,6 +53,7 @@ import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.theme.ColorBEA3EA
 import com.today.nail.service.ui.util.ToastHelper
+import java.sql.Blob
 
 @Composable
 fun DetailView(
@@ -58,6 +62,9 @@ fun DetailView(
     activityViewModel: TopLevelViewModel,
 
 ){
+    //선택된 포스트 id
+    val postId = activityViewModel.selectedPostId.collectAsState().value
+
     ItemDetailScreen(
         onCall = {
             ToastHelper.showToast("준비중인 기능입니다.")
@@ -68,10 +75,34 @@ fun DetailView(
         onClickReservation = {
             navController.navigate(HomeRoute.Reservation.routes)
         },
-        onClickBackButton = {navController.popBackStack()}
+        onClickBackButton = {navController.popBackStack()},
+        selectedPostId = postId,
+        getPostInfo = {
+            detailViewModel.getPost(
+                onSuccess = {
+                    ToastHelper.showToast("게시물 조회")
+                },
+                onFail = {
+                    ToastHelper.showToast("게시물 조회 실패")
+                },
+                postId = it,
+            )
+        },
+        shopId = detailViewModel.currentShopId,
+        name = detailViewModel.currentName,
+        likeCount = detailViewModel.currentLikeCount,
+        price = detailViewModel.currentPrice,
+        content = detailViewModel.currentContent,
     )
 }
 
+//"shop_id": Long
+//"post_id": Long
+//"name": String
+//"like_count": int
+//"img_url": BLOB
+//"price": int
+//"content": String
 
 
 //아이템 세부정보 스크린(디자인)
@@ -80,9 +111,17 @@ fun ItemDetailScreen(
     onCall: () -> Unit,
     onInquire: () -> Unit,
     onClickBackButton :()-> Unit,
-    onClickReservation: () -> Unit
+    onClickReservation: () -> Unit,
+    selectedPostId: Long,
+    getPostInfo: (Long) -> Unit,
+    shopId: Long?,
+    name: String?,
+    likeCount : Int?,
+//    imgUrl: Blob?,
+    price: Int?,
+    content: String?,
 ) {
-
+    getPostInfo(selectedPostId)
     var numFavorites by remember { mutableStateOf(0) }
     Column(modifier = Modifier
         .fillMaxSize()
@@ -107,24 +146,25 @@ fun ItemDetailScreen(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    androidx.compose.material.IconButton(
-                        onClick = { onClickBackButton() },
+                    IconButton(
+                        onClick = {onClickBackButton()},
                         modifier = Modifier
                             .size(50.dp)
-                            .padding(end = 8.dp)
+                            .padding(end = 15.dp)
                     ) {
-                        androidx.compose.material.Icon(
+                        Icon(
                             imageVector = Icons.Filled.ArrowBackIos,
                             contentDescription = null,
-                            tint = Color7A00C5
+                            tint = Color(0xFF7A00C5),
                         )
                     }
                     //상단 텍스트
-                    androidx.compose.material.Text(
+                    Text(
                         text = "네일",
                         color = Color(0xFF7A00C5),
                         fontSize = 20.sp,
                         fontWeight = FontWeight(700),
+                        modifier = Modifier.offset(x = (-15).dp)
                     )
                 }
                 Row(modifier= Modifier
@@ -196,8 +236,11 @@ fun ItemDetailScreen(
         ){
             Text(
                 text = "네일샵이름",
-                fontSize = 23.sp,
-                fontWeight = FontWeight(700),
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight(700),
+                    color = Color(0xFF000000),
+                ),
                 modifier = Modifier.padding(start = 20.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -208,7 +251,7 @@ fun ItemDetailScreen(
                 modifier = Modifier.size(60.dp)
             ){
                 Icon(
-                    imageVector = Icons.Filled.Favorite,
+                    imageVector = Icons.Outlined.Favorite,
                     contentDescription = "favorite",
                     tint = if (numFavorites > 0) Color.Red else LocalContentColor.current                )
             }
@@ -219,7 +262,8 @@ fun ItemDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 androidx.compose.material.IconButton(
                     onClick = {},
@@ -233,7 +277,14 @@ fun ItemDetailScreen(
                         tint = Color.Black
                     )
                 }
-                Text(text = "샵위치", fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = "샵 위치",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xFFA4A4A4),
+                    )
+                )
 
             }
 
@@ -241,7 +292,8 @@ fun ItemDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 androidx.compose.material.IconButton(
                     onClick = {},
@@ -254,10 +306,18 @@ fun ItemDetailScreen(
                         contentDescription = null,
                     )
                 }
-                Text(text = "매일 10:00~22:00, 월요일휴무", fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = "매일 10:00-22:00, 월요일 휴무",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xFFA4A4A4),
+                    )
+                )
 
             }
 
+            //리뷰는 안하기로 했으니.. 없애도 될 것 같죠..
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -294,7 +354,7 @@ fun ItemDetailScreen(
 
             }
             Text(
-                text = "60.000원",
+                text = "$price 원",
                 fontSize = 20.sp,
                 fontWeight = FontWeight(600),
             )
@@ -304,24 +364,25 @@ fun ItemDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                androidx.compose.material.IconButton(
-                    onClick = { /*TODO*/ },
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = null,
+                    tint = Color.Black,
                     modifier = Modifier
-                        .size(28.dp)
-                        .padding(5.dp)
-                ) {
-                    androidx.compose.material.Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = null,
-                        tint = Color.Black
-
-                    )
-                }
+                        .padding(1.dp)
+                        .width(16.dp)
+                        .height(16.dp)
+                )
                 Text(
-                    text = "$numFavorites 명이 찜했어요!", fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold, modifier = Modifier.padding(top=5.dp)
+                    text = "$numFavorites 명이 찜했어요!",
+                    style = TextStyle(
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFF000000),
+                    )
                 )
             }
         }
@@ -399,7 +460,14 @@ fun PreviewItemDetailView() {
             onCall = {},
             onInquire = {},
             onClickReservation ={},
-            onClickBackButton = {}
+            onClickBackButton = {},
+            getPostInfo = {},
+            selectedPostId = 1,
+            shopId = 1,
+            name = "",
+            content = "",
+            likeCount = 1,
+            price = 60000,
         )
     }
 }

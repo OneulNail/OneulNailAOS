@@ -9,6 +9,7 @@ import javax.inject.Inject
 class TopLevelViewModel @Inject constructor(): ViewModel() {
     val _postId: Long = 1
     val selectedPostId = MutableStateFlow(_postId)
+
     val phoneNumFieldValue = MutableStateFlow("")
     fun updatePhoneNumField(value : String) {
         if(value.length <= 11) {
