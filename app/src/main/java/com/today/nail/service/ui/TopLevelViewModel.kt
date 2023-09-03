@@ -16,8 +16,11 @@ class TopLevelViewModel @Inject constructor(): ViewModel() {
             phoneNumFieldValue.value = value
         }
     }
-
     fun updateSelectedPostId(value: Long) {
         selectedPostId.value = value
+    }
+
+    fun getShopInfo(shopId: Long) {
+
     }
 }

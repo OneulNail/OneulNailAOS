@@ -22,7 +22,7 @@ object ServiceConnector {
 
         val retrofit = client?.let {
             Retrofit.Builder()
-                .baseUrl("http://43.201.115.69:8080/")
+                .baseUrl("http://43.201.171.215:8080/")
                 .client(it)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -43,7 +43,7 @@ object ServiceConnector {
 
         val retrofit = client?.let {
             Retrofit.Builder()
-                .baseUrl("http://43.201.115.69:8080/")
+                .baseUrl("http://43.201.171.215:8080/")
                 .client(it)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

@@ -54,13 +54,13 @@ import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 import com.today.nail.service.ui.util.ToastHelper
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
                          navController: NavController,
                          viewModel: HomeCategoryItemVIewModel = hiltViewModel(),
 ) {
-    val postList = viewModel.postList
     Scaffold(
         bottomBar = {
             BottomNavigation(navController = navController)
@@ -75,9 +75,7 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
             onClickCommingSoon = {
                 ToastHelper.showToast("준비 중인 기능입니다.")
             },
-            getPostList = {
-                return@CategoryItemScreen postList.value
-            },
+            getPostList = viewModel.postList
         )
     }
 }
@@ -86,7 +84,7 @@ fun CategoryItemScreen(
     onClickBackButton :()-> Unit,
     onClickItem : (Long) -> Unit,
     onClickCommingSoon : () -> Unit,
-    getPostList: () -> List<PostDTO>,
+    getPostList: StateFlow<List<PostDTO>>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -312,82 +310,83 @@ fun CategoryItemScreen(
                 .fillMaxSize()
                 .padding(vertical = 30.dp)
         ) {
-            val postList = getPostList()
-            items(postList) { post ->
-                Column() {
-                    Box(
-                        modifier = Modifier
-                            .clickable {
-                                //게시물 id 전달
-                                onClickItem(post.postId)
-                            }
-                            .size(150.dp)
-                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
-//                        Image(imageVector = post.imageUrl, contentDescription = null)
-                    }
-                    Box {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(10.dp)
-                                .clickable { onClickCommingSoon() }
-                        )
-                    }
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onClickItem(post.postId)
-                        }
-                    ) {
-                        Column() {
-                            Row(){
-                                Text(
-                                    text = "",
-                                    style = TextStyle(
-                                        fontSize = 15.sp,
-//                                        fontFamily = FontFamily(Font(R.font.roboto)),
-                                        fontWeight = FontWeight(700),
-                                        color = Color(0xFFA4A4A4),
-                                    )
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = post.name,
-                                    style = TextStyle(
-                                        fontSize = 13.sp,
-//                                        fontFamily = FontFamily(Font(R.font.roboto)),
-                                        fontWeight = FontWeight(700),
-                                        color = Color(0xFF000000),
-                                    )
-                                )
-                            }
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = post.content,
-                                style = TextStyle(
-                                    fontSize = 13.sp,
-//                                    fontFamily = FontFamily(Font(R.font.roboto)),
-                                    fontWeight = FontWeight(500),
-                                    color = Color(0xFFA4A4A4),
-                                )
-                            )
-                            Box(modifier = Modifier.align(Alignment.End)) {
-                                Text(
-                                    text = post.price.toString(),
-                                    style = TextStyle(
-                                        fontSize = 13.sp,
-//                                    fontFamily = FontFamily(Font(R.font.roboto)),
-                                        fontWeight = FontWeight(700),
-                                        color = Color(0xFF000000),
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            val postList = getPostList.value
+
+//            items(postList) { post ->
+//                Column() {
+//                    Box(
+//                        modifier = Modifier
+//                            .clickable {
+//                                //게시물 id 전달
+//                                onClickItem(post.postId)
+//                            }
+//                            .size(150.dp)
+//                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
+////                        Image(imageVector = post.imageUrl, contentDescription = null)
+//                    }
+//                    Box {
+//                        Icon(
+//                            imageVector = Icons.Default.FavoriteBorder,
+//                            contentDescription = null,
+//                            modifier = Modifier
+//                                .align(Alignment.TopEnd)
+//                                .padding(10.dp)
+//                                .clickable { onClickCommingSoon() }
+//                        )
+//                    }
+//                    Box(modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clickable {
+//                            onClickItem(post.postId)
+//                        }
+//                    ) {
+//                        Column() {
+//                            Row(){
+//                                Text(
+//                                    text = "",
+//                                    style = TextStyle(
+//                                        fontSize = 15.sp,
+////                                        fontFamily = FontFamily(Font(R.font.roboto)),
+//                                        fontWeight = FontWeight(700),
+//                                        color = Color(0xFFA4A4A4),
+//                                    )
+//                                )
+//                                Spacer(modifier = Modifier.width(4.dp))
+//                                Text(
+//                                    text = post.name,
+//                                    style = TextStyle(
+//                                        fontSize = 13.sp,
+////                                        fontFamily = FontFamily(Font(R.font.roboto)),
+//                                        fontWeight = FontWeight(700),
+//                                        color = Color(0xFF000000),
+//                                    )
+//                                )
+//                            }
+//                            Text(
+//                                modifier = Modifier.fillMaxWidth(),
+//                                text = post.content,
+//                                style = TextStyle(
+//                                    fontSize = 13.sp,
+////                                    fontFamily = FontFamily(Font(R.font.roboto)),
+//                                    fontWeight = FontWeight(500),
+//                                    color = Color(0xFFA4A4A4),
+//                                )
+//                            )
+//                            Box(modifier = Modifier.align(Alignment.End)) {
+//                                Text(
+//                                    text = post.price.toString(),
+//                                    style = TextStyle(
+//                                        fontSize = 13.sp,
+////                                    fontFamily = FontFamily(Font(R.font.roboto)),
+//                                        fontWeight = FontWeight(700),
+//                                        color = Color(0xFF000000),
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//            }
             items(count = 16) { item ->
                 if (item % 4 < 2) {
                     Box(
@@ -480,6 +479,6 @@ fun Preview(viewModel: HomeCategoryItemVIewModel = hiltViewModel()) {
         onClickBackButton = { /*TODO*/ },
         onClickCommingSoon = {},
         onClickItem = {},
-        getPostList = {return@CategoryItemScreen postList.value},
+        getPostList = postList,
     )
 }

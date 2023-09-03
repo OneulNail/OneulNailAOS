@@ -80,6 +80,11 @@ fun DetailView(
         getPostInfo = {
             detailViewModel.getPost(
                 onSuccess = {
+                    detailViewModel.getShop(
+                        onSuccess = {},
+                        onFail = {},
+                        it,
+                    )
                     ToastHelper.showToast("게시물 조회")
                 },
                 onFail = {
@@ -89,7 +94,7 @@ fun DetailView(
             )
         },
         shopId = detailViewModel.currentShopId,
-        name = detailViewModel.currentName,
+        shopName = detailViewModel.shopName,
         likeCount = detailViewModel.currentLikeCount,
         price = detailViewModel.currentPrice,
         content = detailViewModel.currentContent,
@@ -114,12 +119,12 @@ fun ItemDetailScreen(
     onClickReservation: () -> Unit,
     selectedPostId: Long,
     getPostInfo: (Long) -> Unit,
-    shopId: Long?,
-    name: String?,
-    likeCount : Int?,
+    shopId: Long,
+    shopName: String,
+    likeCount : Int,
 //    imgUrl: Blob?,
-    price: Int?,
-    content: String?,
+    price: Int,
+    content: String,
 ) {
     getPostInfo(selectedPostId)
     var numFavorites by remember { mutableStateOf(0) }
@@ -235,7 +240,7 @@ fun ItemDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ){
             Text(
-                text = "네일샵이름",
+                text = shopName,
                 style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight(700),
@@ -464,7 +469,7 @@ fun PreviewItemDetailView() {
             getPostInfo = {},
             selectedPostId = 1,
             shopId = 1,
-            name = "",
+            shopName  = "네일샵이름",
             content = "",
             likeCount = 1,
             price = 60000,

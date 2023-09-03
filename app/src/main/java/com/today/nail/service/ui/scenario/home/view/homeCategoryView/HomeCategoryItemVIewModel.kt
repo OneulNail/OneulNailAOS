@@ -22,7 +22,6 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
 
     private val _postList = MutableStateFlow<List<PostDTO>>(emptyList())
     val postList: StateFlow<List<PostDTO>> = _postList
-
     init {
         fetchPosts(
             {},
@@ -30,9 +29,9 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
         )
     }
 
-    private fun fetchPosts(
+    fun fetchPosts(
         onSuccess: () -> Unit,
-        onFail : () -> Unit
+        onFail : () -> Unit,
     ) {
         viewModelScope.launch {
             runCatching {
