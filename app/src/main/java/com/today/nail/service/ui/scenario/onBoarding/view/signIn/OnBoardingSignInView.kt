@@ -74,6 +74,8 @@ fun OnBoardingSignView(
                         ToastHelper.showToast("로그인 실패")
                     }
                 )
+                //임시 추가
+                navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
             }
         },
         onClickRegister = {

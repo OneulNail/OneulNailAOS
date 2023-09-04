@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.today.nail.service.data.ServiceConnector
+import com.today.nail.service.data.home.ContentItem
 import com.today.nail.service.data.home.dto.categoryItem.PostDTO
 import com.today.nail.service.data.home.repository.HomeRepository
 import com.today.nail.service.data.home.repository.HomeRepositoryImpl
@@ -20,8 +21,8 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
 
     val repository : HomeRepository = HomeRepositoryImpl(ServiceConnector.makeHomeService())
 
-    private val _postList = MutableStateFlow<List<PostDTO>>(emptyList())
-    val postList: StateFlow<List<PostDTO>> = _postList
+    private val _postList = MutableStateFlow<List<ContentItem>>(emptyList())
+    val postList: StateFlow<List<ContentItem>> = _postList
     init {
         fetchPosts(
             {},
@@ -38,7 +39,7 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
                 repository.getPost()
             }.onSuccess { response ->
                 Log.d("post", "post response : $response")
-                _postList.value = response.posts
+                _postList.value = response.result.content
                 onSuccess()
             }.onFailure {
                 onFail()

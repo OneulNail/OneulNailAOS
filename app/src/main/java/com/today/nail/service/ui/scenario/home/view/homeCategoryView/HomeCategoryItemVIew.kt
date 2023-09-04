@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.today.nail.service.data.home.ContentItem
 import com.today.nail.service.data.home.dto.categoryItem.PostDTO
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
@@ -84,7 +85,7 @@ fun CategoryItemScreen(
     onClickBackButton :()-> Unit,
     onClickItem : (Long) -> Unit,
     onClickCommingSoon : () -> Unit,
-    getPostList: StateFlow<List<PostDTO>>,
+    getPostList: StateFlow<List<ContentItem>>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -312,91 +313,17 @@ fun CategoryItemScreen(
         ) {
             val postList = getPostList.value
 
-//            items(postList) { post ->
-//                Column() {
-//                    Box(
-//                        modifier = Modifier
-//                            .clickable {
-//                                //게시물 id 전달
-//                                onClickItem(post.postId)
-//                            }
-//                            .size(150.dp)
-//                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
-////                        Image(imageVector = post.imageUrl, contentDescription = null)
-//                    }
-//                    Box {
-//                        Icon(
-//                            imageVector = Icons.Default.FavoriteBorder,
-//                            contentDescription = null,
-//                            modifier = Modifier
-//                                .align(Alignment.TopEnd)
-//                                .padding(10.dp)
-//                                .clickable { onClickCommingSoon() }
-//                        )
-//                    }
-//                    Box(modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clickable {
-//                            onClickItem(post.postId)
-//                        }
-//                    ) {
-//                        Column() {
-//                            Row(){
-//                                Text(
-//                                    text = "",
-//                                    style = TextStyle(
-//                                        fontSize = 15.sp,
-////                                        fontFamily = FontFamily(Font(R.font.roboto)),
-//                                        fontWeight = FontWeight(700),
-//                                        color = Color(0xFFA4A4A4),
-//                                    )
-//                                )
-//                                Spacer(modifier = Modifier.width(4.dp))
-//                                Text(
-//                                    text = post.name,
-//                                    style = TextStyle(
-//                                        fontSize = 13.sp,
-////                                        fontFamily = FontFamily(Font(R.font.roboto)),
-//                                        fontWeight = FontWeight(700),
-//                                        color = Color(0xFF000000),
-//                                    )
-//                                )
-//                            }
-//                            Text(
-//                                modifier = Modifier.fillMaxWidth(),
-//                                text = post.content,
-//                                style = TextStyle(
-//                                    fontSize = 13.sp,
-////                                    fontFamily = FontFamily(Font(R.font.roboto)),
-//                                    fontWeight = FontWeight(500),
-//                                    color = Color(0xFFA4A4A4),
-//                                )
-//                            )
-//                            Box(modifier = Modifier.align(Alignment.End)) {
-//                                Text(
-//                                    text = post.price.toString(),
-//                                    style = TextStyle(
-//                                        fontSize = 13.sp,
-////                                    fontFamily = FontFamily(Font(R.font.roboto)),
-//                                        fontWeight = FontWeight(700),
-//                                        color = Color(0xFF000000),
-//                                    )
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-            items(count = 16) { item ->
-                if (item % 4 < 2) {
+            items(postList) { postList ->
+                Column() {
                     Box(
                         modifier = Modifier
                             .clickable {
-                                onClickItem(item.toLong())
+                                //게시물 id 전달
+                                onClickItem(postList.postId)
                             }
-                            .size(150.dp)
-                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp)))
-                    Box {
+                            .size(180.dp)
+                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
+//                        Image(imageVector = post.imageUrl, contentDescription = null)
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
                             contentDescription = null,
@@ -406,12 +333,13 @@ fun CategoryItemScreen(
                                 .clickable { onClickCommingSoon() }
                         )
                     }
-                }
-                else{
+                    Box {
+
+                    }
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onClickItem(item.toLong())
+                            onClickItem(postList.postId)
                         }
                     ) {
                         Column() {
@@ -427,7 +355,7 @@ fun CategoryItemScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "네일 샵 이름",
+                                    text = postList.name,
                                     style = TextStyle(
                                         fontSize = 13.sp,
 //                                        fontFamily = FontFamily(Font(R.font.roboto)),
@@ -438,7 +366,8 @@ fun CategoryItemScreen(
                             }
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = "설명",
+//                                text = postList.content,
+                                text = "임시",
                                 style = TextStyle(
                                     fontSize = 13.sp,
 //                                    fontFamily = FontFamily(Font(R.font.roboto)),
@@ -447,8 +376,9 @@ fun CategoryItemScreen(
                                 )
                             )
                             Box(modifier = Modifier.align(Alignment.End)) {
+                                val price = postList.price
                                 Text(
-                                    text = "69,000원",
+                                    text = "$price 원",
                                     style = TextStyle(
                                         fontSize = 13.sp,
 //                                    fontFamily = FontFamily(Font(R.font.roboto)),
@@ -460,8 +390,82 @@ fun CategoryItemScreen(
                         }
                     }
                 }
-
             }
+//            items(count = 16) { item ->
+//                if (item % 4 < 2) {
+//                    Box(
+//                        modifier = Modifier
+//                            .clickable {
+//                                onClickItem(item.toLong())
+//                            }
+//                            .size(150.dp)
+//                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp)))
+//                    Box {
+//                        Icon(
+//                            imageVector = Icons.Default.FavoriteBorder,
+//                            contentDescription = null,
+//                            modifier = Modifier
+//                                .align(Alignment.TopEnd)
+//                                .padding(10.dp)
+//                                .clickable { onClickCommingSoon() }
+//                        )
+//                    }
+//                }
+//                else{
+//                    Box(modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clickable {
+//                            onClickItem(item.toLong())
+//                        }
+//                    ) {
+//                        Column() {
+//                            Row(){
+//                                Text(
+//                                    text = "01",
+//                                    style = TextStyle(
+//                                        fontSize = 15.sp,
+////                                        fontFamily = FontFamily(Font(R.font.roboto)),
+//                                        fontWeight = FontWeight(700),
+//                                        color = Color(0xFFA4A4A4),
+//                                    )
+//                                )
+//                                Spacer(modifier = Modifier.width(4.dp))
+//                                Text(
+//                                    text = "네일 샵 이름",
+//                                    style = TextStyle(
+//                                        fontSize = 13.sp,
+////                                        fontFamily = FontFamily(Font(R.font.roboto)),
+//                                        fontWeight = FontWeight(700),
+//                                        color = Color(0xFF000000),
+//                                    )
+//                                )
+//                            }
+//                            Text(
+//                                modifier = Modifier.fillMaxWidth(),
+//                                text = "설명",
+//                                style = TextStyle(
+//                                    fontSize = 13.sp,
+////                                    fontFamily = FontFamily(Font(R.font.roboto)),
+//                                    fontWeight = FontWeight(500),
+//                                    color = Color(0xFFA4A4A4),
+//                                )
+//                            )
+//                            Box(modifier = Modifier.align(Alignment.End)) {
+//                                Text(
+//                                    text = "69,000원",
+//                                    style = TextStyle(
+//                                        fontSize = 13.sp,
+////                                    fontFamily = FontFamily(Font(R.font.roboto)),
+//                                        fontWeight = FontWeight(700),
+//                                        color = Color(0xFF000000),
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//
+//            }
         }
     }
 }
