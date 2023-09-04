@@ -29,6 +29,12 @@ interface HomeService {
     ): CategoryItemResDTO
 
     /**
+     * 가게 정보 단일 조회
+     */
+    @GET("shop/{shop_id}")
+    suspend fun getShopInfoById(@Path("shop_id") shopId: BigInteger): ShopInfoByIdResDTO
+
+    /**
      *  가게 조회
      */
     @GET("post")

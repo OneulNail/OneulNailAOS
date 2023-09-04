@@ -15,6 +15,9 @@ class HomeRepositoryImpl(
     override suspend fun getPostById(postId: Long): CategoryItemResDTO =
         homeService.getPostById(postId)
 
+    override suspend fun getShopInfoById(shopId: BigInteger): ShopInfoByIdResDTO =
+        homeService.getShopInfoById(shopId)
+
     override suspend fun userReservation(
         shopId: Long,
         date: LocalDateTime
