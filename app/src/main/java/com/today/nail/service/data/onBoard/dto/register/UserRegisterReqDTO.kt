@@ -5,12 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserRegisterReqDTO(
-    @SerialName("phone_num")
-    val mobileNo : String,
-    @SerialName("password")
+    val email: String,
+    val phoneNum : String,
     val password : String,
-    @SerialName("name")
     val name : String,
-    @SerialName("role")
     val role : String,
 )

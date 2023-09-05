@@ -9,9 +9,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UserLoginResDTO(
+    override val isSuccess: Boolean,
     override val msg : String,
-    @SerialName("token")
-    val token : String,
+    override val code: String,
+    val result: List<UserLoginRes>
 ) : BaseResponseDTO
 
 

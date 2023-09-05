@@ -2,7 +2,6 @@ package com.today.nail.service.data.onBoard.repository
 
 import com.today.nail.service.data.onBoard.dto.login.UserLoginResDTO
 import com.today.nail.service.data.onBoard.dto.register.UserRegisterResDTO
-import com.today.nail.service.data.onBoard.dto.social.UserSocialInfoResDTO
 import com.today.nail.service.data.onBoard.dto.social.UserSocialLoginResDTO
 import com.today.nail.service.data.onBoard.dto.styleTaste.UserVerifyResDTO
 import com.today.nail.service.data.onBoard.dto.verify.UserStyleTasteResDTO
@@ -15,6 +14,8 @@ interface OnBoardingRepository {
     ) : UserLoginResDTO
 
     suspend fun userRegister(
+        //email 추가
+        email: String,
         mobileNo: String,
         password: String,
         name : String,
@@ -23,7 +24,7 @@ interface OnBoardingRepository {
 
     suspend fun userSocialLogin() : UserSocialLoginResDTO
 
-    suspend fun userSocialInfo() : UserSocialInfoResDTO
+//    suspend fun userSocialInfo() : UserSocialInfoResDTO
 
     suspend fun userVerify() : UserVerifyResDTO
 

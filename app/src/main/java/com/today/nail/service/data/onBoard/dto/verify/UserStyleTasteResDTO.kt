@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserStyleTasteResDTO(
-    override val msg: String
+    override val isSuccess: Boolean, override val code: String, override val msg: String
 ) : BaseResponseDTO
