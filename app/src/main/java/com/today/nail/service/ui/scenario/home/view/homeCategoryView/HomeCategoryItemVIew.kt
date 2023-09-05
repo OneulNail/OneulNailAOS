@@ -70,9 +70,9 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
         it.calculateBottomPadding()
         CategoryItemScreen(
             onClickBackButton = {navController.popBackStack()},
-            onClickItem = {
+            onClickItem = {postId, shopId ->
                 navController.navigate(HomeRoute.ItemDetail.routes)
-                activityViewModel.updateSelectedPostId(it) },
+                activityViewModel.updateSelectedPost(postId, shopId) },
             onClickCommingSoon = {
                 ToastHelper.showToast("준비 중인 기능입니다.")
             },
@@ -83,7 +83,7 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
 @Composable
 fun CategoryItemScreen(
     onClickBackButton :()-> Unit,
-    onClickItem : (Long) -> Unit,
+    onClickItem : (postId: Long, shopId: Long) -> Unit,
     onClickCommingSoon : () -> Unit,
     getPostList: StateFlow<List<ContentItem>>,
 ) {
@@ -312,14 +312,13 @@ fun CategoryItemScreen(
                 .padding(vertical = 30.dp)
         ) {
             val postList = getPostList.value
-
             items(postList) { postList ->
                 Column() {
                     Box(
                         modifier = Modifier
                             .clickable {
                                 //게시물 id 전달
-                                onClickItem(postList.postId)
+                                onClickItem(postList.postId, postList.shopId)
                             }
                             .size(180.dp)
                             .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
@@ -339,7 +338,7 @@ fun CategoryItemScreen(
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onClickItem(postList.postId)
+                            onClickItem(postList.postId, postList.shopId)
                         }
                     ) {
                         Column() {
@@ -466,7 +465,9 @@ fun CategoryItemScreen(
 //                }
 //
 //            }
+
         }
+        Spacer(modifier = Modifier.height(150.dp))
     }
 }
 
@@ -479,10 +480,11 @@ fun PostScreen() {
 @Composable
 fun Preview(viewModel: HomeCategoryItemVIewModel = hiltViewModel()) {
     val postList = viewModel.postList
+    val long: Long = 1
     CategoryItemScreen(
         onClickBackButton = { /*TODO*/ },
         onClickCommingSoon = {},
-        onClickItem = {},
+        onClickItem = { postId: Long, shopId: Long -> },
         getPostList = postList,
     )
 }

@@ -8,16 +8,22 @@ import javax.inject.Inject
 @HiltViewModel
 class TopLevelViewModel @Inject constructor(): ViewModel() {
     val _postId: Long = 1
-    val selectedPostId = MutableStateFlow(_postId)
 
+    var selectedPostId: Long = 1
+    var selectedShopId: Long = 1
     val phoneNumFieldValue = MutableStateFlow("")
     fun updatePhoneNumField(value : String) {
         if(value.length <= 11) {
             phoneNumFieldValue.value = value
         }
     }
-    fun updateSelectedPostId(value: Long) {
-        selectedPostId.value = value
+
+    /**
+     * 선택된 post의 postId 와 shopId 저장
+     */
+    fun updateSelectedPost(postId: Long, shopId: Long) {
+        selectedPostId = postId
+        selectedShopId = shopId
     }
 
     fun getShopInfo(shopId: Long) {

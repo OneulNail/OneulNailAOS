@@ -40,8 +40,9 @@ class DetailViewModel @Inject constructor(): ViewModel() {
     var shopBasePrice: Int = 1
     var shopInfo: String = ""
 
-
-    //postId 를 받아 해당 post 를 가져오는 함수
+    /**
+     * postId 를 받아 해당 post 정보를 가져오는 함수
+     */
     fun getPost(
         onSuccess: (BigInteger) -> Unit,
         onFail : () -> Unit,
@@ -52,19 +53,23 @@ class DetailViewModel @Inject constructor(): ViewModel() {
                 repository.getPostById(postId)
             }.onSuccess { response ->
                 Log.d("postById", "post response : $response")
-                currentShopId = response.shopId
-                currentPostId = response.postId
-                currentName = response.name
-                currentLikeCount = response.likeCount
-                currentimageUrl = response.imageUrl
-                currentPrice = response.price
-                currentContent = response.content
+//                currentShopId = response.shopId
+//                currentPostId = response.postId
+//                currentName = response.name
+//                currentLikeCount = response.likeCount
+//                currentimageUrl = response.imageUrl
+//                currentPrice = response.price
+//                currentContent = response.content
                 onSuccess(response.shopId.toBigInteger())
             }.onFailure {
                 onFail()
             }
         }
     }
+
+    /**
+     * shopId 를 받아 단일 가게 저보를 받아오는 함수
+     */
 
     fun getShop(
         onSuccess: () -> Unit,
@@ -76,11 +81,11 @@ class DetailViewModel @Inject constructor(): ViewModel() {
                 repository.getShopInfoById(shopId)
             }.onSuccess { response ->
                 Log.d("shopById", "shop response : $response")
-                shopName = response.name
-                shopPhoneNumber = response.phoneNum
-                shopLocation = response.location
-                shopOperationHours = response.operatingHours
-                shopInfo = response.shopInfo
+//                shopName = response.name
+//                shopPhoneNumber = response.phoneNum
+//                shopLocation = response.location
+//                shopOperationHours = response.operatingHours
+//                shopInfo = response.shopInfo
                 onSuccess()
             }.onFailure {
                 onFail()

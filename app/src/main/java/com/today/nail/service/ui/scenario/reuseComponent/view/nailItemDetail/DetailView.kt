@@ -1,5 +1,6 @@
 package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -63,7 +64,7 @@ fun DetailView(
 
 ){
     //선택된 포스트 id
-    val postId = activityViewModel.selectedPostId.collectAsState().value
+    val postId = activityViewModel.selectedPostId
 
     ItemDetailScreen(
         onCall = {
@@ -118,6 +119,9 @@ fun ItemDetailScreen(
     onClickBackButton :()-> Unit,
     onClickReservation: () -> Unit,
     selectedPostId: Long,
+    /**
+     *  postid 받아서 게시물조회
+     */
     getPostInfo: (Long) -> Unit,
     shopId: Long,
     shopName: String,
@@ -126,6 +130,7 @@ fun ItemDetailScreen(
     price: Int,
     content: String,
 ) {
+    Log.d("selectedPostId", "$selectedPostId")
     getPostInfo(selectedPostId)
     var numFavorites by remember { mutableStateOf(0) }
     Column(modifier = Modifier
