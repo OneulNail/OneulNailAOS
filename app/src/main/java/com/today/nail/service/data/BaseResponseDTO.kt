@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 interface BaseResponseDTO {
     val isSuccess: Boolean
     val code: String
-    val msg : String
+    val message : String
 }
 

@@ -69,13 +69,12 @@ fun OnBoardingSignView(
                 onBoardingSignViewModel.performLogin(
                     onSuccess = {
                         ToastHelper.showToast("로그인")
+                        navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
                     },
                     onFail = {
                         ToastHelper.showToast("로그인 실패")
                     }
                 )
-                //임시 추가
-                navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
             }
         },
         onClickRegister = {

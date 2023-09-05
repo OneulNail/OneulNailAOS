@@ -8,6 +8,6 @@ import kotlinx.serialization.Serializable
 data class UserVerifyResDTO(
     override val isSuccess: Boolean,
     override val code: String,
-    override val msg: String
+    override val message: String
 
 ) : BaseResponseDTO

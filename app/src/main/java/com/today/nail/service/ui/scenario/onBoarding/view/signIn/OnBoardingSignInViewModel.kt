@@ -64,12 +64,13 @@ class OnBoardingSignInViewModel @Inject constructor(
         }.onSuccess { res ->
             Log.d("caz tst", "login response : $res")
             //res.token // 이런 데이터를 viewMOdel 에서 저장을 하든 뭐든 한다.
-            if (res.msg == "로그인에 성공하였습니다.") {
+            if (res.isSuccess) {
                 Log.d("자체 로그인", "성공")
             }
             //loginResult.token == ?
             onSuccess()
-        }.onFailure {
+        }.onFailure {res ->
+            Log.d("자체 로그인", "실패, 서버응답:$res")
             onFail()
         }
     }

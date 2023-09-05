@@ -86,7 +86,7 @@ class OnBoardingRegisterViewModel @Inject constructor(
         }.onSuccess { res ->
             Log.d("회원가입", "register response : $res")
             // 회원가입 성공 시의 처리
-            if (res.msg == "회원가입이 완료되었습니다.") {
+            if (res.message == "회원가입이 완료되었습니다.") {
                 Log.i("회원가입", "성공")
             }
             onSuccess()

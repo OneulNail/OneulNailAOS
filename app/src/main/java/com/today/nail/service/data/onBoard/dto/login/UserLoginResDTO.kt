@@ -1,5 +1,6 @@
 package com.today.nail.service.data.onBoard.dto.login
 
+import com.google.gson.JsonObject
 import com.today.nail.service.data.BaseResponseDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -10,9 +11,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserLoginResDTO(
     override val isSuccess: Boolean,
-    override val msg : String,
     override val code: String,
-    val result: List<UserLoginRes>
+    override val message : String,
+    //JsonObject 형태로 받아옴.. 토큰에 접근하려면..?
+    val result: JsonObject
 ) : BaseResponseDTO
 
 

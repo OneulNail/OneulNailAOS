@@ -8,6 +8,6 @@ import kotlinx.serialization.Serializable
 data class UserSocialLoginResDTO(
     override val isSuccess: Boolean,
     override val code: String,
-    override val msg: String,
+    override val message: String,
     val result: List<UserSocialLoginRes>
 ) : BaseResponseDTO
