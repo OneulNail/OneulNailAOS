@@ -59,6 +59,7 @@ import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 import com.today.nail.service.ui.util.ToastHelper
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectIndexed
 
 @Composable
 fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
@@ -342,9 +343,6 @@ fun CategoryItemScreen(
                                 .clickable { onClickCommingSoon() }
                         )
                     }
-                    Box {
-
-                    }
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
@@ -354,7 +352,7 @@ fun CategoryItemScreen(
                         Column() {
                             Row(){
                                 Text(
-                                    text = "01",
+                                    text = "",
                                     style = TextStyle(
                                         fontSize = 15.sp,
 //                                        fontFamily = FontFamily(Font(R.font.roboto)),
@@ -362,7 +360,7 @@ fun CategoryItemScreen(
                                         color = Color(0xFFA4A4A4),
                                     )
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
+//                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = postList.name,
                                     style = TextStyle(
@@ -375,8 +373,7 @@ fun CategoryItemScreen(
                             }
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-//                                text = postList.content,
-                                text = "임시",
+                                text = postList.content,
                                 style = TextStyle(
                                     fontSize = 13.sp,
 //                                    fontFamily = FontFamily(Font(R.font.roboto)),
