@@ -309,7 +309,7 @@ fun CategoryItemScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 30.dp)
+                .padding(top = 30.dp, bottom = 100.dp)
         ) {
             val postList = getPostList.value
             items(postList) { postList ->
@@ -467,7 +467,6 @@ fun CategoryItemScreen(
 //            }
 
         }
-        Spacer(modifier = Modifier.height(150.dp))
     }
 }
 
