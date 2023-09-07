@@ -41,7 +41,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.today.nail.service.data.home.ContentItem
 import com.today.nail.service.data.home.dto.categoryItem.PostDTO
 import com.today.nail.service.ui.TopLevelViewModel
@@ -323,6 +326,13 @@ fun CategoryItemScreen(
                             .size(180.dp)
                             .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
 //                        Image(imageVector = post.imageUrl, contentDescription = null)
+                        //상품 이미지
+                        AsyncImage(
+                            model = postList.imgUrl,
+                            contentDescription = null,
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(15.dp))
+                        )
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
                             contentDescription = null,
