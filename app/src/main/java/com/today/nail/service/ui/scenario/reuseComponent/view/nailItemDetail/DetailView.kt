@@ -38,7 +38,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.oneulnail.DetailViewModel
 import com.today.nail.service.data.home.ContentItem
 import com.today.nail.service.data.home.dto.shop.Shop
@@ -97,6 +100,7 @@ fun DetailView(
         },
         postName = detailViewModel.currentName,
         postPrice = detailViewModel.currentPrice,
+        postImageUrl = detailViewModel.currentimageUrl,
         shopLocation = detailViewModel.shopLocation,
         shopName = detailViewModel.shopName,
         shopOperatingHours = detailViewModel.shopOperationHours,
@@ -126,6 +130,7 @@ fun ItemDetailScreen(
     getPostInfo: (Long) -> Unit,
     postName: String,
     postPrice: Int,
+    postImageUrl: String,
     shopName: String,
     shopLocation: String,
     shopOperatingHours: String,
@@ -232,12 +237,13 @@ fun ItemDetailScreen(
             }
 
         }
-        //사진은 일단 임시로 저장
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(Color.LightGray)
+
+        //상품 이미지
+        AsyncImage(
+            model = postImageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(7.dp))
         )
 
         Row(
@@ -490,6 +496,7 @@ fun PreviewItemDetailView(viewModel: DetailViewModel = hiltViewModel()) {
             selectedPostId = 1,
             postName = "네일 상품",
             postPrice = 60000,
+            postImageUrl = "",
             shopName = "네일 샵",
             shopLocation = "샵 위치",
             shopOperatingHours = "운영 시간"

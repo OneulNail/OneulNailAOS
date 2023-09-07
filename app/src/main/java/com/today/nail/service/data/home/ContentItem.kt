@@ -5,7 +5,7 @@ data class ContentItem(
     val postId: Long,
     val name: String,
     val likeCount: Int,
-    val imgUrl: String?,
+    val imgUrl: String,
     val price: Int,
     val category: String,
     val content: String,

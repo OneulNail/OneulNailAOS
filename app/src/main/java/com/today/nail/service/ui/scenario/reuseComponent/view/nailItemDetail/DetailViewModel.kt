@@ -33,7 +33,7 @@ class DetailViewModel @Inject constructor(): ViewModel() {
     var currentPostId: Long = 1
     var currentContent: String = ""
     var currentName: String = ""
-    lateinit var currentimageUrl: Blob
+    var currentimageUrl: String = ""
     var currentLikeCount: Int = 1
     var currentPrice: Int = 1
 
@@ -67,7 +67,7 @@ class DetailViewModel @Inject constructor(): ViewModel() {
                 currentName = response.result.name
 //                currentLikeCount = response.result.likeCount
 //                //type..
-////                currentimageUrl = response.result.imgUrl
+                currentimageUrl = response.result.imgUrl
                 currentPrice = response.result.price
 //                currentContent = response.result.content
                 getShop(response.result.shopId.toBigInteger())
