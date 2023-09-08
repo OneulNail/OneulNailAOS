@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserSocialLoginResDTO(
-    override val isSuccess: Boolean,
     override val code: String,
     override val message: String,
     val result: List<UserSocialLoginRes>

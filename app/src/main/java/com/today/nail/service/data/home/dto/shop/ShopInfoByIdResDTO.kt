@@ -8,8 +8,7 @@ import java.sql.Blob
 
 @Serializable
 data class ShopInfoByIdResDTO (
-    override val isSuccess: Boolean,
     override val code: String,
     override val message: String,
-    val result: Shop
+    val data: Shop
 ): BaseResponseDTO

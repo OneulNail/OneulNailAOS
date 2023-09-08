@@ -10,7 +10,6 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UserLoginResDTO(
-    override val isSuccess: Boolean,
     override val code: String,
     override val message : String,
     //JsonObject 형태로 받아옴.. 토큰에 접근하려면..?

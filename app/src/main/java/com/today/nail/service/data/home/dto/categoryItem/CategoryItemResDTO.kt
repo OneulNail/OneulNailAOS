@@ -8,8 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CategoryItemResDTO(
-    val isSuccess: Boolean,
     val code: String,
     val message: String,
-    val result: PostResData
+    val data: PostResData
 )

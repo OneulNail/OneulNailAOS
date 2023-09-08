@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserRegisterResDTO(
-    override val isSuccess: Boolean,
     override val code: String,
     override val message: String,
 ) : BaseResponseDTO

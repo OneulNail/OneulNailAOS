@@ -11,5 +11,5 @@ data class CategoryItemByIdResDTO (
     val isSuccess: Boolean,
     val code: String,
     val message: String,
-    val result: ContentItem
+    val data: ContentItem
 )

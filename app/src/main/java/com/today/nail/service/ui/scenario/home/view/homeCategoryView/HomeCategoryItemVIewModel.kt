@@ -39,7 +39,7 @@ class HomeCategoryItemVIewModel @Inject constructor(): ViewModel() {
                 repository.getPost()
             }.onSuccess { response ->
                 Log.d("post", "post response : $response")
-                _postList.value = response.result.content
+                _postList.value = response.data.content
                 onSuccess()
             }.onFailure {
                 onFail()

@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -250,7 +251,7 @@ fun ReservationScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 15.dp, top = 10.dp)
-                .height(50.dp),
+                .height(50.dp).clickable {isDialogOpen.value = !isDialogOpen.value },
             verticalAlignment = Alignment.CenterVertically
 
         ) {
@@ -266,12 +267,14 @@ fun ReservationScreen(
                 )
             }
             Text(
-                text = "오늘(일)",
+                text = "날짜 선택",
                 modifier = Modifier
                     .width(250.dp)
-                    .padding(start = 0.dp),
+                    .padding(start = 0.dp)
+                    .clickable {isDialogOpen.value = !isDialogOpen.value },
                 style = TextStyle(fontSize = 20.sp,
-                    fontWeight = FontWeight(700))
+                    fontWeight = FontWeight(700)),
+
             )
             IconButton(
                 onClick = {isDialogOpen.value = !isDialogOpen.value
