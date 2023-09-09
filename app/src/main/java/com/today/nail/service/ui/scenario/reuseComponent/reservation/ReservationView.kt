@@ -1,13 +1,8 @@
-package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
+package com.today.nail.service.ui.scenario.reuseComponent.reservation
 
 import android.icu.util.Calendar
-import android.os.Build
-import android.util.Log
 import android.widget.CalendarView
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -44,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,20 +68,23 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReservationView(
     navHostController: NavHostController,
-    detailViewModel: ReservationViewModel = hiltViewModel(),
+    viewModel: ReservationViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel,
 ){
+    val isCalenderOpen = viewModel.isCalenderOpen.collectAsState().value
+    val isTimeButtonOpen = viewModel.isTimeButtonOpen.collectAsState().value
+    val selectedDate = viewModel.selectedDate.collectAsState().value
     var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
-        onReservation = {
-            },
-        onBack = {navHostController.navigateUp()},
+        isCalendarOpen = isCalenderOpen,
+        isTimeButtonOpen = isTimeButtonOpen,
+        selectedDate = selectedDate,
+        onClickCalendarOpen = {viewModel.updateCalenderField()},
+        timeButtonOpen = {viewModel.updateTimeButtonField()},
         onClickBackButton = {navHostController.popBackStack()},
-        onTimeButton={
-            isButtonClicked = !isButtonClicked
-        },
-        isButtonClicked = isButtonClicked,
-        onClickDateClick={}
+        onTimeButton={ isButtonClicked = !isButtonClicked },
+        //가게 예약 정보 조회
+        getReservationTime = {viewModel.getReservationTimeById(activityViewModel.selectedShopId)},
     )
 
 }
@@ -96,18 +93,25 @@ fun ReservationView(
 
 @Composable
 fun ReservationScreen(
-    onReservation: () -> Unit,
-    onBack: () -> Unit,
+    isCalendarOpen: Boolean,
+    isTimeButtonOpen: Boolean,
+    selectedDate: LocalDate?,
+    onClickCalendarOpen: () -> Unit,
+    timeButtonOpen: () -> Unit,
     onClickBackButton: () -> Unit,
     onTimeButton: () -> Unit,
-    isButtonClicked: Boolean,
-    onClickDateClick:()-> Unit
-
-
+    getReservationTime: () -> Unit,
 ) {
     // 선택한 날짜와 시간을 저장하기 위한 변수들
+
+    val isSelectingTimeOpen = remember{ mutableStateOf(false) }
+    // 날짜 선택 창
     val isDialogOpen = remember{ mutableStateOf(false) }
+    //선택한 날짜
     val selectedDate: MutableState<LocalDate?> = remember{ mutableStateOf(null) }
+    val formattedDate = selectedDate.value?.format(DateTimeFormatter.ofPattern("MM 월 dd 일"))
+//    val selectedDate = selectedDate
+
     val selectedTime = remember { mutableStateOf<String?>(null) }
     var selectedTimeButton by remember { mutableStateOf(-1) }
     val time = selectedTimeButton
@@ -136,11 +140,6 @@ fun ReservationScreen(
             Color.LightGray
         }
     })
-
-
-
-    val formattedDate = selectedDate.value?.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
-
 
     fun getToday() = Calendar.getInstance().let {
         val year = it.get(Calendar.YEAR)
@@ -250,8 +249,9 @@ fun ReservationScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, top = 10.dp)
-                .height(50.dp).clickable {isDialogOpen.value = !isDialogOpen.value },
+                .padding(start = 15.dp, end = 15.dp)
+                .height(50.dp)
+                .clickable { onClickCalendarOpen() },
             verticalAlignment = Alignment.CenterVertically
 
         ) {
@@ -266,16 +266,36 @@ fun ReservationScreen(
                     contentDescription = null,
                 )
             }
-            Text(
-                text = "날짜 선택",
-                modifier = Modifier
-                    .width(250.dp)
-                    .padding(start = 0.dp)
-                    .clickable {isDialogOpen.value = !isDialogOpen.value },
-                style = TextStyle(fontSize = 20.sp,
-                    fontWeight = FontWeight(700)),
+            if (formattedDate != null) {
+                Text(
+                    text= formattedDate,
+                    modifier = Modifier
+                        .width(250.dp)
+                        .padding(start = 0.dp),
+                    style = TextStyle(fontSize = 20.sp,
+                        fontWeight = FontWeight(700)),)
+            }
+            else {
+                Text(
+                    text = "날짜 선택",
+                    modifier = Modifier
+                        .width(250.dp)
+                        .padding(start = 0.dp),
+                    style = TextStyle(fontSize = 20.sp,
+                        fontWeight = FontWeight(700)),
 
-            )
+                    )
+            }
+//            if(isDialogOpen.value) {
+//                MyDatePickerDialog(onDateSelected = {
+//                    Log.d("TAG", "MyDatePicker: 선택한 날짜: $it")
+//                    selectedDate.value = it
+//                }, onDismissRequest = {
+//                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
+//                    isDialogOpen.value = false
+//                })
+//                Spacer(modifier = Modifier.height(500.dp))
+//            }
             IconButton(
                 onClick = {isDialogOpen.value = !isDialogOpen.value
                 },
@@ -288,64 +308,53 @@ fun ReservationScreen(
                     contentDescription = null,
                 )
             }
-            if(isDialogOpen.value) {
-                MyDatePickerDialog(onDateSelected = {
-                    Log.d("TAG", "MyDatePicker: 선택한 날짜: ${it.toString()}")
-                    selectedDate.value = it
-                }, onDismissRequest = {
-                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
-                    isDialogOpen.value = false
-                })
-            }
+//            if(isDialogOpen.value) {
+//                MyDatePickerDialog(onDateSelected = {
+//                    Log.d("TAG", "MyDatePicker: 선택한 날짜: ${it.toString()}")
+//                    selectedDate.value = it
+//                }, onDismissRequest = {
+//                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
+//                    isDialogOpen.value = false
+//                })
+//            }
         }
-        //날짜 선택하는 박스
-        Row(
+
+        Divider(
             modifier = Modifier
-                .padding(top = 5.dp, start = 15.dp, end = 15.dp)
-                .border(
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = Color.Gray
-                    ),
-                )
-                .height(250.dp)
                 .fillMaxWidth()
-        ) {
-            Button(
-                modifier = Modifier
-                    .fillMaxSize(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp),
-                onClick = {isDialogOpen.value = !isDialogOpen.value}
-            ) {
-                if (formattedDate != null) {
-                    Text(
-                        text= formattedDate,
-                        color = Color.Black,
-                        style = TextStyle(fontSize = 17.sp,
-                            fontWeight = FontWeight(700)))
+                .padding(start = 16.dp, end = 16.dp)
+                .height(1.dp),
+            color = Color.Black,
+        )
+        if(isCalendarOpen) {
+            CustomCalendarView(
+                onDismissRequest = {
+                    onClickCalendarOpen()
+                    selectedDate.value = null
+                },
+                onDateSelected = {selectedDate.value = it},
+
+                //선택버튼을 누르면 시간조회 시작
+                endDateSelect = {
+                    onClickCalendarOpen()
+                    getReservationTime()
                 }
-            }
-            if(isDialogOpen.value) {
-                MyDatePickerDialog(onDateSelected = {
-                    Log.d("TAG", "MyDatePicker: 선택한 날짜: ${it.toString()}")
-                    selectedDate.value = it
-                }, onDismissRequest = {
-                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
-                    isDialogOpen.value = false
-                })
-            }
+            )
         }
 
-
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp)
+                .height(1.dp),
+            color = Color.Black,
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(start = 15.dp, end = 15.dp)
                 .height(50.dp)
-                .padding(top = 10.dp),
+                .clickable { timeButtonOpen() },
             verticalAlignment = Alignment.CenterVertically
 
         ) {
@@ -361,7 +370,7 @@ fun ReservationScreen(
                 )
             }
             Text(
-                text = "시간선택",
+                text = "시간 선택",
                 modifier = Modifier
                     .width(250.dp),
                 style = TextStyle(fontSize = 20.sp,
@@ -371,7 +380,7 @@ fun ReservationScreen(
                 onClick = {},
                 modifier = Modifier
                     .size(50.dp)
-                    .padding(end = 10.dp)
+                    .padding(end = 2.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.ExpandMore,
@@ -387,132 +396,138 @@ fun ReservationScreen(
                 .height(1.dp),
             color = Color.Black,
         )
-
-        Row(
-            modifier = Modifier
-                .padding(start = 15.dp, end = 15.dp, top = 18.dp)
-                .height(40.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            firstRowButtons.forEachIndexed { index,buttonLabel ->
-                Button(
-                    onClick = {
-                        if (selectedButtons.contains(index)) {
-                            selectedButtons.remove(index)
-                        } else {
-                            selectedButtons.add(index)
-                        }
-                        onTimeButton()
-                    },
-                    shape = RectangleShape,
+        if (isTimeButtonOpen) {
+            Column() {
+                Row(
                     modifier = Modifier
-                        .width(80.dp)
-                        .height(45.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = if (selectedButtons.contains(index)) ColorCAC9FF else Color.LightGray// 버튼 클릭 상태에 따라 배경 색상 설정
-                    )
+                        .padding(start = 15.dp, end = 15.dp, top = 18.dp)
+                        .height(40.dp)
+                        .fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(
-                        text = buttonLabel,
+                    firstRowButtons.forEachIndexed { index,buttonLabel ->
+                        Button(
+                            onClick = {
+                                if (selectedButtons.contains(index)) {
+                                    selectedButtons.remove(index)
+                                } else {
+                                    selectedButtons.add(index)
+                                }
+                                onTimeButton()
+                            },
+                            shape = RectangleShape,
+                            modifier = Modifier
+                                .width(80.dp)
+                                .height(45.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = Color.Black,
+                                containerColor = if (selectedButtons.contains(index)) ColorCAC9FF else Color.LightGray// 버튼 클릭 상태에 따라 배경 색상 설정
+                            )
+                        ) {
+                            Text(
+                                text = buttonLabel,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                style = TextStyle(fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(start = 15.dp, end = 15.dp, top = 18.dp)
+                        .height(40.dp)
+                        .fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    secondRowButtons.forEachIndexed { index, buttonLabel ->
+                        Button(
+                            onClick = {
+                                val adjustedIndex = firstRowButtons.size + index
+                                if (selectedButtons.contains(adjustedIndex)) {
+                                    selectedButtons.remove(adjustedIndex)
+                                } else {
+                                    selectedButtons.add(adjustedIndex)
+                                }
+                                onTimeButton()
+                            },
+                            shape = RectangleShape,
+                            modifier = Modifier
+                                .width(80.dp)
+                                .height(45.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = Color.Black,
+                                containerColor = if (selectedButtons.contains(firstRowButtons.size + index)) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
+                            )
+                        ) {
+                            Text(
+                                text = buttonLabel,
+                                modifier = Modifier.fillMaxSize(),
+                                style = TextStyle(fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
+                }
+
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 10.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    androidx.compose.material.IconButton(
+                        onClick = {},
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        style = TextStyle(fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
-                    )
+                            .size(30.dp)
+                            .padding(end = 2.dp, top = 10.dp),
+
+                        ) {
+                        androidx.compose.material.Icon(
+                            imageVector = Icons.Filled.CheckBoxOutlineBlank,
+                            contentDescription = null,
+                            tint=ColorCAC9FF,
+
+                            )
+                    }
+                    Text(text = "선택",
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(top=10.dp),
+                        fontWeight = FontWeight.Medium)
+
+                    IconButton(
+                        onClick = {},
+                        modifier = Modifier
+                            .size(30.dp)
+                            .padding(end = 2.dp, start = 5.dp, top = 10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckBoxOutlineBlank,
+                            contentDescription = null,
+                            tint= Color.LightGray
+
+                        )
+                    }
+                    Text(text = "불가",
+                        modifier = Modifier.padding(top=10.dp),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium)
+
+
+
                 }
+                Spacer(modifier = Modifier.height(35.dp))
             }
-        }
-        Row(
-            modifier = Modifier
-                .padding(start = 15.dp, end = 15.dp, top = 18.dp)
-                .height(40.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            secondRowButtons.forEachIndexed { index, buttonLabel ->
-                Button(
-                    onClick = {
-                        val adjustedIndex = firstRowButtons.size + index
-                        if (selectedButtons.contains(adjustedIndex)) {
-                            selectedButtons.remove(adjustedIndex)
-                        } else {
-                            selectedButtons.add(adjustedIndex)
-                        }
-                        onTimeButton()
-                    },
-                    shape = RectangleShape,
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(45.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        contentColor = Color.Black,
-                        containerColor = if (selectedButtons.contains(firstRowButtons.size + index)) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
-                    )
-                ) {
-                    Text(
-                        text = buttonLabel,
-                        modifier = Modifier.fillMaxSize(),
-                        style = TextStyle(fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
-                    )
-                }
-            }
-        }
-
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 10.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            androidx.compose.material.IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(end = 2.dp, top = 10.dp),
-
-                ) {
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.CheckBoxOutlineBlank,
-                    contentDescription = null,
-                    tint=ColorCAC9FF,
-
-                    )
-            }
-            Text(text = "선택",
-                fontSize = 11.sp,
-                modifier = Modifier.padding(top=10.dp),
-                fontWeight = FontWeight.Medium)
-
-            androidx.compose.material.IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(end = 2.dp, start = 5.dp, top = 10.dp)
-            ) {
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.CheckBoxOutlineBlank,
-                    contentDescription = null,
-                    tint= Color.LightGray
-
-                )
-            }
-            Text(text = "불가",
-                modifier = Modifier.padding(top=10.dp),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium)
 
 
 
         }
-
         Divider(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 40.dp)
+                .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
             color = Color.Black,
         )
@@ -542,78 +557,46 @@ fun ReservationScreen(
     }
 }
 
-
-
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MyDatePickerDialog(
+fun CustomCalendarView(
+    onDismissRequest: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
-    onDismissRequest: () -> Unit
-)
-{ val selectedDate = remember { mutableStateOf(LocalDate.now()) }
-    val formattedDate = selectedDate.value.format(DateTimeFormatter.ofPattern("MMM d, YYYY"))
+    endDateSelect: () -> Unit
+) {
+    Column() {
 
-
-
-    Dialog(onDismissRequest = { onDismissRequest() }, properties = DialogProperties()) {
-        Column(
+        AndroidView(
+            modifier = Modifier.wrapContentSize(),
+            factory = {context -> CalendarView(context) },
+            update = {view ->
+                view.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                    onDateSelected(
+                        LocalDate.of(year, month + 1, dayOfMonth)
+                    )
+                }
+            }
+        )
+        Row (
             modifier = Modifier
-                .wrapContentSize()
-                .background(
-                    color = MaterialTheme.colorScheme.background,
-                    shape = RoundedCornerShape(size = 16.dp)
-                )
-        ) {
-            //min sdk 26부터 가능
-            Text( text = formattedDate,
-                modifier = Modifier.padding(16.dp)
+                .align(Alignment.End)
+                .padding(bottom = 16.dp, end = 16.dp)
+        ){
+            TextButton(onClick = {
+                onDismissRequest()}
             )
-            CustomCalendarView(onDateSelected = {
-                selectedDate.value = it
-            })
-            Spacer(modifier = Modifier.size(3.dp))
+            {
+                Text(text = "닫기")
+            }
 
-            Row (
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(bottom = 16.dp, end = 16.dp)
-            ){
-                TextButton(onClick = {
-                    onDismissRequest()}
-                )
-                {
-                    Text(text = "닫기")
-                }
-
-                TextButton(onClick = {
-                    onDateSelected(selectedDate.value)
-                    onDismissRequest()
-                }
-                ) {
-                    Text(text = "선택")
-                }
+            TextButton(onClick = {
+//                onDateSelected(selectedDate.value)
+                endDateSelect()
+            }
+            ) {
+                Text(text = "선택")
             }
         }
     }
-
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun CustomCalendarView(
-    onDateSelected: (LocalDate) -> Unit
-) {
-    AndroidView(
-        modifier = Modifier.wrapContentSize(),
-        factory = {context -> CalendarView(context) },
-        update = {view ->
-            view.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                onDateSelected(
-                    LocalDate.of(year, month + 1, dayOfMonth)
-                )
-            }
-        }
-    )
 }
 
 
@@ -623,12 +606,14 @@ fun CustomCalendarView(
 @Composable
 fun PreviewReservationScreen() {
     ReservationScreen(
-        onReservation ={},
-        onBack ={},
+        true,
+        isTimeButtonOpen = true,
+        null,
         onClickBackButton = {},
         onTimeButton={},
-        isButtonClicked = false,
-        onClickDateClick = {}
+        onClickCalendarOpen = {},
+        getReservationTime = {},
+        timeButtonOpen = {},
     )
 
 
