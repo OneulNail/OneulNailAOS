@@ -63,6 +63,7 @@ import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorCAC9FF
 import com.today.nail.service.ui.util.ToastHelper
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -286,16 +287,6 @@ fun ReservationScreen(
 
                     )
             }
-//            if(isDialogOpen.value) {
-//                MyDatePickerDialog(onDateSelected = {
-//                    Log.d("TAG", "MyDatePicker: 선택한 날짜: $it")
-//                    selectedDate.value = it
-//                }, onDismissRequest = {
-//                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
-//                    isDialogOpen.value = false
-//                })
-//                Spacer(modifier = Modifier.height(500.dp))
-//            }
             IconButton(
                 onClick = {isDialogOpen.value = !isDialogOpen.value
                 },
@@ -308,15 +299,6 @@ fun ReservationScreen(
                     contentDescription = null,
                 )
             }
-//            if(isDialogOpen.value) {
-//                MyDatePickerDialog(onDateSelected = {
-//                    Log.d("TAG", "MyDatePicker: 선택한 날짜: ${it.toString()}")
-//                    selectedDate.value = it
-//                }, onDismissRequest = {
-//                    Log.d("TAG", "MyDatePicker: 닫아짐: ")
-//                    isDialogOpen.value = false
-//                })
-//            }
         }
 
         Divider(
@@ -569,10 +551,15 @@ fun CustomCalendarView(
             modifier = Modifier.wrapContentSize(),
             factory = {context -> CalendarView(context) },
             update = {view ->
+                val today = LocalDate.now()
+
+                // 오늘 이전의 날짜를 선택할 수 없도록 설정합니다.
+                view.minDate = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                    onDateSelected(
-                        LocalDate.of(year, month + 1, dayOfMonth)
-                    )
+                    val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                    onDateSelected(selectedDate)
                 }
             }
         )
