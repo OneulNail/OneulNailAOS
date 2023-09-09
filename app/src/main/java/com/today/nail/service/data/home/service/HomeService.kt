@@ -2,6 +2,7 @@ package com.today.nail.service.data.home.service
 
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemByIdResDTO
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemResDTO
+import com.today.nail.service.data.home.dto.reservationTime.ShopReservationTimeByIdResDTO
 import com.today.nail.service.data.home.dto.shop.ShopInfoByIdResDTO
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -26,4 +27,10 @@ interface HomeService {
      */
     @GET("shop/{shop_id}")
     suspend fun getShopInfoById(@Path("shop_id") shopId: BigInteger): ShopInfoByIdResDTO
+
+    /**
+     * 가게별 예약 조회
+     */
+    @GET("reservation/{shop_id}")
+    suspend fun getShopReservationTimeById(@Path("shop_id") shopId: Long): ShopReservationTimeByIdResDTO
 }
