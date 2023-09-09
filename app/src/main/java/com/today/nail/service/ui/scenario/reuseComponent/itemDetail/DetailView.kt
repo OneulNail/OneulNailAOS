@@ -1,4 +1,4 @@
-package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
+package com.today.nail.service.ui.scenario.reuseComponent.itemDetail
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -51,7 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.oneulnail.DetailViewModel
+import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailViewModel
 import com.today.nail.service.data.home.ContentItem
 import com.today.nail.service.data.home.dto.shop.Shop
 import com.today.nail.service.ui.TopLevelViewModel
@@ -71,7 +71,7 @@ fun DetailView(
     detailViewModel: DetailViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel,
 
-){
+    ){
     //선택된 포스트 id
     val postId = activityViewModel.selectedPostId
     //선택된 shop id
@@ -88,6 +88,7 @@ fun DetailView(
         },
         onClickReservation = {
             navController.navigate(HomeRoute.Reservation.routes)
+
         },
         onClickBackButton = {navController.popBackStack()},
         selectedPostId = postId,
