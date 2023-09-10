@@ -2,11 +2,14 @@ package com.today.nail.service.data.home.service
 
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemByIdResDTO
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemResDTO
+import com.today.nail.service.data.home.dto.reservation.ReservationResDTO
 import com.today.nail.service.data.home.dto.reservationTime.ShopReservationTimeByIdResDTO
 import com.today.nail.service.data.home.dto.shop.ShopInfoByIdResDTO
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import java.math.BigInteger
+import java.time.LocalDateTime
 
 interface HomeService {
 
@@ -33,4 +36,10 @@ interface HomeService {
      */
     @GET("reservation/{shop_id}")
     suspend fun getShopReservationTimeById(@Path("shop_id") shopId: Long): ShopReservationTimeByIdResDTO
+
+    /**
+     * 예약 등록
+     */
+    @POST("reservation")
+    suspend fun postUserReservation(shopId: Long, date: LocalDateTime): ReservationResDTO
 }
