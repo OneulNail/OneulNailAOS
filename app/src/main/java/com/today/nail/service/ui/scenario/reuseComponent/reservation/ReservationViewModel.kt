@@ -70,12 +70,24 @@ class ReservationViewModel @Inject constructor() : ViewModel() {
         _selectedDateTime = selectedDateTime
     }
 
-    fun clickedReservationButton() {
+    fun clickedReservationButton(
+        shopId: Long,
+        selectedDate: LocalDateTime,
+        requireDateTime: () -> Unit,
+        onSuccess: () -> Unit,
+        onFailed: () -> Unit,
+    ) {
         viewModelScope.launch {
-            kotlin.runCatching {
-
-            }
+        kotlin.runCatching {
+            repository.postUserReservation(shopId, selectedDate)
+        }.onSuccess { response ->
+            Log.d("postReservation success", "$response")
+            onSuccess()
+        }.onFailure { response ->
+            Log.d("postReservation failed", "$response")
+            onFailed()
         }
+    }
     }
 
     fun getReservationTimeById(shopId: Long) {

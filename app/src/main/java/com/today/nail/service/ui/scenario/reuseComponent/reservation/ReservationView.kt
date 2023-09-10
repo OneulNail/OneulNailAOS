@@ -91,6 +91,13 @@ fun ReservationView(
         onClickTimeButton = {viewModel.clickedTimeButton(it)},
         //가게 예약 정보 조회
         getReservationTime = {viewModel.getReservationTimeById(activityViewModel.selectedShopId)},
+        onClickReservationButton = {viewModel.clickedReservationButton(
+            shopId = activityViewModel.selectedShopId,
+            selectedDate = it,
+            requireDateTime = {},
+            onSuccess = {},
+            onFailed = {},
+        )}
     )
 
 }
@@ -110,6 +117,7 @@ fun ReservationScreen(
     onClickBackButton: () -> Unit,
     onClickTimeButton: (LocalDateTime) -> Unit,
     getReservationTime: () -> Unit,
+    onClickReservationButton: (LocalDateTime) -> Unit,
 ) {
     // 선택된 날짜 + 시간
     var selectedDateTime: LocalDateTime
@@ -442,13 +450,12 @@ fun ReservationScreen(
                 .fillMaxWidth(),
 
             onClick = {
-
                 val date = selectedDate.value
                 val time = selectedTime
-
                 if (date != null && time != null) {
                     val selectedDateAndTime = "날짜: ${date}, 시간: ${time}"
                     ToastHelper.showToast(selectedDateAndTime)
+                    onClickReservationButton(LocalDateTime.of(date,time))
                 } else {
                     ToastHelper.showToast("날짜와 시간을 선택해주세요.")
                 } }
@@ -576,6 +583,7 @@ fun PreviewReservationScreen() {
         onClickCalendarOpen = {},
         getReservationTime = {},
         timeButtonOpen = {},
+        onClickReservationButton = {}
     )
 
 
