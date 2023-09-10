@@ -14,8 +14,8 @@ import com.today.nail.service.ui.scenario.home.view.homeItemView.HomeItemView
 import com.today.nail.service.ui.scenario.home.view.homeMyPageView.HomeMyPageView
 import com.today.nail.service.ui.scenario.home.view.homeNailShopView.HomeNailShopView
 import com.today.nail.service.ui.scenario.home.view.homeView.HomeView
-import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.DetailView
-import com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail.ReservationView
+import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailView
+import com.today.nail.service.ui.scenario.reuseComponent.reservation.ReservationView
 
 
 //주석

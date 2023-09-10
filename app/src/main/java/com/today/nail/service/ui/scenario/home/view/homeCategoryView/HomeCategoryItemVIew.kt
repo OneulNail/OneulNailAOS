@@ -41,7 +41,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,12 +51,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.today.nail.service.data.home.ContentItem
 import com.today.nail.service.data.home.dto.categoryItem.PostDTO
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 import com.today.nail.service.ui.util.ToastHelper
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectIndexed
 
 @Composable
 fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
@@ -69,9 +74,9 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
         it.calculateBottomPadding()
         CategoryItemScreen(
             onClickBackButton = {navController.popBackStack()},
-            onClickItem = {
+            onClickItem = {postId, shopId ->
                 navController.navigate(HomeRoute.ItemDetail.routes)
-                activityViewModel.updateSelectedPostId(it) },
+                activityViewModel.updateSelectedPost(postId, shopId) },
             onClickCommingSoon = {
                 ToastHelper.showToast("준비 중인 기능입니다.")
             },
@@ -82,9 +87,9 @@ fun HomeCategoryItemView(activityViewModel : TopLevelViewModel,
 @Composable
 fun CategoryItemScreen(
     onClickBackButton :()-> Unit,
-    onClickItem : (Long) -> Unit,
+    onClickItem : (postId: Long, shopId: Long) -> Unit,
     onClickCommingSoon : () -> Unit,
-    getPostList: StateFlow<List<PostDTO>>,
+    getPostList: StateFlow<List<ContentItem>>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier
@@ -308,22 +313,99 @@ fun CategoryItemScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 30.dp)
+                .padding(top = 30.dp, bottom = 100.dp)
         ) {
             val postList = getPostList.value
-
-//            items(postList) { post ->
-//                Column() {
+            items(postList) { postList ->
+                Column() {
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                //게시물 id 전달
+                                onClickItem(postList.postId, postList.shopId)
+                            }
+                            .size(180.dp)
+                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
+//                        Image(imageVector = post.imageUrl, contentDescription = null)
+                        //상품 이미지
+                        AsyncImage(
+                            model = postList.imgUrl,
+                            contentDescription = null,
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(15.dp))
+                        )
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(10.dp)
+                                .clickable { onClickCommingSoon() }
+                        )
+                    }
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onClickItem(postList.postId, postList.shopId)
+                        }
+                    ) {
+                        Column() {
+                            Row(){
+                                Text(
+                                    text = "",
+                                    style = TextStyle(
+                                        fontSize = 15.sp,
+//                                        fontFamily = FontFamily(Font(R.font.roboto)),
+                                        fontWeight = FontWeight(700),
+                                        color = Color(0xFFA4A4A4),
+                                    )
+                                )
+//                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = postList.name,
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+//                                        fontFamily = FontFamily(Font(R.font.roboto)),
+                                        fontWeight = FontWeight(700),
+                                        color = Color(0xFF000000),
+                                    )
+                                )
+                            }
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = postList.content,
+                                style = TextStyle(
+                                    fontSize = 13.sp,
+//                                    fontFamily = FontFamily(Font(R.font.roboto)),
+                                    fontWeight = FontWeight(500),
+                                    color = Color(0xFFA4A4A4),
+                                )
+                            )
+                            Box(modifier = Modifier.align(Alignment.End)) {
+                                val price = postList.price
+                                Text(
+                                    text = "$price 원",
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+//                                    fontFamily = FontFamily(Font(R.font.roboto)),
+                                        fontWeight = FontWeight(700),
+                                        color = Color(0xFF000000),
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+//            items(count = 16) { item ->
+//                if (item % 4 < 2) {
 //                    Box(
 //                        modifier = Modifier
 //                            .clickable {
-//                                //게시물 id 전달
-//                                onClickItem(post.postId)
+//                                onClickItem(item.toLong())
 //                            }
 //                            .size(150.dp)
-//                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp))) {
-////                        Image(imageVector = post.imageUrl, contentDescription = null)
-//                    }
+//                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp)))
 //                    Box {
 //                        Icon(
 //                            imageVector = Icons.Default.FavoriteBorder,
@@ -334,16 +416,18 @@ fun CategoryItemScreen(
 //                                .clickable { onClickCommingSoon() }
 //                        )
 //                    }
+//                }
+//                else{
 //                    Box(modifier = Modifier
 //                        .fillMaxWidth()
 //                        .clickable {
-//                            onClickItem(post.postId)
+//                            onClickItem(item.toLong())
 //                        }
 //                    ) {
 //                        Column() {
 //                            Row(){
 //                                Text(
-//                                    text = "",
+//                                    text = "01",
 //                                    style = TextStyle(
 //                                        fontSize = 15.sp,
 ////                                        fontFamily = FontFamily(Font(R.font.roboto)),
@@ -353,7 +437,7 @@ fun CategoryItemScreen(
 //                                )
 //                                Spacer(modifier = Modifier.width(4.dp))
 //                                Text(
-//                                    text = post.name,
+//                                    text = "네일 샵 이름",
 //                                    style = TextStyle(
 //                                        fontSize = 13.sp,
 ////                                        fontFamily = FontFamily(Font(R.font.roboto)),
@@ -364,7 +448,7 @@ fun CategoryItemScreen(
 //                            }
 //                            Text(
 //                                modifier = Modifier.fillMaxWidth(),
-//                                text = post.content,
+//                                text = "설명",
 //                                style = TextStyle(
 //                                    fontSize = 13.sp,
 ////                                    fontFamily = FontFamily(Font(R.font.roboto)),
@@ -374,7 +458,7 @@ fun CategoryItemScreen(
 //                            )
 //                            Box(modifier = Modifier.align(Alignment.End)) {
 //                                Text(
-//                                    text = post.price.toString(),
+//                                    text = "69,000원",
 //                                    style = TextStyle(
 //                                        fontSize = 13.sp,
 ////                                    fontFamily = FontFamily(Font(R.font.roboto)),
@@ -386,82 +470,9 @@ fun CategoryItemScreen(
 //                        }
 //                    }
 //                }
+//
 //            }
-            items(count = 16) { item ->
-                if (item % 4 < 2) {
-                    Box(
-                        modifier = Modifier
-                            .clickable {
-                                onClickItem(item.toLong())
-                            }
-                            .size(150.dp)
-                            .background(Color.LightGray, RoundedCornerShape(size = 15.dp)))
-                    Box {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(10.dp)
-                                .clickable { onClickCommingSoon() }
-                        )
-                    }
-                }
-                else{
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onClickItem(item.toLong())
-                        }
-                    ) {
-                        Column() {
-                            Row(){
-                                Text(
-                                    text = "01",
-                                    style = TextStyle(
-                                        fontSize = 15.sp,
-//                                        fontFamily = FontFamily(Font(R.font.roboto)),
-                                        fontWeight = FontWeight(700),
-                                        color = Color(0xFFA4A4A4),
-                                    )
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "네일 샵 이름",
-                                    style = TextStyle(
-                                        fontSize = 13.sp,
-//                                        fontFamily = FontFamily(Font(R.font.roboto)),
-                                        fontWeight = FontWeight(700),
-                                        color = Color(0xFF000000),
-                                    )
-                                )
-                            }
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = "설명",
-                                style = TextStyle(
-                                    fontSize = 13.sp,
-//                                    fontFamily = FontFamily(Font(R.font.roboto)),
-                                    fontWeight = FontWeight(500),
-                                    color = Color(0xFFA4A4A4),
-                                )
-                            )
-                            Box(modifier = Modifier.align(Alignment.End)) {
-                                Text(
-                                    text = "69,000원",
-                                    style = TextStyle(
-                                        fontSize = 13.sp,
-//                                    fontFamily = FontFamily(Font(R.font.roboto)),
-                                        fontWeight = FontWeight(700),
-                                        color = Color(0xFF000000),
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
 
-            }
         }
     }
 }
@@ -475,10 +486,11 @@ fun PostScreen() {
 @Composable
 fun Preview(viewModel: HomeCategoryItemVIewModel = hiltViewModel()) {
     val postList = viewModel.postList
+    val long: Long = 1
     CategoryItemScreen(
         onClickBackButton = { /*TODO*/ },
         onClickCommingSoon = {},
-        onClickItem = {},
+        onClickItem = { postId: Long, shopId: Long -> },
         getPostList = postList,
     )
 }

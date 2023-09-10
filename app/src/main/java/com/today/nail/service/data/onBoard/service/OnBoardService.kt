@@ -5,7 +5,6 @@ import com.today.nail.service.data.onBoard.dto.login.UserLoginReqDTO
 import com.today.nail.service.data.onBoard.dto.login.UserLoginResDTO
 import com.today.nail.service.data.onBoard.dto.register.UserRegisterReqDTO
 import com.today.nail.service.data.onBoard.dto.register.UserRegisterResDTO
-import com.today.nail.service.data.onBoard.dto.social.UserSocialInfoResDTO
 import com.today.nail.service.data.onBoard.dto.social.UserSocialLoginResDTO
 import com.today.nail.service.data.onBoard.dto.styleTaste.UserVerifyResDTO
 import com.today.nail.service.data.onBoard.dto.verify.UserStyleTasteReqDTO
@@ -39,8 +38,8 @@ interface OnBoardService {
     /**
      * 소셜 로그인 추가 정보
      */
-    @POST("user/social/login/info")
-    suspend fun postUserSocialInfo() : UserSocialInfoResDTO
+//    @POST("user/social/login/info")
+//    suspend fun postUserSocialInfo() : UserSocialInfoResDTO
 
     /**
      * 인증번호

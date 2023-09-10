@@ -19,6 +19,7 @@ import javax.inject.Singleton
 class OnBoardingRegisterViewModel @Inject constructor(
     private val topLevelViewModel: TopLevelViewModel
 ) : ViewModel() {
+    val emailFieldValue = MutableStateFlow("")
     val nameFieldValue = MutableStateFlow("")
     val nickNameFieldValue = MutableStateFlow("")
     val passwordFieldValue = MutableStateFlow("")
@@ -36,6 +37,9 @@ class OnBoardingRegisterViewModel @Inject constructor(
     val onBoardingRepository: OnBoardingRepository = OnBoardingRepositoryImpl(ServiceConnector.makeOnBoardService())
     private val _registerResult = MutableLiveData<Boolean>()
 
+    fun updateEmailField(value : String) {
+        emailFieldValue.value = value
+    }
     fun updateNameField(value : String) {
         nameFieldValue.value = value
     }
@@ -71,17 +75,18 @@ class OnBoardingRegisterViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onFail : () -> Unit
     ) {
+        val email = emailFieldValue.value
         val mobileNo = topLevelViewModel.phoneNumFieldValue.value
         val password = passwordFieldValue.value
         val name = nameFieldValue.value
         val role = "USER" // 사용자 역할을 지정하는 로직이 필요
 
         kotlin.runCatching {
-            onBoardingRepository.userRegister(mobileNo, password, name, role)
+            onBoardingRepository.userRegister(email, mobileNo, password, name, role)
         }.onSuccess { res ->
             Log.d("회원가입", "register response : $res")
             // 회원가입 성공 시의 처리
-            if (res.msg == "회원가입이 완료되었습니다.") {
+            if (res.message == "회원가입이 완료되었습니다.") {
                 Log.i("회원가입", "성공")
             }
             onSuccess()

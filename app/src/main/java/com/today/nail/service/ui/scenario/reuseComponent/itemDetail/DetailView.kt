@@ -1,5 +1,7 @@
-package com.today.nail.service.ui.scenario.reuseComponent.view.nailItemDetail
+package com.today.nail.service.ui.scenario.reuseComponent.itemDetail
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +38,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -45,14 +50,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.oneulnail.DetailViewModel
+import coil.compose.AsyncImage
+import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailViewModel
+import com.today.nail.service.data.home.ContentItem
+import com.today.nail.service.data.home.dto.shop.Shop
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
+import com.today.nail.service.ui.scenario.home.view.homeCategoryView.HomeCategoryItemVIewModel
 import com.today.nail.service.ui.scenario.home.view.homeView.BottomNavigation
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.theme.ColorA4A4A4
 import com.today.nail.service.ui.theme.ColorBEA3EA
 import com.today.nail.service.ui.util.ToastHelper
+import kotlinx.coroutines.flow.StateFlow
 import java.sql.Blob
 
 @Composable
@@ -61,9 +71,13 @@ fun DetailView(
     detailViewModel: DetailViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel,
 
-){
+    ){
     //선택된 포스트 id
-    val postId = activityViewModel.selectedPostId.collectAsState().value
+    val postId = activityViewModel.selectedPostId
+    //선택된 shop id
+    val shopId = activityViewModel.selectedShopId
+
+    val shopInfoById = detailViewModel.shopInfoById.collectAsState().value
 
     ItemDetailScreen(
         onCall = {
@@ -74,30 +88,23 @@ fun DetailView(
         },
         onClickReservation = {
             navController.navigate(HomeRoute.Reservation.routes)
+
         },
         onClickBackButton = {navController.popBackStack()},
         selectedPostId = postId,
         getPostInfo = {
             detailViewModel.getPost(
-                onSuccess = {
-                    detailViewModel.getShop(
-                        onSuccess = {},
-                        onFail = {},
-                        it,
-                    )
-                    ToastHelper.showToast("게시물 조회")
-                },
-                onFail = {
-                    ToastHelper.showToast("게시물 조회 실패")
-                },
+                onSuccess = { ToastHelper.showToast("게시물 조회") },
+                onFail = { ToastHelper.showToast("게시물 조회 실패") },
                 postId = it,
             )
         },
-        shopId = detailViewModel.currentShopId,
+        postName = detailViewModel.currentName,
+        postPrice = detailViewModel.currentPrice,
+        postImageUrl = detailViewModel.currentimageUrl,
+        shopLocation = detailViewModel.shopLocation,
         shopName = detailViewModel.shopName,
-        likeCount = detailViewModel.currentLikeCount,
-        price = detailViewModel.currentPrice,
-        content = detailViewModel.currentContent,
+        shopOperatingHours = detailViewModel.shopOperationHours,
     )
 }
 
@@ -118,15 +125,22 @@ fun ItemDetailScreen(
     onClickBackButton :()-> Unit,
     onClickReservation: () -> Unit,
     selectedPostId: Long,
+    /**
+     *  postid 받아서 게시물조회
+     */
     getPostInfo: (Long) -> Unit,
-    shopId: Long,
+    postName: String,
+    postPrice: Int,
+    postImageUrl: String,
     shopName: String,
-    likeCount : Int,
-//    imgUrl: Blob?,
-    price: Int,
-    content: String,
+    shopLocation: String,
+    shopOperatingHours: String,
 ) {
-    getPostInfo(selectedPostId)
+    LaunchedEffect(selectedPostId) {
+        Log.d("selectedPostId", "$selectedPostId")
+        getPostInfo(selectedPostId)
+    }
+    //찜..
     var numFavorites by remember { mutableStateOf(0) }
     Column(modifier = Modifier
         .fillMaxSize()
@@ -224,12 +238,13 @@ fun ItemDetailScreen(
             }
 
         }
-        //사진은 일단 임시로 저장
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(Color.LightGray)
+
+        //상품 이미지
+        AsyncImage(
+            model = postImageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(7.dp))
         )
 
         Row(
@@ -239,15 +254,26 @@ fun ItemDetailScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ){
-            Text(
-                text = shopName,
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFF000000),
-                ),
-                modifier = Modifier.padding(start = 20.dp)
-            )
+            Column() {
+                Text(
+                    text = postName,
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFF000000),
+                    ),
+                    modifier = Modifier.padding(start = 20.dp)
+                )
+                Text(
+                    text = shopName,
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(600),
+                        color = Color(0xFFA4A4A4),
+                    ),
+                    modifier = Modifier.padding(start = 20.dp)
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
             //하트 누르면 명수 올라가게끔!
             IconButton(
@@ -283,7 +309,7 @@ fun ItemDetailScreen(
                     )
                 }
                 Text(
-                    text = "샵 위치",
+                    text = shopLocation,
                     style = TextStyle(
                         fontSize = 15.sp,
                         fontWeight = FontWeight(600),
@@ -312,54 +338,54 @@ fun ItemDetailScreen(
                     )
                 }
                 Text(
-                    text = "매일 10:00-22:00, 월요일 휴무",
+                    text = shopOperatingHours,
                     style = TextStyle(
                         fontSize = 15.sp,
                         fontWeight = FontWeight(600),
                         color = Color(0xFFA4A4A4),
                     )
                 )
-
             }
-
+            Spacer(modifier = Modifier.height(30.dp))
             //리뷰는 안하기로 했으니.. 없애도 될 것 같죠..
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ){
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.StarBorderPurple500,
-                    contentDescription = null,
-                )
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.StarBorderPurple500,
-                    contentDescription = null,
-                )
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.StarBorderPurple500,
-                    contentDescription = null,
-                )
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.StarBorderPurple500,
-                    contentDescription = null,
-                )
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Filled.StarBorderPurple500,
-                    contentDescription = null,
-                )
-                Text(
-                    text = "리뷰보기",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight(600),
-                    modifier = Modifier.padding(top = 5.dp)
-                )
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(end = 10.dp),
+//                horizontalArrangement = Arrangement.spacedBy(4.dp)
+//            ){
+//                androidx.compose.material.Icon(
+//                    imageVector = Icons.Filled.StarBorderPurple500,
+//                    contentDescription = null,
+//                )
+//                androidx.compose.material.Icon(
+//                    imageVector = Icons.Filled.StarBorderPurple500,
+//                    contentDescription = null,
+//                )
+//                androidx.compose.material.Icon(
+//                    imageVector = Icons.Filled.StarBorderPurple500,
+//                    contentDescription = null,
+//                )
+//                androidx.compose.material.Icon(
+//                    imageVector = Icons.Filled.StarBorderPurple500,
+//                    contentDescription = null,
+//                )
+//                androidx.compose.material.Icon(
+//                    imageVector = Icons.Filled.StarBorderPurple500,
+//                    contentDescription = null,
+//                )
+//                Text(
+//                    text = "리뷰보기",
+//                    fontSize = 12.sp,
+//                    fontWeight = FontWeight(600),
+//                    modifier = Modifier.padding(top = 5.dp)
+//                )
+//
+//
+//            }
 
-
-            }
             Text(
-                text = "$price 원",
+                text = "$postPrice 원",
                 fontSize = 20.sp,
                 fontWeight = FontWeight(600),
             )
@@ -459,7 +485,8 @@ fun ItemDetailScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewItemDetailView() {
+fun PreviewItemDetailView(viewModel: DetailViewModel = hiltViewModel()) {
+    val postInfo = viewModel.postInfo
     Column {
         ItemDetailScreen(
             onCall = {},
@@ -468,11 +495,12 @@ fun PreviewItemDetailView() {
             onClickBackButton = {},
             getPostInfo = {},
             selectedPostId = 1,
-            shopId = 1,
-            shopName  = "네일샵이름",
-            content = "",
-            likeCount = 1,
-            price = 60000,
+            postName = "네일 상품",
+            postPrice = 60000,
+            postImageUrl = "",
+            shopName = "네일 샵",
+            shopLocation = "샵 위치",
+            shopOperatingHours = "운영 시간"
         )
     }
 }

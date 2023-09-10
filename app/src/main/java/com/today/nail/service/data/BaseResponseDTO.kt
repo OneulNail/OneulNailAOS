@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 interface BaseResponseDTO {
-    val msg : String
+    val code: String
+    val message : String
 }
 

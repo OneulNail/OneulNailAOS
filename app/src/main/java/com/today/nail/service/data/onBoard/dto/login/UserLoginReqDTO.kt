@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 @Suppress("PLUGIN_IS_NOT_ENABLED")
 @Serializable
 data class UserLoginReqDTO(
-    @SerialName("phone_num")
-    val mobileNo : String,
-    @SerialName("password")
+    val email : String,
     val password : String,
 )

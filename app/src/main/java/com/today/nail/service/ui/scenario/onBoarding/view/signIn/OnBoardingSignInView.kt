@@ -69,6 +69,7 @@ fun OnBoardingSignView(
                 onBoardingSignViewModel.performLogin(
                     onSuccess = {
                         ToastHelper.showToast("로그인")
+                        navHostController.navigate(TopLevelNavigationRoutes.HomeGraph.routes)
                     },
                     onFail = {
                         ToastHelper.showToast("로그인 실패")

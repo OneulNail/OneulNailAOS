@@ -46,7 +46,7 @@ fun OnBoardingRegisterView(
     viewModel : OnBoardingRegisterViewModel = hiltViewModel(),
     navController: NavController
 ) {
-
+    val emailStringValue = viewModel.emailFieldValue.collectAsState().value
     val nameStringValue = viewModel.nameFieldValue.collectAsState().value
     val nickNameStringValue = viewModel.nickNameFieldValue.collectAsState().value
     val passwordStringValue = viewModel.passwordFieldValue.collectAsState().value
@@ -59,10 +59,12 @@ fun OnBoardingRegisterView(
                 popUpTo(navController.graph.id) { inclusive = true }
             }
         },
+        emailString = emailStringValue,
         nameString = nameStringValue,
         nickNameString = nickNameStringValue,
         passwordStirng = passwordStringValue,
         passwordRecheckString = passwordRecheckStringValue,
+        onChangeEmailField = {viewModel.updateEmailField(it)},
         onChangeNameField = {
             viewModel.updateNameField(it)
         },
@@ -100,10 +102,12 @@ fun OnBoardingRegisterView(
 @Composable
 private fun Screen(
     onNavigateToHome: () -> Unit,
+    emailString: String,
     nameString: String,
     nickNameString: String,
     passwordStirng: String,
     passwordRecheckString: String,
+    onChangeEmailField: (String) -> Unit,
     onChangeNameField : (String) -> Unit,
     onChangeNickNameField : (String) -> Unit,
     onChangePasswordField : (String) -> Unit,
@@ -139,6 +143,31 @@ private fun Screen(
                     modifier = Modifier
                         .padding(bottom = 8.dp),
                 )
+            }
+        }
+
+        item {
+            Column(
+                modifier = defaultModifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
+            ) {
+                Text(
+                    "이메일",
+                    color = Color.Black,
+                    fontSize = 14.dpToSp(),
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+
+                InputTextFieldWithPrimaryDesign(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = emailString,
+                    onValueChange = onChangeEmailField,
+                    hintText = "이메일을 입력해주세요."
+                )
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
 
@@ -283,6 +312,7 @@ private fun Screen(
             }
         }
     }
+    Spacer(modifier = Modifier.height(200.dp))
 }
 
 @Composable
@@ -371,6 +401,8 @@ private fun PreviewScreen() {
         "",
         "",
         "",
+        "",
+        {},
         {},
         {},
         {},
