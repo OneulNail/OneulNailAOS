@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,12 +32,50 @@ class ReservationViewModel @Inject constructor() : ViewModel() {
 
     private val _isTimeButtonOpen = MutableStateFlow(false)
     val isTimeButtonOpen = _isTimeButtonOpen.asStateFlow()
-    fun updateCalenderField() {
+
+    private val _isDateSelected = MutableStateFlow(false)
+    val isDateSelected = _isDateSelected.asStateFlow()
+
+    private val _isReadyReservation = MutableStateFlow(false)
+    val isReadyReservation = _isReadyReservation.asStateFlow()
+
+    private lateinit var _selectedDateTime: LocalDateTime
+//    private val _isTimeButtonClicked = MutableStateFlow(false)
+//    val isTimeButtonClicked = _isTimeButtonClicked.asStateFlow()
+    fun updateCalenderField(selectedDate: MutableState<LocalDate?>) {
         this._isCalenderOpen.value = !this._isCalenderOpen.value
     }
 
-    fun updateTimeButtonField() {
-        this._isTimeButtonOpen.value = !this._isTimeButtonOpen.value
+    fun updateTimeButtonField(onFailed: () -> Unit, selectedDate: MutableState<LocalDate?>) {
+        if (selectedDate.value == null) {
+            onFailed()
+        }
+        else {
+            this._isTimeButtonOpen.value = !this._isTimeButtonOpen.value
+        }
+    }
+
+    fun updateIsDateSelected() {
+        this._isDateSelected.value = !this._isDateSelected.value
+    }
+
+    fun activateReservationButton() {
+        this._isReadyReservation.value = true
+    }
+    fun deactivateReservationButton() {
+        this._isReadyReservation.value = false
+    }
+
+    fun clickedTimeButton(selectedDateTime: LocalDateTime) {
+        _selectedDateTime = selectedDateTime
+    }
+
+    fun clickedReservationButton() {
+        viewModelScope.launch {
+            kotlin.runCatching {
+
+            }
+        }
     }
 
     fun getReservationTimeById(shopId: Long) {

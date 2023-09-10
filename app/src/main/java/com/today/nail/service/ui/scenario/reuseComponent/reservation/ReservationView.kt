@@ -1,12 +1,13 @@
 package com.today.nail.service.ui.scenario.reuseComponent.reservation
 
-import android.icu.util.Calendar
+import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,45 +29,41 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.theme.Color7A00C5
-import com.today.nail.service.ui.theme.ColorCAC9FF
 import com.today.nail.service.ui.util.ToastHelper
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun ReservationView(
@@ -74,16 +73,22 @@ fun ReservationView(
 ){
     val isCalenderOpen = viewModel.isCalenderOpen.collectAsState().value
     val isTimeButtonOpen = viewModel.isTimeButtonOpen.collectAsState().value
-    val selectedDate = viewModel.selectedDate.collectAsState().value
+    val isDateSelected = viewModel.isDateSelected.collectAsState().value
+    val isReadyReservation = viewModel.isReadyReservation.collectAsState().value
     var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
         isCalendarOpen = isCalenderOpen,
         isTimeButtonOpen = isTimeButtonOpen,
-        selectedDate = selectedDate,
-        onClickCalendarOpen = {viewModel.updateCalenderField()},
-        timeButtonOpen = {viewModel.updateTimeButtonField()},
+        isDateSelected = isDateSelected,
+        isReadyReservation = isReadyReservation,
+        activateReservationButton = {viewModel.activateReservationButton()},
+        deactivateReservationButton = {viewModel.deactivateReservationButton()},
+        onClickCalendarOpen = {viewModel.updateCalenderField(it)},
+        timeButtonOpen = {viewModel.updateTimeButtonField(
+            onFailed = {ToastHelper.showToast("날짜를 먼저 선택해 주세요.")}, it
+        )},
         onClickBackButton = {navHostController.popBackStack()},
-        onTimeButton={ isButtonClicked = !isButtonClicked },
+        onClickTimeButton = {viewModel.clickedTimeButton(it)},
         //가게 예약 정보 조회
         getReservationTime = {viewModel.getReservationTimeById(activityViewModel.selectedShopId)},
     )
@@ -96,61 +101,29 @@ fun ReservationView(
 fun ReservationScreen(
     isCalendarOpen: Boolean,
     isTimeButtonOpen: Boolean,
-    selectedDate: LocalDate?,
-    onClickCalendarOpen: () -> Unit,
-    timeButtonOpen: () -> Unit,
+    isDateSelected: Boolean,
+    isReadyReservation: Boolean,
+    activateReservationButton: () -> Unit,
+    deactivateReservationButton: () -> Unit,
+    onClickCalendarOpen: (MutableState<LocalDate?>) -> Unit,
+    timeButtonOpen: (MutableState<LocalDate?>) -> Unit,
     onClickBackButton: () -> Unit,
-    onTimeButton: () -> Unit,
+    onClickTimeButton: (LocalDateTime) -> Unit,
     getReservationTime: () -> Unit,
 ) {
-    // 선택한 날짜와 시간을 저장하기 위한 변수들
+    // 선택된 날짜 + 시간
+    var selectedDateTime: LocalDateTime
 
-    val isSelectingTimeOpen = remember{ mutableStateOf(false) }
     // 날짜 선택 창
     val isDialogOpen = remember{ mutableStateOf(false) }
+
     //선택한 날짜
     val selectedDate: MutableState<LocalDate?> = remember{ mutableStateOf(null) }
     val formattedDate = selectedDate.value?.format(DateTimeFormatter.ofPattern("MM 월 dd 일"))
-//    val selectedDate = selectedDate
 
-    val selectedTime = remember { mutableStateOf<String?>(null) }
-    var selectedTimeButton by remember { mutableStateOf(-1) }
-    val time = selectedTimeButton
-
-    val firstRowButtons = listOf("14:00", "15:00", "16:00", "17:00")
-    val secondRowButtons = listOf("18:00", "19:00", "20:00", "21:00")
-
-    val selectedButtons = remember { mutableStateListOf<Int>() }
-
-    // 첫 번째 행 버튼에 대한 배경 색상 리스트
-    val firstRowButtonColors = remember { mutableStateListOf<Color>() }
-    firstRowButtonColors.addAll(List(firstRowButtons.size) { index ->
-        if (index == selectedTimeButton) {
-            ColorCAC9FF
-        } else {
-            Color.LightGray
-        }
-    })
-
-    // 두 번째 행 버튼에 대한 배경 색상 리스트
-    val secondRowButtonColors = remember { mutableStateListOf<Color>() }
-    secondRowButtonColors.addAll(List(secondRowButtons.size) { index ->
-        if (index == selectedTimeButton - firstRowButtons.size) {
-            ColorCAC9FF
-        } else {
-            Color.LightGray
-        }
-    })
-
-    fun getToday() = Calendar.getInstance().let {
-        val year = it.get(Calendar.YEAR)
-        val month = it.get(Calendar.MONTH) + 1
-        val day = it.get(Calendar.DAY_OF_MONTH)
-        "${year}년 ${month}월 ${day}일 "
-    }
-
-
-
+    //선택된 시간
+    var selectedTime by remember { mutableStateOf<LocalTime?>(null) }
+    val formattedTime = selectedTime?.format(DateTimeFormatter.ofPattern("a h:mm", Locale.KOREA))
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -252,21 +225,20 @@ fun ReservationScreen(
                 .fillMaxWidth()
                 .padding(start = 15.dp, end = 15.dp)
                 .height(50.dp)
-                .clickable { onClickCalendarOpen() },
+                .clickable {
+                    onClickCalendarOpen(selectedDate)
+                    selectedTime=null
+                },
             verticalAlignment = Alignment.CenterVertically
 
         ) {
-            IconButton(
-                onClick = {},
+            Icon(
                 modifier = Modifier
                     .size(55.dp)
-                    .padding(end = 10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CalendarMonth,
-                    contentDescription = null,
-                )
-            }
+                    .padding(12.dp),
+                imageVector = Icons.Filled.CalendarMonth,
+                contentDescription = null,
+            )
             if (formattedDate != null) {
                 Text(
                     text= formattedDate,
@@ -287,18 +259,13 @@ fun ReservationScreen(
 
                     )
             }
-            IconButton(
-                onClick = {isDialogOpen.value = !isDialogOpen.value
-                },
+            Icon(
                 modifier = Modifier
                     .size(50.dp)
-                    .padding(end = 2.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ExpandMore,
-                    contentDescription = null,
-                )
-            }
+                    .padding(10.dp),
+                imageVector = Icons.Filled.ExpandMore,
+                contentDescription = null,
+            )
         }
 
         Divider(
@@ -311,14 +278,14 @@ fun ReservationScreen(
         if(isCalendarOpen) {
             CustomCalendarView(
                 onDismissRequest = {
-                    onClickCalendarOpen()
+                    onClickCalendarOpen(selectedDate)
                     selectedDate.value = null
                 },
                 onDateSelected = {selectedDate.value = it},
 
                 //선택버튼을 누르면 시간조회 시작
                 endDateSelect = {
-                    onClickCalendarOpen()
+                    onClickCalendarOpen(selectedDate)
                     getReservationTime()
                 }
             )
@@ -336,39 +303,44 @@ fun ReservationScreen(
                 .fillMaxWidth()
                 .padding(start = 15.dp, end = 15.dp)
                 .height(50.dp)
-                .clickable { timeButtonOpen() },
+                .clickable { timeButtonOpen(selectedDate) },
             verticalAlignment = Alignment.CenterVertically
 
         ) {
-            IconButton(
-                onClick = {},
+            Icon(
                 modifier = Modifier
                     .size(55.dp)
-                    .padding(end = 10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Schedule,
-                    contentDescription = null,
+                    .padding(12.dp),
+                imageVector = Icons.Filled.Schedule,
+                contentDescription = null,
+            )
+            if (formattedTime != null) {
+                Text(
+                    text= formattedTime.toString(),
+                    modifier = Modifier
+                        .width(250.dp)
+                        .padding(start = 0.dp),
+                    style = TextStyle(fontSize = 20.sp,
+                        fontWeight = FontWeight(700)),)
+            }
+            else {
+                Text(
+                    text = "시간 선택",
+                    modifier = Modifier
+                        .width(250.dp),
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight(700)
+                    )
                 )
             }
-            Text(
-                text = "시간 선택",
-                modifier = Modifier
-                    .width(250.dp),
-                style = TextStyle(fontSize = 20.sp,
-                    fontWeight = FontWeight(700))
-            )
-            IconButton(
-                onClick = {},
+            Icon(
                 modifier = Modifier
                     .size(50.dp)
-                    .padding(end = 2.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ExpandMore,
-                    contentDescription = null,
-                )
-            }
+                    .padding(10.dp),
+                imageVector = Icons.Filled.ExpandMore,
+                contentDescription = null,
+            )
 
         }
         Divider(
@@ -378,133 +350,70 @@ fun ReservationScreen(
                 .height(1.dp),
             color = Color.Black,
         )
-        if (isTimeButtonOpen) {
+
+        if (isTimeButtonOpen && (selectedDate.value != null)) {
             Column() {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 15.dp, end = 15.dp, top = 18.dp)
-                        .height(40.dp)
-                        .fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    firstRowButtons.forEachIndexed { index,buttonLabel ->
-                        Button(
-                            onClick = {
-                                if (selectedButtons.contains(index)) {
-                                    selectedButtons.remove(index)
-                                } else {
-                                    selectedButtons.add(index)
-                                }
-                                onTimeButton()
-                            },
-                            shape = RectangleShape,
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(45.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                contentColor = Color.Black,
-                                containerColor = if (selectedButtons.contains(index)) ColorCAC9FF else Color.LightGray// 버튼 클릭 상태에 따라 배경 색상 설정
-                            )
-                        ) {
-                            Text(
-                                text = buttonLabel,
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                style = TextStyle(fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold)
-                            )
-                        }
-                    }
+                val availableTimes: List<AvailableTime> = (11..20).flatMap { hour ->
+                    listOf(AvailableTime(hour, 0))
                 }
-                Row(
+
+                Spacer(modifier = Modifier.height(30.dp))
+                LazyHorizontalGrid(
+                    rows = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                     modifier = Modifier
-                        .padding(start = 15.dp, end = 15.dp, top = 18.dp)
-                        .height(40.dp)
-                        .fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                        .height(100.dp)
+                        .fillMaxWidth(),
                 ) {
-                    secondRowButtons.forEachIndexed { index, buttonLabel ->
-                        Button(
-                            onClick = {
-                                val adjustedIndex = firstRowButtons.size + index
-                                if (selectedButtons.contains(adjustedIndex)) {
-                                    selectedButtons.remove(adjustedIndex)
-                                } else {
-                                    selectedButtons.add(adjustedIndex)
-                                }
-                                onTimeButton()
-                            },
-                            shape = RectangleShape,
-                            modifier = Modifier
-                                .width(80.dp)
-                                .height(45.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                contentColor = Color.Black,
-                                containerColor = if (selectedButtons.contains(firstRowButtons.size + index)) ColorCAC9FF else Color.LightGray // 버튼 클릭 상태에 따라 배경 색상 설정
+                    items(availableTimes.size) {index ->
+                        val availableTime = availableTimes[index]
+
+                        val isSelected = selectedTime?.hour == availableTime.hour && selectedTime?.minute == availableTime.minute
+
+                        val backgroundColor = if (isSelected) {
+                            Color7A00C5
+                        } else {
+                            Color.LightGray
+                        }
+                        val textColor = if (isSelected) {
+                            Color.White
+                        } else {
+                            Color.Black
+                        }
+                        Box(modifier = Modifier
+                            .background(
+                                color = backgroundColor,
+                                shape = RoundedCornerShape(8.dp)
                             )
+                            .height(20.dp)
+                            .width(55.dp)
+                            .clickable {
+                                // 버튼이 클릭되었을 때 선택된 시간을 처리
+                                selectedDateTime = LocalDateTime.of(
+                                    selectedDate.value,
+                                    LocalTime.of(availableTime.hour, availableTime.minute)
+                                )
+                                selectedTime = LocalTime.of(availableTime.hour, availableTime.minute)
+                                //뷰모델로 전달해서 예약정보 전달
+                                onClickTimeButton(selectedDateTime)
+
+                                Log.d("selectedDateTime" ,"$selectedDateTime")
+
+                            }
                         ) {
                             Text(
-                                text = buttonLabel,
-                                modifier = Modifier.fillMaxSize(),
-                                style = TextStyle(fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold)
+                                modifier = Modifier.align(Alignment.Center),
+                                text = "${availableTime.hour}:${availableTime.minute.toString().padStart(2, '0')}",
+                                style = TextStyle(color = textColor)
                             )
                         }
                     }
                 }
 
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 10.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    androidx.compose.material.IconButton(
-                        onClick = {},
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 2.dp, top = 10.dp),
-
-                        ) {
-                        androidx.compose.material.Icon(
-                            imageVector = Icons.Filled.CheckBoxOutlineBlank,
-                            contentDescription = null,
-                            tint=ColorCAC9FF,
-
-                            )
-                    }
-                    Text(text = "선택",
-                        fontSize = 11.sp,
-                        modifier = Modifier.padding(top=10.dp),
-                        fontWeight = FontWeight.Medium)
-
-                    IconButton(
-                        onClick = {},
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(end = 2.dp, start = 5.dp, top = 10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.CheckBoxOutlineBlank,
-                            contentDescription = null,
-                            tint= Color.LightGray
-
-                        )
-                    }
-                    Text(text = "불가",
-                        modifier = Modifier.padding(top=10.dp),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium)
-
-
-
-                }
                 Spacer(modifier = Modifier.height(35.dp))
             }
-
-
-
         }
         Divider(
             modifier = Modifier
@@ -513,7 +422,16 @@ fun ReservationScreen(
                 .height(1.dp),
             color = Color.Black,
         )
-
+//        val reservationButtonBackgroundColor = if (isReadyReservation) {
+//            Color7A00C5
+//        } else {
+//            Color.LightGray
+//        }
+//        val reservationButtonTextColor = if (isReadyReservation) {
+//            Color.White
+//        } else {
+//            Color.Black
+//        }
         Button(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color7A00C5
@@ -524,8 +442,9 @@ fun ReservationScreen(
                 .fillMaxWidth(),
 
             onClick = {
+
                 val date = selectedDate.value
-                val time = selectedTime.value
+                val time = selectedTime
 
                 if (date != null && time != null) {
                     val selectedDateAndTime = "날짜: ${date}, 시간: ${time}"
@@ -534,7 +453,7 @@ fun ReservationScreen(
                     ToastHelper.showToast("날짜와 시간을 선택해주세요.")
                 } }
         ) {
-            Text("예약하기")
+            Text(text = "예약하기", style = TextStyle(color = Color.White))
         }
     }
 }
@@ -553,12 +472,13 @@ fun CustomCalendarView(
             update = {view ->
                 val today = LocalDate.now()
 
-                // 오늘 이전의 날짜를 선택할 수 없도록 설정합니다.
+                // 오늘 이전의 날짜를 선택할 수 없도록 설정
                 view.minDate = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
+                onDateSelected(today)
 
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                    //년,월,일
                     onDateSelected(selectedDate)
                 }
             }
@@ -569,7 +489,8 @@ fun CustomCalendarView(
                 .padding(bottom = 16.dp, end = 16.dp)
         ){
             TextButton(onClick = {
-                onDismissRequest()}
+                onDismissRequest()
+            }
             )
             {
                 Text(text = "닫기")
@@ -585,6 +506,57 @@ fun CustomCalendarView(
         }
     }
 }
+@Composable
+fun TimeSelectionView(
+    selectedDate: LocalDate,
+    availableTimes: List<AvailableTime>,
+    onTimeSelected: (LocalDateTime) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        // 2열로 시간대 버튼을 표시하기 위해 2개의 Row를 사용합니다.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            availableTimes.take(5).forEach { time ->
+                val localDateTime = LocalDateTime.of(selectedDate, LocalTime.of(time.hour, time.minute))
+                TimeSelectionButton(
+                    time = localDateTime,
+                    onTimeSelected = onTimeSelected
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            availableTimes.drop(5).forEach { time ->
+                val localDateTime = LocalDateTime.of(selectedDate, LocalTime.of(time.hour, time.minute))
+                TimeSelectionButton(
+                    time = localDateTime,
+                    onTimeSelected = onTimeSelected
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TimeSelectionButton(
+    time: LocalDateTime,
+    onTimeSelected: (LocalDateTime) -> Unit
+) {
+    Button(
+        onClick = { onTimeSelected(time) },
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Text(text = time.format(DateTimeFormatter.ofPattern("HH:mm")))
+    }
+}
 
 
 
@@ -593,11 +565,14 @@ fun CustomCalendarView(
 @Composable
 fun PreviewReservationScreen() {
     ReservationScreen(
-        true,
+        isCalendarOpen = true,
         isTimeButtonOpen = true,
-        null,
+        isDateSelected = true,
+        isReadyReservation = true,
+        activateReservationButton = {},
+        deactivateReservationButton = {},
         onClickBackButton = {},
-        onTimeButton={},
+        onClickTimeButton={},
         onClickCalendarOpen = {},
         getReservationTime = {},
         timeButtonOpen = {},
