@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.today.nail.service.data.ServiceConnector
 import com.today.nail.service.data.TokenSharedPreferences
+import com.today.nail.service.data.home.dto.availableTime.AvailableTimeData
+import com.today.nail.service.data.home.dto.availableTime.AvailableTimeResDTO
 import com.today.nail.service.data.home.repository.HomeRepository
 import com.today.nail.service.data.home.repository.HomeRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +28,8 @@ class ReservationViewModel @Inject constructor(
     val repository : HomeRepository = HomeRepositoryImpl(ServiceConnector.makeHomeService())
     private val applicationContext: Context = application.applicationContext
 
+    private val _contentList = MutableStateFlow<List<AvailableTimeData>>(emptyList())
+    val contentList = _contentList.asStateFlow()
 
 
     private val _isCalenderOpen = MutableStateFlow(false)
@@ -91,6 +95,7 @@ class ReservationViewModel @Inject constructor(
                 repository.postUserReservation(accessToken = prefs.accessToken, shopId = shopId, date = selectedDate.toString(), startTime = startTime.toString(), endTime=endTime.toString())
             }.onSuccess { response ->
                 Log.d("postReservation success", "$response")
+
                 onSuccess()
             }.onFailure { response ->
                 Log.d("postReservation failed", "$response")
@@ -99,16 +104,17 @@ class ReservationViewModel @Inject constructor(
     }
     }
 
-    fun getReservationTimeById(shopId: Long) {
+    fun getReservationTimeById(date: LocalDate?, shopId: Long) {
         viewModelScope.launch {
-            runCatching {
-                repository.getShopReservationTimeById(shopId)
+            kotlin.runCatching {
+                repository.getAvailableTime(shopId, date)
 
-            }.onSuccess {data ->
-                Log.d("reservationTime", "response : $data")
-
-            }.onFailure {
-
+            }.onFailure {res->
+                Log.d("availableTime", "response : $res")
+            }.onSuccess {
+                res ->
+                Log.d("availableTime", "response : $res")
+                _contentList.value = res.data.content
             }
         }
     }

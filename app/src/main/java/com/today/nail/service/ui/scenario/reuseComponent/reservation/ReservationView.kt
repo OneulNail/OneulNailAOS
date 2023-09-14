@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,7 +61,9 @@ import androidx.core.graphics.blue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.data.TokenSharedPreferences
+import com.today.nail.service.data.home.dto.availableTime.AvailableTimeData
 import com.today.nail.service.ui.TopLevelViewModel
+import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailViewModel
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.util.ToastHelper
 import java.time.LocalDate
@@ -76,6 +80,7 @@ fun ReservationView(
     viewModel: ReservationViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel,
 ){
+    val contentList = viewModel.contentList.collectAsState().value
     val selectedDate = activityViewModel.selectedDate.collectAsState().value
     val isCalenderOpen = viewModel.isCalenderOpen.collectAsState().value
     val isTimeButtonOpen = viewModel.isTimeButtonOpen.collectAsState().value
@@ -83,7 +88,8 @@ fun ReservationView(
     val isReadyReservation = viewModel.isReadyReservation.collectAsState().value
     var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
-        selectedDate,
+        contentList = contentList,
+        selectedDateOfTopLevelViewModel = selectedDate,
         isCalendarOpen = isCalenderOpen,
         updateSelectedDate = {activityViewModel.updateSelectedDate(it)},
         isTimeButtonOpen = isTimeButtonOpen,
@@ -98,7 +104,9 @@ fun ReservationView(
         onClickBackButton = {navHostController.popBackStack()},
         onClickTimeButton = {viewModel.clickedTimeButton(it)},
         //가게 예약 정보 조회
-        getReservationTime = {viewModel.getReservationTimeById(activityViewModel.selectedShopId)},
+        getReservationTime = {
+            Log.d("reservation", "$it")
+            viewModel.getReservationTimeById(it,activityViewModel.selectedShopId)},
         onClickReservationButton = {date, startT, endT ->
             viewModel.clickedReservationButton(
             shopId = activityViewModel.selectedShopId,
@@ -108,7 +116,8 @@ fun ReservationView(
             onFailed = {},
             startTime = startT,
             endTime = endT,
-        )}
+        )},
+        onClickedDisAbleButton = {ToastHelper.showToast("해당 시간은 예약이 불가능한 시간입니다. \n 다른 시간을 선택해주세요.")}
     )
 
 }
@@ -117,6 +126,8 @@ fun ReservationView(
 
 @Composable
 fun ReservationScreen(
+    onClickedDisAbleButton: () -> Unit,
+    contentList: List<AvailableTimeData>,
     selectedDateOfTopLevelViewModel: LocalDate?,
     updateSelectedDate: (LocalDate?) -> Unit,
     isCalendarOpen: Boolean,
@@ -129,7 +140,7 @@ fun ReservationScreen(
     timeButtonOpen: (MutableState<LocalDate?>) -> Unit,
     onClickBackButton: () -> Unit,
     onClickTimeButton: (LocalDateTime) -> Unit,
-    getReservationTime: () -> Unit,
+    getReservationTime: (LocalDate?) -> Unit,
     onClickReservationButton: (date: LocalDate?, startT: LocalTime?, endT: LocalTime?) -> Unit,
 ) {
     // 선택된 날짜 + 시간
@@ -308,9 +319,9 @@ fun ReservationScreen(
 
                 //선택버튼을 누르면 시간조회 시작
                 endDateSelect = {
+                    getReservationTime(selectedDate.value)
                     updateSelectedDate(selectedDate.value)
                     onClickCalendarOpen(selectedDate)
-                    getReservationTime()
                 }
             )
         }
@@ -327,7 +338,9 @@ fun ReservationScreen(
                 .fillMaxWidth()
                 .padding(start = 15.dp, end = 15.dp)
                 .height(50.dp)
-                .clickable { timeButtonOpen(selectedDate) },
+                .clickable {
+                    timeButtonOpen(selectedDate)
+                },
             verticalAlignment = Alignment.CenterVertically
 
         ) {
@@ -378,11 +391,12 @@ fun ReservationScreen(
         if (isTimeButtonOpen && (selectedDate.value != null))
 //        else if(true)
         {
+            val startTimeList = contentList.map { it.startTime }
+            Log.d("startTimeList", "$startTimeList")
             Column() {
                 val availableTimes: List<AvailableTime> = (11..20).flatMap { hour ->
                     listOf(AvailableTime(hour, 0))
                 }
-
                 Spacer(modifier = Modifier.height(20.dp))
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(5),
@@ -395,13 +409,16 @@ fun ReservationScreen(
                 ) {
                     items(availableTimes.size) {index ->
                         val availableTime = availableTimes[index]
-
                         val isSelected = selectedTime?.hour == availableTime.hour && selectedTime?.minute == availableTime.minute
-
-                        val backgroundColor = if (isSelected) {
+                        var backgroundColor = if (isSelected) {
                             Color7A00C5
                         } else {
                             Color.LightGray
+                        }
+                        val availableTimesButton = LocalTime.of(availableTimes[index].hour, availableTimes[index].minute)
+                        val _availableTimesButton = availableTimesButton.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                        if (startTimeList.contains(_availableTimesButton)) {
+                            backgroundColor = Color.White
                         }
                         val textColor = if (isSelected) {
                             Color.White
@@ -409,6 +426,11 @@ fun ReservationScreen(
                             Color.Black
                         }
                         Box(modifier = Modifier
+                            .border(
+                                width = 1.dp,
+                                color = Color7A00C5,
+                                shape = RoundedCornerShape(5.dp)
+                            )
                             .background(
                                 color = backgroundColor,
                                 shape = RoundedCornerShape(5.dp)
@@ -416,17 +438,23 @@ fun ReservationScreen(
                             .height(40.dp)
                             .width(55.dp)
                             .clickable {
+                                val clickedTime =
+                                    LocalTime.of(availableTime.hour, availableTime.minute)
+                                val _formattedTime =
+                                    clickedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+
                                 // 버튼이 클릭되었을 때 선택된 시간을 처리
                                 selectedDateTime = LocalDateTime.of(
                                     selectedDate.value,
                                     LocalTime.of(availableTime.hour, availableTime.minute)
                                 )
-                                selectedTime =
-                                    LocalTime.of(availableTime.hour, availableTime.minute)
-                                //뷰모델로 전달해서 예약정보 전달
-                                onClickTimeButton(selectedDateTime)
-
-                                Log.d("selectedDateTime", "$selectedDateTime")
+                                if (startTimeList.contains(_formattedTime.toString())) {
+                                    onClickedDisAbleButton()
+                                } else {
+                                    selectedTime = clickedTime
+                                    //뷰모델로 전달해서 예약정보 전달
+                                    onClickTimeButton(selectedDateTime)
+                                }
 
                             }
                         ) {
@@ -449,16 +477,6 @@ fun ReservationScreen(
                 .height(1.dp),
             color = Color.Black,
         )
-//        val reservationButtonBackgroundColor = if (isReadyReservation) {
-//            Color7A00C5
-//        } else {
-//            Color.LightGray
-//        }
-//        val reservationButtonTextColor = if (isReadyReservation) {
-//            Color.White
-//        } else {
-//            Color.Black
-//        }
         Button(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color7A00C5
@@ -503,6 +521,7 @@ fun CustomCalendarView(
                 // 오늘 이전의 날짜를 선택할 수 없도록 설정
                 view.minDate = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 //                    onDateSelected(today)
+                view.date = 0
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
                     //년,월,일
@@ -591,6 +610,7 @@ fun TimeSelectionButton(
 @Composable
 fun PreviewReservationScreen() {
     ReservationScreen(
+        contentList = emptyList(),
         selectedDateOfTopLevelViewModel = null,
         updateSelectedDate = {},
         isCalendarOpen = true,
@@ -604,7 +624,8 @@ fun PreviewReservationScreen() {
         onClickCalendarOpen = {},
         getReservationTime = {},
         timeButtonOpen = {},
-        onClickReservationButton = {a,b,c ->}
+        onClickReservationButton = {a,b,c ->},
+        onClickedDisAbleButton = {}
     )
 
 
