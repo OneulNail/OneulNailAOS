@@ -1,5 +1,6 @@
 package com.today.nail.service.data.home.service
 
+import com.today.nail.service.data.TokenSharedPreferences
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemByIdResDTO
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemResDTO
 import com.today.nail.service.data.home.dto.reservation.ReservationReqDTO
@@ -9,6 +10,7 @@ import com.today.nail.service.data.home.dto.shop.ShopInfoByIdResDTO
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import java.math.BigInteger
@@ -45,6 +47,7 @@ interface HomeService {
      */
     @POST("reservation")
     suspend fun postUserReservation(
+        @Header("Authorization") accessToken: String?,
         @Body requestBody: ReservationReqDTO
     ): ReservationResDTO
 }

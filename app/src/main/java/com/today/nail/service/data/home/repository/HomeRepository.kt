@@ -6,7 +6,6 @@ import com.today.nail.service.data.home.dto.reservation.ReservationResDTO
 import com.today.nail.service.data.home.dto.reservationTime.ShopReservationTimeByIdResDTO
 import com.today.nail.service.data.home.dto.shop.ShopInfoByIdResDTO
 import java.math.BigInteger
-import java.time.LocalDateTime
 
 interface HomeRepository {
 
@@ -18,5 +17,5 @@ interface HomeRepository {
 
     suspend fun getShopReservationTimeById(shopId: Long): ShopReservationTimeByIdResDTO
 
-    suspend fun postUserReservation(shopId: Long, date: LocalDateTime): ReservationResDTO
+    suspend fun postUserReservation(accessToken: String?, shopId: Long, date: String, startTime: String, endTime: String): ReservationResDTO
 }
