@@ -48,7 +48,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.remember import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +63,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.blue
+import androidx.core.graphics.colorSpace
+import androidx.core.graphics.red
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.data.TokenSharedPreferences
@@ -71,7 +73,15 @@ import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailViewModel
 import com.today.nail.service.ui.theme.Color7A00C5
+import com.today.nail.service.ui.theme.MyApplicationTheme
+import com.today.nail.service.ui.theme.PurpleGrey40
 import com.today.nail.service.ui.util.ToastHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -87,23 +97,14 @@ fun ReservationView(
     activityViewModel: TopLevelViewModel,
 ){
     val contentList = viewModel.contentList.collectAsState().value
-    val selectedDate = activityViewModel.selectedDate.collectAsState().value
     val isCalenderOpen = viewModel.isCalenderOpen.collectAsState().value
     val isTimeButtonOpen = viewModel.isTimeButtonOpen.collectAsState().value
-    val isDateSelected = viewModel.isDateSelected.collectAsState().value
-    val isReadyReservation = viewModel.isReadyReservation.collectAsState().value
-    var isButtonClicked by remember { mutableStateOf(true) }
     ReservationScreen(
         contentList = contentList,
-        selectedDateOfTopLevelViewModel = selectedDate,
         isCalendarOpen = isCalenderOpen,
         updateSelectedDate = {activityViewModel.updateSelectedDate(it)},
         isTimeButtonOpen = isTimeButtonOpen,
-        isDateSelected = isDateSelected,
-        isReadyReservation = isReadyReservation,
-        activateReservationButton = {viewModel.activateReservationButton()},
-        deactivateReservationButton = {viewModel.deactivateReservationButton()},
-        onClickCalendarOpen = {viewModel.updateCalenderField(it)},
+        onClickCalendarOpen = {viewModel.updateCalenderField()},
         timeButtonOpen = {viewModel.updateTimeButtonField(
             onFailed = {ToastHelper.showToast("날짜를 먼저 선택해 주세요.")}, it
         )},
@@ -117,7 +118,6 @@ fun ReservationView(
             viewModel.clickedReservationButton(
             shopId = activityViewModel.selectedShopId,
             selectedDate = activityViewModel.selectedDate.value,
-            requireDateTime = {},
             onSuccess = {},
             onFailed = {},
             startTime = startT,
@@ -135,15 +135,10 @@ fun ReservationView(
 fun ReservationScreen(
     onClickedDisAbleButton: () -> Unit,
     contentList: List<AvailableTimeData>,
-    selectedDateOfTopLevelViewModel: LocalDate?,
     updateSelectedDate: (LocalDate?) -> Unit,
     isCalendarOpen: Boolean,
     isTimeButtonOpen: Boolean,
-    isDateSelected: Boolean,
-    isReadyReservation: Boolean,
-    activateReservationButton: () -> Unit,
-    deactivateReservationButton: () -> Unit,
-    onClickCalendarOpen: (MutableState<LocalDate?>) -> Unit,
+    onClickCalendarOpen: () -> Unit,
     timeButtonOpen: (MutableState<LocalDate?>) -> Unit,
     onClickBackButton: () -> Unit,
     onClickTimeButton: (LocalDateTime) -> Unit,
@@ -153,9 +148,6 @@ fun ReservationScreen(
 ) {
     // 선택된 날짜 + 시간
     var selectedDateTime: LocalDateTime
-
-    // 날짜 선택 창
-    val isDialogOpen = remember{ mutableStateOf(false) }
 
     //선택한 날짜
     val selectedDate: MutableState<LocalDate?> = remember{ mutableStateOf(null) }
@@ -172,8 +164,6 @@ fun ReservationScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
-
-
     ) {
         Box(modifier = Modifier
             .height(81.dp)
@@ -204,80 +194,30 @@ fun ReservationScreen(
                     fontWeight = FontWeight(700),
                 )
             }
-            Row(modifier= Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 8.dp)
-
-            ){
-                //1. 검색버튼
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .size(34.dp)
-                        .padding(5.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = null,
-                        tint = Color7A00C5
-
-                    )
-                }
-                //2. 달력버튼
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .size(34.dp)
-                        .padding(5.dp)
-
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = null,
-                        tint = Color7A00C5
-
-                    )
-                }
-                //3. 장바구니 버튼
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .size(34.dp)
-                        .padding(5.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ShoppingBag,
-                        contentDescription = null,
-                        tint = Color7A00C5
-
-                    )
-                }
-            }
         }
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
-            color = Color.DarkGray,
+            color = Color.LightGray,
         )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 15.dp, end = 15.dp)
                 .height(50.dp)
                 .clickable {
-                    onClickCalendarOpen(selectedDate)
+                    onClickCalendarOpen()
                     selectedTime = null
                 },
             verticalAlignment = Alignment.CenterVertically
-
         ) {
             Icon(
                 modifier = Modifier
                     .size(55.dp)
                     .padding(12.dp),
+                tint = Color7A00C5,
                 imageVector = Icons.Filled.CalendarMonth,
                 contentDescription = null,
             )
@@ -293,6 +233,7 @@ fun ReservationScreen(
             else {
                 Text(
                     text = "날짜 선택",
+                    color = PurpleGrey40,
                     modifier = Modifier
                         .width(250.dp)
                         .padding(start = 0.dp),
@@ -305,33 +246,32 @@ fun ReservationScreen(
                 modifier = Modifier
                     .size(50.dp)
                     .padding(10.dp),
+                tint = Color7A00C5,
                 imageVector = Icons.Filled.ExpandMore,
                 contentDescription = null,
             )
         }
-
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
-            color = Color.Black,
+            color = Color.LightGray,
         )
         if(isCalendarOpen) {
             CustomCalendarView(
-                _selectedDate = selectedDate.value,
                 onDismissRequest = {
-                    onClickCalendarOpen(selectedDate)
+                    onClickCalendarOpen()
                     selectedDate.value = null
                 },
-                onDateSelected = {selectedDate.value = it
-                                 updateSelectedDate(selectedDate.value)},
-
+                onDateSelected = {
+                        selectedDate.value = it
+                        updateSelectedDate(selectedDate.value) },
                 //선택버튼을 누르면 시간조회 시작
                 endDateSelect = {
                     getReservationTime(selectedDate.value)
                     updateSelectedDate(selectedDate.value)
-                    onClickCalendarOpen(selectedDate)
+                    onClickCalendarOpen()
                 }
             )
         }
@@ -341,7 +281,7 @@ fun ReservationScreen(
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
-            color = Color.Black,
+            color = Color.LightGray,
         )
         Row(
             modifier = Modifier
@@ -360,6 +300,7 @@ fun ReservationScreen(
                     .padding(12.dp),
                 imageVector = Icons.Filled.Schedule,
                 contentDescription = null,
+                tint = Color7A00C5,
             )
             if (formattedTime != null) {
                 Text(
@@ -373,6 +314,7 @@ fun ReservationScreen(
             else {
                 Text(
                     text = "시간 선택",
+                    color = PurpleGrey40,
                     modifier = Modifier
                         .width(250.dp),
                     style = TextStyle(
@@ -385,6 +327,7 @@ fun ReservationScreen(
                 modifier = Modifier
                     .size(50.dp)
                     .padding(10.dp),
+                tint = Color7A00C5,
                 imageVector = Icons.Filled.ExpandMore,
                 contentDescription = null,
             )
@@ -423,17 +366,23 @@ fun ReservationScreen(
                         var backgroundColor = if (isSelected) {
                             Color7A00C5
                         } else {
-                            Color.LightGray
+                            Color.White
                         }
                         val availableTimesButton = LocalTime.of(availableTimes[index].hour, availableTimes[index].minute)
                         val _availableTimesButton = availableTimesButton.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
                         if (startTimeList.contains(_availableTimesButton)) {
-                            backgroundColor = Color.White
+                            backgroundColor = Color.LightGray
                         }
-                        val textColor = if (isSelected) {
+                        if (LocalDateTime.of(selectedDate.value, LocalTime.of(availableTime.hour, availableTime.minute)) < LocalDateTime.now()) {
+                            backgroundColor = Color.LightGray
+                        }
+                        var textColor = if (isSelected) {
                             Color.White
                         } else {
                             Color.Black
+                        }
+                        if (LocalDateTime.of(selectedDate.value, LocalTime.of(availableTime.hour, availableTime.minute)) < LocalDateTime.now()) {
+                            textColor = Color.Black
                         }
                         Box(modifier = Modifier
                             .border(
@@ -458,6 +407,15 @@ fun ReservationScreen(
                                     selectedDate.value,
                                     LocalTime.of(availableTime.hour, availableTime.minute)
                                 )
+                                //지난 시간
+                                if (LocalDateTime.of(
+                                        selectedDate.value,
+                                        LocalTime.of(availableTime.hour, availableTime.minute)
+                                    ) < LocalDateTime.now()
+                                ) {
+                                    onClickedDisAbleButton()
+                                }
+                                //이미 예약된 시간
                                 if (startTimeList.contains(_formattedTime.toString())) {
                                     onClickedDisAbleButton()
                                 } else {
@@ -465,7 +423,6 @@ fun ReservationScreen(
                                     //뷰모델로 전달해서 예약정보 전달
                                     onClickTimeButton(selectedDateTime)
                                 }
-
                             }
                         ) {
                             Text(
@@ -476,7 +433,6 @@ fun ReservationScreen(
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
@@ -485,7 +441,7 @@ fun ReservationScreen(
                 .fillMaxSize()
                 .padding(start = 16.dp, end = 16.dp)
                 .height(1.dp),
-            color = Color.Black,
+            color = Color.LightGray,
         )
         Button(
             colors = ButtonDefaults.buttonColors(
@@ -501,7 +457,7 @@ fun ReservationScreen(
                 val time = selectedTime
                 if (date != null && time != null) {
                     val selectedDateAndTime = "날짜: ${date}, 시간: ${time}"
-                    ToastHelper.showToast(selectedDateAndTime)
+//                    ToastHelper.showToast(selectedDateAndTime)
                     Log.d("reservationdate", "$date")
                     showDialog.value = true
 
@@ -515,40 +471,33 @@ fun ReservationScreen(
         if (showDialog.value == true) {
             AlertDialogExample(
                 onDismissRequest = {showDialog.value=false},
-                onConfirmation = { onClickReservationButton(selectedDate.value , selectedTime, selectedTime?.plusHours(1)) },
+                onConfirmation = {
+                    onClickReservationButton(selectedDate.value , selectedTime, selectedTime?.plusHours(1))
+                    ToastHelper.showToast("예약이 완료되었습니다 !")
+                    endReservation() },
                 dialogTitle = "예약 내용을 다시 확인해 주세요.",
                 dialogText = "날짜: ${selectedDate.value} \n시간: ${selectedTime}"
             )
-            ToastHelper.showToast("예약이 완료되었습니다 !")
-            endReservation()
         }
     }
 }
 
 @Composable
 fun CustomCalendarView(
-    _selectedDate: LocalDate?,
     onDismissRequest: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
     endDateSelect: () -> Unit
 ) {
     Column() {
-
         AndroidView(
             modifier = Modifier.wrapContentSize(),
             factory = { context -> CalendarView(context) },
             update = { view ->
-                val today = LocalDate.now()
-
-                // 오늘 이전의 날짜를 선택할 수 없도록 설정
-                view.minDate = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-//                    onDateSelected(today)
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
                     //년,월,일
                     onDateSelected(selectedDate)
                 }
-
             }
         )
         Row(
@@ -556,18 +505,11 @@ fun CustomCalendarView(
                 .align(Alignment.End)
                 .padding(bottom = 16.dp, end = 16.dp)
         ) {
-            TextButton(onClick = {
-                onDismissRequest()
-            }
-            )
-            {
+            TextButton(onClick = { onDismissRequest() }
+            ) {
                 Text(text = "닫기")
             }
-
-            TextButton(onClick = {
-//                onDateSelected(selectedDate.value)
-                endDateSelect()
-            }
+            TextButton(onClick = { endDateSelect() }
             ) {
                 Text(text = "선택")
             }
@@ -592,7 +534,13 @@ fun AlertDialogExample(
             )
         },
         text = {
-            Text(text = dialogText)
+            Text(text = dialogText,
+                style = TextStyle(
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFF000000),
+                )
+            )
         },
         onDismissRequest = {
             onDismissRequest()
@@ -623,14 +571,9 @@ fun AlertDialogExample(
 fun PreviewReservationScreen() {
     ReservationScreen(
         contentList = emptyList(),
-        selectedDateOfTopLevelViewModel = null,
         updateSelectedDate = {},
         isCalendarOpen = true,
         isTimeButtonOpen = true,
-        isDateSelected = true,
-        isReadyReservation = true,
-        activateReservationButton = {},
-        deactivateReservationButton = {},
         onClickBackButton = {},
         onClickTimeButton={},
         onClickCalendarOpen = {},

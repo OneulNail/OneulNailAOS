@@ -31,23 +31,14 @@ class ReservationViewModel @Inject constructor(
     private val _contentList = MutableStateFlow<List<AvailableTimeData>>(emptyList())
     val contentList = _contentList.asStateFlow()
 
-
     private val _isCalenderOpen = MutableStateFlow(false)
     val isCalenderOpen = _isCalenderOpen.asStateFlow()
 
     private val _isTimeButtonOpen = MutableStateFlow(false)
     val isTimeButtonOpen = _isTimeButtonOpen.asStateFlow()
 
-    private val _isDateSelected = MutableStateFlow(false)
-    val isDateSelected = _isDateSelected.asStateFlow()
-
-    private val _isReadyReservation = MutableStateFlow(false)
-    val isReadyReservation = _isReadyReservation.asStateFlow()
-
     private lateinit var _selectedDateTime: LocalDateTime
-//    private val _isTimeButtonClicked = MutableStateFlow(false)
-//    val isTimeButtonClicked = _isTimeButtonClicked.asStateFlow()
-    fun updateCalenderField(selectedDate: MutableState<LocalDate?>) {
+    fun updateCalenderField() {
         this._isCalenderOpen.value = !this._isCalenderOpen.value
     }
 
@@ -59,31 +50,14 @@ class ReservationViewModel @Inject constructor(
             this._isTimeButtonOpen.value = !this._isTimeButtonOpen.value
         }
     }
-
-    fun updateIsDateSelected() {
-        this._isDateSelected.value = !this._isDateSelected.value
-    }
-
-    fun activateReservationButton() {
-        this._isReadyReservation.value = true
-    }
-    fun deactivateReservationButton() {
-        this._isReadyReservation.value = false
-    }
-
     fun clickedTimeButton(selectedDateTime: LocalDateTime) {
         _selectedDateTime = selectedDateTime
     }
-
-    val date:LocalDate = LocalDate.now()
-    val stime = LocalTime.now()
-    val eTime = LocalTime.now().plusHours(1)
     fun clickedReservationButton(
         shopId: Long,
         selectedDate: LocalDate?,
         startTime: LocalTime?,
         endTime: LocalTime?,
-        requireDateTime: () -> Unit,
         onSuccess: () -> Unit,
         onFailed: () -> Unit,
     ) {
