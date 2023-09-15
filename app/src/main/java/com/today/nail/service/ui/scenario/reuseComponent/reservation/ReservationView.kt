@@ -1,6 +1,7 @@
 package com.today.nail.service.ui.scenario.reuseComponent.reservation
 
 import android.content.Context
+import android.graphics.Paint.Style
 import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
@@ -36,8 +37,10 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -57,12 +60,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.blue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.today.nail.service.data.TokenSharedPreferences
 import com.today.nail.service.data.home.dto.availableTime.AvailableTimeData
 import com.today.nail.service.ui.TopLevelViewModel
+import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
 import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailViewModel
 import com.today.nail.service.ui.theme.Color7A00C5
 import com.today.nail.service.ui.util.ToastHelper
@@ -116,8 +122,9 @@ fun ReservationView(
             onFailed = {},
             startTime = startT,
             endTime = endT,
-        )},
-        onClickedDisAbleButton = {ToastHelper.showToast("해당 시간은 예약이 불가능한 시간입니다. \n 다른 시간을 선택해주세요.")}
+        ) },
+        onClickedDisAbleButton = {ToastHelper.showToast("해당 시간은 예약이 불가능한 시간입니다. \n 다른 시간을 선택해주세요.")},
+        endReservation = {navHostController.navigate(HomeRoute.Home.routes)}
     )
 
 }
@@ -142,6 +149,7 @@ fun ReservationScreen(
     onClickTimeButton: (LocalDateTime) -> Unit,
     getReservationTime: (LocalDate?) -> Unit,
     onClickReservationButton: (date: LocalDate?, startT: LocalTime?, endT: LocalTime?) -> Unit,
+    endReservation: () -> Unit,
 ) {
     // 선택된 날짜 + 시간
     var selectedDateTime: LocalDateTime
@@ -156,6 +164,8 @@ fun ReservationScreen(
     //선택된 시간
     var selectedTime by remember { mutableStateOf<LocalTime?>(null) }
     val formattedTime = selectedTime?.format(DateTimeFormatter.ofPattern("a h:mm", Locale.KOREA))
+
+    val showDialog = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -493,12 +503,24 @@ fun ReservationScreen(
                     val selectedDateAndTime = "날짜: ${date}, 시간: ${time}"
                     ToastHelper.showToast(selectedDateAndTime)
                     Log.d("reservationdate", "$date")
-                    onClickReservationButton(date , time, time.plusHours(1))
+                    showDialog.value = true
+
                 } else {
                     ToastHelper.showToast("날짜와 시간을 선택해주세요.")
                 } }
         ) {
             Text(text = "예약하기", style = TextStyle(color = Color.White))
+        }
+
+        if (showDialog.value == true) {
+            AlertDialogExample(
+                onDismissRequest = {showDialog.value=false},
+                onConfirmation = { onClickReservationButton(selectedDate.value , selectedTime, selectedTime?.plusHours(1)) },
+                dialogTitle = "예약 내용을 다시 확인해 주세요.",
+                dialogText = "날짜: ${selectedDate.value} \n시간: ${selectedTime}"
+            )
+            ToastHelper.showToast("예약이 완료되었습니다 !")
+            endReservation()
         }
     }
 }
@@ -514,14 +536,13 @@ fun CustomCalendarView(
 
         AndroidView(
             modifier = Modifier.wrapContentSize(),
-            factory = {context -> CalendarView(context) },
-            update = {view ->
+            factory = { context -> CalendarView(context) },
+            update = { view ->
                 val today = LocalDate.now()
 
                 // 오늘 이전의 날짜를 선택할 수 없도록 설정
                 view.minDate = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 //                    onDateSelected(today)
-                view.date = 0
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
                     //년,월,일
@@ -530,11 +551,11 @@ fun CustomCalendarView(
 
             }
         )
-        Row (
+        Row(
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(bottom = 16.dp, end = 16.dp)
-        ){
+        ) {
             TextButton(onClick = {
                 onDismissRequest()
             }
@@ -553,57 +574,48 @@ fun CustomCalendarView(
         }
     }
 }
-@Composable
-fun TimeSelectionView(
-    selectedDate: LocalDate,
-    availableTimes: List<AvailableTime>,
-    onTimeSelected: (LocalDateTime) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        // 2열로 시간대 버튼을 표시하기 위해 2개의 Row를 사용합니다.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            availableTimes.take(5).forEach { time ->
-                val localDateTime = LocalDateTime.of(selectedDate, LocalTime.of(time.hour, time.minute))
-                TimeSelectionButton(
-                    time = localDateTime,
-                    onTimeSelected = onTimeSelected
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            availableTimes.drop(5).forEach { time ->
-                val localDateTime = LocalDateTime.of(selectedDate, LocalTime.of(time.hour, time.minute))
-                TimeSelectionButton(
-                    time = localDateTime,
-                    onTimeSelected = onTimeSelected
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
-fun TimeSelectionButton(
-    time: LocalDateTime,
-    onTimeSelected: (LocalDateTime) -> Unit
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
 ) {
-    Button(
-        onClick = { onTimeSelected(time) },
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Text(text = time.format(DateTimeFormatter.ofPattern("HH:mm")))
-    }
+    AlertDialog(
+        title = {
+            Text(
+                text = dialogTitle,
+                color = Color(0xFF7A00C5),
+                fontSize = 20.sp,
+                fontWeight = FontWeight(700),
+            )
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("예")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("아니오")
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)
@@ -625,8 +637,7 @@ fun PreviewReservationScreen() {
         getReservationTime = {},
         timeButtonOpen = {},
         onClickReservationButton = {a,b,c ->},
-        onClickedDisAbleButton = {}
+        onClickedDisAbleButton = {},
+        endReservation = {},
     )
-
-
 }
