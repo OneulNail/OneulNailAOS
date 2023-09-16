@@ -1,7 +1,5 @@
 package com.today.nail.service.ui.scenario.reuseComponent.reservation
 
-import android.content.Context
-import android.graphics.Paint.Style
 import android.util.Log
 import android.widget.CalendarView
 import androidx.compose.foundation.background
@@ -53,42 +51,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.core.graphics.blue
-import androidx.core.graphics.colorSpace
-import androidx.core.graphics.red
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.today.nail.service.data.TokenSharedPreferences
 import com.today.nail.service.data.home.dto.availableTime.AvailableTimeData
 import com.today.nail.service.ui.TopLevelViewModel
 import com.today.nail.service.ui.scenario.home.navigationGraph.HomeRoute
-import com.today.nail.service.ui.scenario.reuseComponent.itemDetail.DetailViewModel
 import com.today.nail.service.ui.theme.Color7A00C5
-import com.today.nail.service.ui.theme.MyApplicationTheme
 import com.today.nail.service.ui.theme.PurpleGrey40
 import com.today.nail.service.ui.util.ToastHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.time.Duration.Companion.minutes
 
 @Composable
 fun ReservationView(
@@ -158,6 +140,7 @@ fun ReservationScreen(
     val formattedTime = selectedTime?.format(DateTimeFormatter.ofPattern("a h:mm", Locale.KOREA))
 
     val showDialog = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -292,7 +275,6 @@ fun ReservationScreen(
                     timeButtonOpen(selectedDate)
                 },
             verticalAlignment = Alignment.CenterVertically
-
         ) {
             Icon(
                 modifier = Modifier
@@ -331,7 +313,6 @@ fun ReservationScreen(
                 imageVector = Icons.Filled.ExpandMore,
                 contentDescription = null,
             )
-
         }
         Divider(
             modifier = Modifier
@@ -340,10 +321,7 @@ fun ReservationScreen(
                 .height(1.dp),
             color = Color.Black,
         )
-
-        if (isTimeButtonOpen && (selectedDate.value != null))
-//        else if(true)
-        {
+        if (isTimeButtonOpen && (selectedDate.value != null)) {
             val startTimeList = contentList.map { it.startTime }
             Log.d("startTimeList", "$startTimeList")
             Column() {
@@ -456,8 +434,6 @@ fun ReservationScreen(
                 val date = selectedDate.value
                 val time = selectedTime
                 if (date != null && time != null) {
-                    val selectedDateAndTime = "날짜: ${date}, 시간: ${time}"
-//                    ToastHelper.showToast(selectedDateAndTime)
                     Log.d("reservationdate", "$date")
                     showDialog.value = true
 
@@ -476,7 +452,7 @@ fun ReservationScreen(
                     ToastHelper.showToast("예약이 완료되었습니다 !")
                     endReservation() },
                 dialogTitle = "예약 내용을 다시 확인해 주세요.",
-                dialogText = "날짜: ${selectedDate.value} \n시간: ${selectedTime}"
+                dialogText = "날짜 : ${selectedDate.value} \n시간 : ${selectedTime}"
             )
         }
     }
@@ -493,6 +469,8 @@ fun CustomCalendarView(
             modifier = Modifier.wrapContentSize(),
             factory = { context -> CalendarView(context) },
             update = { view ->
+                val today = LocalDate.now()
+                view.minDate = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 view.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
                     //년,월,일
@@ -536,9 +514,9 @@ fun AlertDialogExample(
         text = {
             Text(text = dialogText,
                 style = TextStyle(
-                    fontSize = 13.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight(400),
-                    color = Color(0xFF000000),
+                    color =  PurpleGrey40,
                 )
             )
         },
