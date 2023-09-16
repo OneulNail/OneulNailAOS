@@ -50,7 +50,7 @@ fun OnBoardingSignView(
     onBoardingSignViewModel : OnBoardingSignInViewModel = hiltViewModel(),
 ) {
     val userId = onBoardingSignViewModel.userId.collectAsState().value
-    val userPw = onBoardingSignViewModel.password.collectAsState().value
+    val userPw = onBoardingSignViewModel.hiddenPassWord.collectAsState().value
     val loginScope = CoroutineScope(Dispatchers.Main)
 
 
