@@ -1,6 +1,8 @@
 package com.today.nail.service.ui.scenario.reuseComponent.itemDetail
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -47,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -74,10 +77,12 @@ fun DetailView(
     ){
     //선택된 포스트 id
     val postId = activityViewModel.selectedPostId
-
+    val context = LocalContext.current
     ItemDetailScreen(
         onCall = {
-            ToastHelper.showToast("준비중인 기능입니다.")
+            val phoneUri = Uri.parse("tel:${detailViewModel.shopPhoneNumber}")
+            val intent = Intent(Intent.ACTION_DIAL, phoneUri)
+            context.startActivity(intent)
         },
         onInquire = {
             ToastHelper.showToast("준비중인 기능입니다.")
