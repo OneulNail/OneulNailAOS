@@ -29,7 +29,7 @@ import kotlin.coroutines.suspendCoroutine
 @SuppressLint("StaticFieldLeak")
 class OnBoardingSignInViewModel @Inject constructor(
     //이게 맞는지..
-    private val application: Application
+    application: Application
 ): ViewModel() {
     private val applicationContext: Context = application.applicationContext
 
@@ -39,12 +39,17 @@ class OnBoardingSignInViewModel @Inject constructor(
     private val _password = MutableStateFlow<String>("")
     val password = _password.asStateFlow()
 
+    private val _hiddenPassword = MutableStateFlow<String>("")
+    val hiddenPassWord = _hiddenPassword.asStateFlow()
+
+
     fun updateId(value: String) {
         _userId.value = value
     }
 
     fun updatePassword(value: String) {
-        _password.value = value
+        _hiddenPassword.value = "*".repeat(value.length)
+        _password.value = _password.value.plus(value.substring(value.lastIndex))
     }
 
     val onBoardingRepository: OnBoardingRepository =
