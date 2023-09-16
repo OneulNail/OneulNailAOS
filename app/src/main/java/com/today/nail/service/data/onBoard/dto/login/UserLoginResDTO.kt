@@ -13,7 +13,7 @@ data class UserLoginResDTO(
     override val code: String,
     override val message : String,
     //JsonObject 형태로 받아옴.. 토큰에 접근하려면..?
-    val result: JsonObject
+    val data: UserLoginRes
 ) : BaseResponseDTO
 
 

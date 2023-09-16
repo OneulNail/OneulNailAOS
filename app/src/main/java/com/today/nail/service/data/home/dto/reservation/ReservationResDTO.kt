@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
 data class ReservationResDTO(
     override val code: String,
     override val message : String,
-    val data: ReservationData
+    val data: JsonObject
 ) : BaseResponseDTO

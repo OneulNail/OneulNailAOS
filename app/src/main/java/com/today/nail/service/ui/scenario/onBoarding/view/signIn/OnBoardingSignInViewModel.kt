@@ -13,6 +13,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.today.nail.service.data.ServiceConnector
+import com.today.nail.service.data.TokenSharedPreferences
 import com.today.nail.service.data.onBoard.dto.login.UserLoginResDTO
 import com.today.nail.service.data.onBoard.repository.OnBoardingRepository
 import com.today.nail.service.data.onBoard.repository.OnBoardingRepositoryImpl
@@ -67,7 +68,10 @@ class OnBoardingSignInViewModel @Inject constructor(
             if (res.message == "사용자 로그인 성공") {
                 Log.d("자체 로그인", "성공")
             }
+            val accessToken = res.data.accessToken
             //loginResult.token == ?
+            val prefs = TokenSharedPreferences(applicationContext)
+            prefs.accessToken = accessToken
             onSuccess()
         }.onFailure {res ->
             Log.d("자체 로그인", "실패, 서버응답:$res")

@@ -6,6 +6,6 @@ import java.time.LocalDateTime
 
 @Serializable
 data class ShopReservationTime (
-    val Id: Long,
-    val dateTime: LocalDateTime,
+    val reservationId: Long,
+    val date: LocalDateTime,
 )

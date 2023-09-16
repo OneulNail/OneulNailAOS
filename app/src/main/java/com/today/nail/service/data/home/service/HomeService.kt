@@ -1,5 +1,7 @@
 package com.today.nail.service.data.home.service
 
+import com.today.nail.service.data.TokenSharedPreferences
+import com.today.nail.service.data.home.dto.availableTime.AvailableTimeResDTO
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemByIdResDTO
 import com.today.nail.service.data.home.dto.categoryItem.CategoryItemResDTO
 import com.today.nail.service.data.home.dto.reservation.ReservationReqDTO
@@ -9,9 +11,12 @@ import com.today.nail.service.data.home.dto.shop.ShopInfoByIdResDTO
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 import java.math.BigInteger
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface HomeService {
@@ -45,6 +50,14 @@ interface HomeService {
      */
     @POST("reservation")
     suspend fun postUserReservation(
+        @Header("Authorization") accessToken: String?,
         @Body requestBody: ReservationReqDTO
     ): ReservationResDTO
+
+    /**
+     * 가게의 예약 가능한 시간대 조회
+     */
+    @GET("reservation/availableTime/{shop_id}")
+    suspend fun getAvailableTime(@Path("shop_id") shopId: Long, @Query("selectedDate") date: LocalDate?,
+    ): AvailableTimeResDTO
 }
