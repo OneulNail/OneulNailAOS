@@ -73,8 +73,7 @@ fun DetailView(
     navController: NavHostController,
     detailViewModel: DetailViewModel = hiltViewModel(),
     activityViewModel: TopLevelViewModel,
-
-    ){
+    ) {
     //선택된 포스트 id
     val postId = activityViewModel.selectedPostId
     val context = LocalContext.current
@@ -199,7 +198,7 @@ fun ItemDetailScreen(
                 ){
                     //1. 검색버튼
                     androidx.compose.material.IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onClickCommingSoon() },
                         modifier = Modifier
                             .size(34.dp)
                             .padding(5.dp)
@@ -208,27 +207,24 @@ fun ItemDetailScreen(
                             imageVector = Icons.Filled.Search,
                             contentDescription = null,
                             tint = Color7A00C5
-
                         )
                     }
                     //2. 달력버튼
                     androidx.compose.material.IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onClickCommingSoon() },
                         modifier = Modifier
                             .size(34.dp)
                             .padding(5.dp)
-
                     ) {
                         androidx.compose.material.Icon(
                             imageVector = Icons.Filled.CalendarMonth,
                             contentDescription = null,
                             tint = Color7A00C5
-
                         )
                     }
                     //3. 장바구니버튼
                     androidx.compose.material.IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { onClickCommingSoon() },
                         modifier = Modifier
                             .size(34.dp)
                             .padding(5.dp)
@@ -237,14 +233,11 @@ fun ItemDetailScreen(
                             imageVector = Icons.Filled.ShoppingBag,
                             contentDescription = null,
                             tint = Color7A00C5
-
                         )
                     }
                 }
             }
-
         }
-
         //상품 이미지
         AsyncImage(
             model = postImageUrl,
@@ -254,7 +247,6 @@ fun ItemDetailScreen(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(7.dp))
         )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -322,9 +314,7 @@ fun ItemDetailScreen(
                         color = Color(0xFFA4A4A4),
                     )
                 )
-
             }
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -389,14 +379,11 @@ fun ItemDetailScreen(
 //
 //
 //            }
-
             Text(
                 text = "$postPrice 원",
                 fontSize = 20.sp,
                 fontWeight = FontWeight(600),
             )
-
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -423,7 +410,6 @@ fun ItemDetailScreen(
                 )
             }
         }
-        // 일단은 버튼 누르면 토스트메시지 뜨도록 설정
         Row(
             modifier = Modifier.padding(start = 20.dp, end =20.dp, bottom = 16.dp, top = 40.dp),
             horizontalArrangement = Arrangement.spacedBy(18.dp),
@@ -442,7 +428,8 @@ fun ItemDetailScreen(
                             color = Color.Gray
                         ),
                     )
-            ){ Text(text = "전화하기",
+            ){ Text(
+                text = "전화하기",
                 style = TextStyle(Color.Black, 16.sp, FontWeight.Bold)) }
             Button(
                 shape = RoundedCornerShape(0.dp),
@@ -458,10 +445,10 @@ fun ItemDetailScreen(
                             color = Color.Gray
                         ),
                     )
-            ){ Text(text = "문의하기",
+            ) { Text(
+                text = "문의하기",
                 style = TextStyle(Color.Black, 16.sp, FontWeight.Bold)) }
         }
-
         Button(
             onClick = onClickReservation,
             colors = ButtonDefaults.buttonColors(
@@ -471,7 +458,6 @@ fun ItemDetailScreen(
             modifier = Modifier
                 .padding(top = 10.dp, start = 10.dp, end = 10.dp)
                 .fillMaxWidth()
-
         )
         {
             Text(text = "예약 일시",
@@ -479,17 +465,8 @@ fun ItemDetailScreen(
 
         }
         Spacer(modifier = Modifier.height(30.dp))
-
-
-
-
-
     }
-
 }
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewItemDetailView(viewModel: DetailViewModel = hiltViewModel()) {
