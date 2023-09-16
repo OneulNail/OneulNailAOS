@@ -22,22 +22,13 @@ class DetailViewModel @Inject constructor(): ViewModel() {
 
     val repository : HomeRepository = HomeRepositoryImpl(ServiceConnector.makeHomeService())
 
-    private val _postInfo = MutableStateFlow<ContentItem?>(null)
-    val postInfo: MutableStateFlow<ContentItem?> = _postInfo
-    val valueOfPostInfo = postInfo.value
-
-    private val _shopInfoById = MutableStateFlow<Shop?>(null)
-    val shopInfoById: MutableStateFlow<Shop?> = _shopInfoById
-
     var currentShopId: Long = 1
     var currentPostId: Long = 1
     var currentContent: String = ""
     var currentName: String = ""
     var currentimageUrl: String = ""
-    var currentLikeCount: Int = 1
+    var currentLikeCount: Int = 0
     var currentPrice: Int = 1
-
-
 
     var shopName: String = ""
     var shopPhoneNumber: String = ""
@@ -60,17 +51,14 @@ class DetailViewModel @Inject constructor(): ViewModel() {
             kotlin.runCatching {
                 repository.getPostById(postId)
             }.onSuccess { response ->
-                _postInfo.value = response.data
                 Log.d("postById", "post response : $response")
-////                currentShopId = response.shopId
-////                currentPostId = response.postId
                 currentName = response.data.name
-//                currentLikeCount = response.result.likeCount
-//                //type..
                 currentimageUrl = response.data.imgUrl
                 currentPrice = response.data.price
-//                currentContent = response.result.content
+                currentLikeCount = response.data.likeCount
+
                 getShop(response.data.shopId.toBigInteger())
+
                 onSuccess()
             }.onFailure {res ->
                 Log.d("postByid", "$res")
@@ -83,8 +71,6 @@ class DetailViewModel @Inject constructor(): ViewModel() {
      * shopId 를 받아 단일 가게 저보를 받아오는 함수
      */
     fun getShop(
-//        onSuccess: () -> Unit,
-//        onFail : () -> Unit,
         shopId: BigInteger,
     ) {
         viewModelScope.launch {
@@ -92,17 +78,15 @@ class DetailViewModel @Inject constructor(): ViewModel() {
                 repository.getShopInfoById(shopId)
             }.onSuccess { response ->
                 Log.d("shopById", "shop response : $response")
-                _shopInfoById.value = response.data
                 shopName = response.data.name
                 Log.d("shopById", "shop response : $shopName")
                 shopPhoneNumber = response.data.phoneNumber
                 shopLocation = response.data.location
                 shopOperationHours = response.data.operatingHours
                 shopInfo = response.data.shopInfo
-
-//                onSuccess()
-            }.onFailure {
-//                onFail()
+//                shopLikesCount = response.data.likesCount
+            }.onFailure {res ->
+                Log.d("shopById", "failed response : $res ")
             }
         }
     }

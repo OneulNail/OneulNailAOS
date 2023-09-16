@@ -74,10 +74,6 @@ fun DetailView(
     ){
     //선택된 포스트 id
     val postId = activityViewModel.selectedPostId
-    //선택된 shop id
-    val shopId = activityViewModel.selectedShopId
-
-    val shopInfoById = detailViewModel.shopInfoById.collectAsState().value
 
     ItemDetailScreen(
         onCall = {
@@ -102,9 +98,13 @@ fun DetailView(
         postName = detailViewModel.currentName,
         postPrice = detailViewModel.currentPrice,
         postImageUrl = detailViewModel.currentimageUrl,
+        postLikeCount = detailViewModel.currentLikeCount,
         shopLocation = detailViewModel.shopLocation,
         shopName = detailViewModel.shopName,
         shopOperatingHours = detailViewModel.shopOperationHours,
+        onClickCommingSoon = {
+            ToastHelper.showToast("준비 중인 기능입니다.")
+        }
     )
 }
 
@@ -132,9 +132,11 @@ fun ItemDetailScreen(
     postName: String,
     postPrice: Int,
     postImageUrl: String,
+    postLikeCount : Int,
     shopName: String,
     shopLocation: String,
     shopOperatingHours: String,
+    onClickCommingSoon: () -> Unit,
 ) {
     LaunchedEffect(selectedPostId) {
         Log.d("selectedPostId", "$selectedPostId")
@@ -145,7 +147,6 @@ fun ItemDetailScreen(
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())){
-        val context = LocalContext.current
 
         Row(
             modifier = Modifier
@@ -244,7 +245,9 @@ fun ItemDetailScreen(
             model = postImageUrl,
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(7.dp))
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(7.dp))
         )
 
         Row(
@@ -275,10 +278,8 @@ fun ItemDetailScreen(
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
-            //하트 누르면 명수 올라가게끔!
             IconButton(
-                onClick ={  numFavorites++
-                },
+                onClick ={  onClickCommingSoon() },
                 modifier = Modifier.size(60.dp)
             ){
                 Icon(
@@ -408,7 +409,7 @@ fun ItemDetailScreen(
                         .height(16.dp)
                 )
                 Text(
-                    text = "$numFavorites 명이 찜했어요!",
+                    text = "$postLikeCount 명이 찜했어요!",
                     style = TextStyle(
                         fontSize = 13.sp,
                         fontWeight = FontWeight(400),
@@ -472,6 +473,7 @@ fun ItemDetailScreen(
                 style = TextStyle(Color.White, 16.sp, FontWeight.Bold))
 
         }
+        Spacer(modifier = Modifier.height(30.dp))
 
 
 
@@ -486,7 +488,6 @@ fun ItemDetailScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewItemDetailView(viewModel: DetailViewModel = hiltViewModel()) {
-    val postInfo = viewModel.postInfo
     Column {
         ItemDetailScreen(
             onCall = {},
@@ -498,9 +499,11 @@ fun PreviewItemDetailView(viewModel: DetailViewModel = hiltViewModel()) {
             postName = "네일 상품",
             postPrice = 60000,
             postImageUrl = "",
+            postLikeCount = 0,
             shopName = "네일 샵",
             shopLocation = "샵 위치",
-            shopOperatingHours = "운영 시간"
+            shopOperatingHours = "운영 시간",
+            onClickCommingSoon = {},
         )
     }
 }
